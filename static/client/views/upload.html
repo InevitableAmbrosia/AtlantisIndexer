@@ -1,0 +1,253 @@
+<div class="titleBreak">
+	<h2 id="uploadHeading">Upload</h2>
+	<span>To catalogue things properly, if the Source already exists on the site, use "Edit Format" from the Source's page. Please take your time to fill out the Edition section, to increase the quality of uploads. When you upload remember to keep the browser tab open so it seeds. If you close the browser you can upload a folder containing the files you want to seed using the FileManager. When you create an Author, use APA format: Last name, Initial.</span>
+</div>
+<form>
+	<div id="torrent_area">
+		<div class="grid_0">
+			<label for="upload_files">Upload files: </label>
+		</div>
+		<div class="grid_1">
+			<input type="file" id="upload_files" multiple>
+		</div><br><br><br>
+		<div class="torrentArea"></div>
+		<br>
+		<br>
+		<br>
+		<div class="grid_0">
+			<label for="infoHash">infoHash</label>
+		</div>
+		<div class='grid_1'>
+			<!--<input type="file" id="upload_files" multiple name="files">!-->
+			<input id="infoHash" disabled placeholder="infoHash">
+		</div>
+		<br>
+		<div class="torrent_message">
+		</div>
+	</div>
+	<br>
+	<br>
+	<br>
+	<div class="grid_0">
+		<label for="title">Source Title: </label>
+	</div>
+	<div class="grid_1">
+		<div class="search_sources">
+			<input id="title" class="searchField search_upload_sources_input" name="title" placeholder="Title of Primary Source"><ul class="autosuggestBox"></ul>
+		</div>
+		<input id="uuid" name="uuid" placeholder="uuid">
+	</div>
+	<br>
+	<br>
+	<br>
+	<br>
+	<div class="grid_0">
+		<label for="type">Type: </label>
+	</div>
+	<div class="grid_1">
+		<select id="type">
+			
+		</select>
+	</div>
+	<br>
+	<br>
+	<br>
+	<div class="grid_0">
+		<label for="date">Original Date: </label>	
+	</div>
+	<div class="grid_1">
+		<input id="date" placeholder="Original Date Published" name="date">
+	</div>
+	<br>
+	<br>
+	<br>
+	<div class="grid_0">
+		<label for="classes_input">Classes: </label>
+	</div>
+	<div class="grid_1">
+		<div class="search_classes">
+			<input name="classes" class="searchField search_upload_classes_input" id="classes_input" placeholder="Classes, comma separated"><ul class="autosuggestBox"></ul>
+		</div>
+	</div>
+	<br>
+	<br>
+	<div class="grid_1" id="authors_area">
+	</div>
+	<div class="grid_0">
+		<label for="author_input">Add Author: </label>
+	</div>
+	<div class="grid_1">
+		<div class="search_authors">
+			<input name="author" class="searchField search_upload_authors_input" autocomplete="off" id="author_input" placeholder="Author"><ul class="autosuggestBox"></ul>
+		</div>
+		<button id="add_author">Add Author</button>
+		<button id="create_author">Create Author</button><!-- TODO: warning if not already created !-->
+	</div>
+	<script>
+		function addAuthorArea(id, author, cb){
+			var a = document.createElement("a");
+			$(a).text((author.charAt(0) == author.charAt(0).toUpperCase() ? author + " " : toTitleCase(author) + " "));
+			$(a).attr("href", "#authors?id=" +id)
+				
+			var div = document.createElement("div");
+			$(div).append("<label class='grid_0'>Authors: </label>")
+			$("#authors_area").append(div);
+
+			$(div).attr("id", "#author_" + id);
+
+			$(div).append(a);
+
+			var select = document.createElement("select")
+			$(select).attr("id", "author_importance");
+
+			$(div).append(select);
+
+			var option1 = document.createElement("option");
+			$(option1).val("author")
+			$(option1).text("Author");
+			$(select).append(option1);
+			var option2 = document.createElement("option");
+			$(option2).val("editor")
+			$(option2).text("Editor")
+			$(select).append(option2)
+			var option4 = document.createElement("option");
+			$(option4).val("translator")
+			$(option4).text("Translator")
+			$(select).append(option4)
+
+			var input = document.createElement("input");
+			$(input).attr("placeholder", "Author role (optional)");
+			$(div).append(input);
+
+			$("#author_input").val("");
+
+			var remove = document.createElement("a");
+			$(div).append(remove);
+			$(remove).addClass("removeAuthor");
+			$(remove).text("[RM]");
+			$(remove).attr("href", "javascript:;");
+			$(remove).after("<br id='author_break_" + id + "' class='author_break'>")
+			$("#authors_area").after("<br id='author_break_" + id + "' class='author_break'><br id='author_break_" + id + "' class='author_break'>")
+			cb(null, div, select, input, remove, id);
+		}
+
+		function removeAuthorArea(div, id){
+			$(div).remove();
+			$("#author_break_" + id).remove();
+		}
+
+	</script>
+	<br><br><br><br><br>
+	<div class="grid_0">
+		<label for="ETH_address">ETH Address</label>
+	</div>
+	<div class="grid_1">
+		<input id="ETH_address" name="ETH_address">
+	</div>
+	<br><br><br><br><br>
+	<div class="grid_0">
+		<label for="ETH_price">ETH Price</label>
+	</div>
+	<div class="grid_1">
+		<input id="ETH_price" name="ETH_price">
+	</div>
+	<br><br><br><br><br>
+	<div class="grid_0">
+		<label for="edition_check">Edition Information</label>
+	</div>
+	<div class='grid_1'>
+		<input id="edition_check" name="edition_check" type="checkbox" value="edition">
+	</div>
+	<br>
+	<div id="edition">
+		<br>
+		<!--<label>Enter edition information, such as publisher or "2nd Edition." Tags in edition title should be divided by a /</label>!-->
+		<div class="grid_0 existing_edition">
+			<label for="edition_select">Existing Edition?</label>
+		</div>
+		<div class="grid_1 existing_edition">
+			<select id="edition_select" name="edition_select">
+			</select>
+		</div><br><br>
+		<div class="grid_0">
+			<label for="edition_publisher">Publisher or Journal: </label>
+		</div>
+		<div class="grid_1">
+			<input name="edition_publisher" id="edition_publisher" placeholder="Publisher (e.g. Nature)">
+		</div><br><br><br>
+		<div class="grid_0">
+			<label for="edition_title">Ed. or Volume:</label> 
+		</div>
+		<div class="grid_1">
+			<input name="edition" id="edition_title" placeholder="Title of Edition or Volume (e.g. II)">
+		</div>
+		<br><br><br>
+		<div class="grid_0">
+			<label for="edition_no">No.:</label> 
+		</div>
+		<div class="grid_1">
+			<input name="edition_no" id="edition_no" placeholder="No. (for Journals)">
+		</div>
+		<br><br><br>
+		<div class="grid_0">
+			<label for="edition_pages">Pages or Length: </label>
+		</div>
+		<div class="grid_1">
+			<input id="edition_pages" placeholder="Pages / Length">
+		</div>
+		<br><br><br>
+		<div class="grid_0">
+			<label for="edition_date">Ed. Date: </label>
+		</div>
+		<div class="grid_1">
+			<input id="edition_date" name="edition_date" placeholder="Edition Date Published">
+		</div>
+		<br><br><br>
+	</div>
+	<br><br>
+	<div class="grid_0">
+		<label for="media">Torrent media: </label>
+	</div>
+	<div class="grid_1">
+		<select id="media">
+		</select>
+		<select id="format">
+		</select>
+	</div>
+	<br>
+	<br>
+	<div id="errorsDiv">
+	</div>
+	<script>
+		function addError(msg){
+			console.log(msg);
+			$("#errorsDiv").empty();
+			$("#errorsDiv").append(msg + "<br>");
+			$("#errorsDiv").css({color : "red"});
+		}
+	</script>
+	<br>
+	<br>
+	<br>
+	<br>
+	<button id="submit">Upload!</button>
+</form>
+<br><br><br>
+
+
+<div class="merge_source">
+	<label for="merge_source_input">Merge source: </label>
+	<input id="merge_source_input" placeholder="source uuid"><button id="merge_source_button">Merge into</button>
+</div>
+<script>
+	$("#merge_source_button").click(function(e){
+		var uuid = $("#merge_source_input").val();
+		console.log(uuid)
+		e.preventDefault();
+		$.post("merge_source/" + ANCHOR.getParams().uuid, {mergeInto : uuid}, function(){
+			ANCHOR.route("#source?silo="+ getSilo().uuid + "&uuid=" + uuid);
+		})
+	})
+	
+
+</script>

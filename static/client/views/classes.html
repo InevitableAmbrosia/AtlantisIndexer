@@ -1,0 +1,31 @@
+<div class="titleBreak">
+	<h2>Classes</h2>
+	<ul id="classes_ul">
+		<li><input id="class_name" placeholder="Class Name"></li>
+	</ul>
+	<button id="add_class_button">Add Class</button>
+</div>
+<br><br>
+<script>
+	$("#add_class_button").click(function(){
+		console.log("clicked");
+		$("#add_class_button").attr("disabled", "disabled")
+		$.post("/add_class", {name : $("#class_name").val()}, function(data){
+			ANCHOR.route("#class?uuid=" + data.uuid "&buoy=" ANCHOR.getParams().buoy);
+		})
+	})
+</script>
+<table id="classes">
+	<thead>
+		<tr>
+			<th>
+				Name
+			</th>
+			<th>
+				# sources
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>

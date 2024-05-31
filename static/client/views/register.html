@@ -1,0 +1,34 @@
+<h2>Register here...!</h2>
+<div>
+	<form>
+		Username: <br><input id="reg_id" placeholder="username"><br><br>
+		Password: <br><input type="password" id="reg_pass" placeholder="password"><br><br>
+		<button type="button" onclick="return false" id="reg_register">Register!</button>
+		<p class="errors_msg" id="reg_errors"></p>
+	</form>
+</div>
+<script>
+	$("#reg_register").click(function(){
+		var reg = $(this);
+		reg.prop('disabled', true)
+		$("body").css("cursor", "progress");
+		$.post("/register", {user: $("#reg_id").val(), pass: $("#reg_pass").val()},function(data){
+			reg.prop('disabled',false)
+			$("body").css("cursor", "default");
+			if(data.errors){
+				$("#reg_errors").text(data.errors[0].msg);
+				dismissLoader();
+			}
+			else{
+				console.log(data);
+				initializeBuoySelect(ANCHOR.getParams().buoy);
+				setUser(data.user);
+				userPanel(data.user)
+				ANCHOR.route("#user?uuid="+getUser().uuid + "&buoy=" + ANCHOR.getParams().buoy);
+
+			}
+			
+		})
+
+	})
+</script>

@@ -1,0 +1,31 @@
+<div class="titleBreak">
+	<h2 id="classTitle">Class</h2>
+	<!--<div class="add_source">
+		<input placeholder="Source uuid" id="source_uuid">
+		<button id="add_source">Add Source</button>
+	</div>!-->
+</div>
+<script>
+	$("#add_source").click(function(){
+		$("#add_source").attr("disabled", "disabled");
+		$.post("/add_source/" + ANCHOR.getParams().uuid, {source_uuid : $("#source_uuid").val()}, function(data){
+			$("#add_source").removeAttr("disabled");
+			$("#source_uuid").val("")
+			ANCHOR.route("#class?uuid=" + ANCHOR.getParams().uuid);
+		})
+	})
+</script>
+<table width="100%" id="class">
+	<thead>
+		<tr>
+			<th>Source / Date / Author</th> <!--hidden column header !-->
+			<th>Source / Date / Author</th> <!--edition !-->
+			<th>Peers</th>
+			<th>Snatches</th>
+			<th>Time</th>
+			<th class="none torrents"></th> <!-- hidden responsive + !-->
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>

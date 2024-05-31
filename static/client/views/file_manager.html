@@ -1,0 +1,9 @@
+<div id="th0th">
+	<script>th0th.init();
+		$(document).on("click", "#th0th_title", function(e){
+			e.preventDefault();
+			addTorrentTab($(this).text(), $(this).data("uuid"), $(this).data("infoHash"))
+			ANCHOR.route("#torrent?infoHash=" + $(this).data("infohash") + "&buoy=" + ANCHOR.getParams().buoy)
+		})
+	</script>
+</div>

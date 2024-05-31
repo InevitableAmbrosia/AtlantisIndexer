@@ -1,0 +1,68 @@
+<div id="buoy_break" class="titleBreak">
+	<h2 id="buoy_title"></h2>
+	<a id="buoy_preferences" href="#">Preferences</a>
+	<div class="buoy_bulletins">
+	</div>
+</div>
+<script>
+	$("#buoy_preferences").attr("href", "#edit_buoy?buoy=" + ANCHOR.getParams().buoy);
+	$("#buoy_preferences").addClass("ANCHOR");
+	$("#buoy_preferences").addClass("edit_buoy");
+	ANCHOR.buffer();
+	$("#invite_button").hide();
+	$("#edit_buoy_textarea").hide();
+	$("#submit_buoy_textarea").hide();
+	$("#ranks").hide();
+	$("#invite_input").hide();
+	$("#edit_buoy_description").hide();
+
+	$("#invite_button").click(function(){
+		var that = this;
+		$(that).prop("disabled",true)
+		$.post("/invite/" + $("#invite_input").val(), {buoy : ANCHOR.getParams().buoy}, function(data){
+			if(data.errors){
+				ANCHOR.route("#401");
+			}
+			$(that).prop('disabled', false)
+			$("#invite_input").val("")
+		})
+	})
+
+
+
+	$("#edit_ranks").click(function(e){
+		e.preventDefault();
+		$("#ranks").fadeToggle();
+	})
+
+	$("#invite").click(function(e){
+		e.preventDefault();
+		$("#invite_input").fadeToggle()
+	})
+
+	$("#edit_buoy_description").click(function(e){
+		e.preventDefault();
+		$("#edit_buoy_textarea").fadeToggle();
+		$("#buoy_description").fadeToggle();
+		$("#submit_buoy_textarea").fadeToggle();
+
+	})
+
+	function decodeEntities(input) {
+	  var y = document.createElement('textarea');
+	  y.innerHTML = input;
+	  return y.value;
+	}
+
+	$("#submit_buoy_textarea").click(function(){
+		var that = this;
+		$(this).prop("disabled", "true")
+		$.post("/buoy_description/" + ANCHOR.getParams().buoy, {description : $("#edit_buoy_textarea").val()}, function(data){
+			$(that).prop("disabled", "false");
+			$("#buoy_description").html(decodeEntities(data.buoy.description));
+			$("#edit_buoy_textarea").hide();
+			$("#buoy_description").show();
+			$("#submit_buoy_textarea").hide();
+		})
+	})
+</script>

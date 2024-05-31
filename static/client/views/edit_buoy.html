@@ -1,0 +1,84 @@
+<form>
+	<h2>Invite</h2>
+	<input  id="invite_input" placeholder="Invite (uuid)"><button id="invite_button" type="button" onclick="return false">Invite!</button>
+</form>
+
+<form>
+	<h2>Post Bulletin</h2>
+	<input placeholder="Title" id="bulletin_title">
+	<br>
+	<textarea placeholder="Bulletin text" class="bulletin_text"></textarea>
+	<br>
+	<br>
+	<br>
+	<button class="bulletin_submit" onclick="return false">Submit!</button>
+</form>
+
+<form>
+	<h2>Upload Structure</h2>
+	<h3>Types</h3>
+	<p>Types such as Nonfiction, Videogame, Documentary etc.</p>
+	<button class="add_select" id="add_types" onclick='return false'>Add Type</button>
+	<div id="add_types_buoy">
+	</div>
+	<br>
+	<h3>Media</h3>
+	<p>Media such as ebook, audiobook, single, album, etc.</p>
+	<button class="add_select" id="add_media" onclick='return false'>Add Media</button>
+	<div id="add_media_buoy">
+	</div>
+	<br>
+	<h3>Formats</h3>
+	<p>Formats such as pdf, mp3, mkv</p>
+	<button class="add_select" id="add_formats" onclick='return false'>Add Format</button>
+	<div id="add_formats_buoy">
+	</div>
+	<br><br>
+	<button class='submit_edit_buoy' onclick='return false'>Submit!</button>
+</form>
+
+<form>
+	<h2>Rank Structure</h2>
+</form>
+
+
+<script>
+
+	$(".bulletin_submit").click(function(){
+		var that = this;
+		$(this).prop("disabled",true)
+		$.post("/bulletin/" + ANCHOR.getParams().buoy, {title : $("#bulletin_title").val(), text : $(".bulletin_text").val()}, function(data){
+			$(that).prop('disabled',false)
+			$("#bulletin_title").val("");
+			$(".bulletin_text").val("");
+			ANCHOR.route("#buoy?buoy=" + ANCHOR.getParams().buoy)
+		})
+	})
+
+	$(".submit_edit_buoy").click(function(){
+		var types = [];
+		var media = [];
+		var formats = [];
+
+		$("#add_types_buoy input").toArray().forEach(function(input){
+			types.push($(input).val())
+		})
+
+		$("#add_media_buoy input").toArray().forEach(function(input){
+			media.push($(input).val())
+		})
+
+		$("#add_formats_buoy input").toArray().forEach(function(input){
+			formats.push($(input).val())
+		})
+
+		$.post("/edit_select/" + ANCHOR.getParams().buoy, {types : JSON.stringify(types), media: JSON.stringify(media), formats: JSON.stringify(formats) }, function(data){
+			ANCHOR.route("#buoy?buoy=" + ANCHOR.getParams().buoy);
+		})
+	})
+
+	$(".add_select").click(function(){
+		 populate($(this).attr("id"), null);
+	})
+
+</script>

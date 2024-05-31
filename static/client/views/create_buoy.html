@@ -1,0 +1,37 @@
+<div>
+	<h2>Create Buoy!</h2>
+	<form>	
+		<label for="buoy_name">Buoy Name:</label>
+		<input type="text" id="buoy_name" placeholder="Buoy Name">
+		<input type="checkbox" id="private" value="private">
+		<label for="private">Private</label>
+		<button id="create_buoy_button" type="button" onclick="return false">Create Buoy!</button>
+		<p class="errors_msg" id="buoy_errors"></p>
+		<p class="pos_msg" id="buoy_pos"></p>
+	</form>
+	<script>
+
+		$(document).ready(function(){
+			$("#create_buoy_button").click(function(){
+				
+				console.log("genesis!");
+				var that = this;
+				$(this).prop("disabled",true)
+				$("#buoy_pos").text("Creating Buoy IN Genesis!!!")
+				$.post("/buoy", {private : $("#private").val(), buoy: $("#buoy_name").val(), user:getUser().uuid},function(data){
+					if(data.errors){
+						$("#buoy_errors").text(data.errors[0].msg);
+					}
+					else{
+						ANCHOR.route("#buoy?buoy="+data.buoy.uuid)
+						switchBuoy();
+						initializeBuoySelect(data.buoy.uuid)						
+					}
+					$(that).prop("disabled", false)
+				})
+			})
+		})
+		
+
+	</script>
+</div>

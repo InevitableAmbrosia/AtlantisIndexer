@@ -1,0 +1,52 @@
+<h2>Log In Here</h2>
+<div>
+	<form autocomplete="on">
+		<div class="grid_0">
+		Username:
+		</div><br>
+		<div class="grid_1">
+			<input id="login_id" placeholder="username">
+		</div>
+		<br><br><br>
+		<div class="grid_0">
+		Password: 
+		</div><br>
+		<div class="grid_1">
+			<input type="password" id="login_pass" placeholder="password">
+		</div>
+		<br><br><br>
+		<button type="button" onclick="return false" id="login_login">Log in!</button>
+		<p class="errors_msg" id="login_errors"></p>
+	</form>
+</div>
+<br>
+<script>
+	$("#login_login").click(function(){
+		var log = $(this);
+		log.prop("disabled", true)
+		$("body").css("cursor", "progress");
+		$.post("/login", {user: $("#login_id").val(), pass: $("#login_pass").val()},function(data){
+			log.prop('disabled', false)
+			$("body").css("cursor", "default");
+			console.log(data);
+			if(data.errors){
+				if(data.errors[0].msg === "401"){
+					dismissLoader();
+					ANCHOR.route("#401?buoy=" + ANCHOR.getParams().buoy);
+				}
+				else{
+					$("#login_errors").text(data.errors[0].msg);
+				}
+			}
+			else{
+				console.log(data);
+				initializeBuoySelect();
+				setUser(data.user);
+				userPanel(data.user);
+				ANCHOR.route("#user?uuid=" + getUser().uuid + "&buoy=" + ANCHOR.getParams().buoy);
+
+			}
+			
+		})
+	})
+</script>
