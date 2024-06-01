@@ -26,7 +26,8 @@ function initializeClasses(cb){
 
 				data.data.forEach(function(record){
 			      
-			      records.push(["<a class='ANCHOR class' href='#class?uuid=" + record._fields[0].properties.uuid + "'>" + record._fields[0].properties.name +"</a>", 
+			      records.push(["<a class='ANCHOR class' href='#class?uuid=" + record._fields[0].properties.uuid + "&buoy=" + ANCHOR.getParams().buoy + 
+			      	"'>" + record._fields[0].properties.name +"</a>", 
 			      	record._fields[2] ? record._fields[2] : ""] 
 			      	)
 

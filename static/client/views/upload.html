@@ -1,6 +1,8 @@
 <div class="titleBreak">
 	<h2 id="uploadHeading">Upload</h2>
-	<span>To catalogue things properly, if the Source already exists on the site, use "Edit Format" from the Source's page. Please take your time to fill out the Edition section, to increase the quality of uploads. When you upload remember to keep the browser tab open so it seeds. If you close the browser you can upload a folder containing the files you want to seed using the FileManager. When you create an Author, use APA format: Last name, Initial.</span>
+	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR MEDIA YOU HAVE COPY-RIGHTS TO!*******</span>
+	<span>To catalogue things properly, if the Source already exists on the site, use "Edit Format" from the Source's page. Please take your time to fill out the Edition section, to increase the quality of uploads. When you upload remember to keep the browser tab open so it seeds. If you close the browser you can upload a folder containing the files you want to seed using the FileManager. When you create an Author, use APA format: Last name, Initial. You can seed on the desktop using the BiglyBT WebTorrent plugin!</span>
+	<span id="contribution">We thank you for your Contribution!</span>
 </div>
 <form>
 	<div id="torrent_area">
@@ -90,7 +92,7 @@
 			$(a).attr("href", "#authors?id=" +id)
 				
 			var div = document.createElement("div");
-			$(div).append("<label class='grid_0'>Authors: </label>")
+			$(div).append("<label id='authors_grid' class='grid_0'>Authors: </label>")
 			$("#authors_area").append(div);
 
 			$(div).attr("id", "#author_" + id);
@@ -127,7 +129,7 @@
 			$(remove).text("[RM]");
 			$(remove).attr("href", "javascript:;");
 			$(remove).after("<br id='author_break_" + id + "' class='author_break'>")
-			$("#authors_area").after("<br id='author_break_" + id + "' class='author_break'><br id='author_break_" + id + "' class='author_break'>")
+			$("#authors_grid").after("<div class='grid_1'><br id='author_break_" + id + "' class='author_break'><br id='author_break_" + id + "' class='author_break'></div>")
 			cb(null, div, select, input, remove, id);
 		}
 

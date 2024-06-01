@@ -211,6 +211,7 @@ function initializeUpload(cb){
 
 */
 				$("#ETH_price").change(function(){
+					console.log($(this).val());
 					uploadModel.ETH_price = $("#ETH_price").val();
 				})
 
@@ -488,6 +489,7 @@ function htmlUpload(){
 function resetUpload(){
 		$("#edition_select").empty();
 		$("#edition_select").off("change");
+		$(".torrentArea").empty();
 		uploadModel.torrent = {infoHash : "", media : "", format : ""};
 		uploadModel.uuid = undefined;
 		uploadModel.edition = {

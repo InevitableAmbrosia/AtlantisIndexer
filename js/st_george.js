@@ -28,4 +28,34 @@ export default {
 			cb(data);
 		})
 	}
+	,
+	recommendAuthor : function(driver, uuid, cb){
+		var query = "MATCH (a:Author {uuid: $uuid})-[:AUTHOR]->(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
+		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"WHERE s <> coCoSource " +
+		"MATCH (coCoSource)<-[:AUTHOR]-(author:Author) " + 
+		"RETURN author " +
+		"ORDER_BY author.snatches DESC LIMIT 1"
+		console.log(uuid);
+		var params = {uuid : uuid};
+		var session = driver.session()
+		session.run(query,params).then(data => {
+			cb(data);
+		})
+	}
+	,
+	recommendClass : function(driver, uuid, cb){
+		var query = "MATCH (c:Class {uuid: $uuid})-[:TAGS]->(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
+		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"WHERE s <> coCoSource " +
+		"MATCH (coCoSource)<-[:TAGS]-(class:Class) " + 
+		"RETURN class ORDER BY class.snatches" +
+		"LIMIT 1"
+		console.log(uuid);
+		var params = {uuid : uuid};
+		var session = driver.session()
+		session.run(query,params).then(data => {
+			cb(data);
+		})
+	}
 }

@@ -95,6 +95,10 @@ q:before, q:after {
 	padding: 0px 7px 0px 0px;
 }
 
+#buoy_title{
+	text-align:left;
+}
+
 .indent{
 	padding-left: 17px;
 }
@@ -104,12 +108,18 @@ q:before, q:after {
 }
 
 .buoy_bulletins{
-	padding:55px;
 }
 
 .buoy_bulletins h3{
-	padding:33;
-	text-align:center;
+	padding-top:33px;
+	padding-bottom:33px;
+	text-align:left;
+}
+
+.buoy_bulletins p{
+	padding-top:13px;
+	padding-left:8px;
+	padding-bottom:60px;
 }
 
 /* TORRENT */
@@ -173,17 +183,21 @@ body.is-seed .show-leech {
 
 .titleBreak{
 	background-color:#f7f6e6;
+	padding-bottom:40px;
 }
 
-.upload .titleBreak span{
-	width:665px;
-	display:block;
-	margin:0 auto;
+#contribution{
+	font-weight:bold;
+	font-size:19px;
+	padding-top:23px;
+	color:#3c5e6c;
+
 }
+
 
 .upload form{
-	margin:0 auto;
-	padding-top:134px;
+	padding-top:13px;
+	padding-left:8px;
 	width:999px;
 }
 
@@ -204,6 +218,10 @@ label{
 	float: left;
 }
 
+h3{
+	padding-top:13px;
+}
+
 .grid_1{
 	width: 888px;
 	float: left;
@@ -216,7 +234,17 @@ label{
 }
 
 .upload input:not(#edition_check){
-	width:  235px;
+	width:  300px;
+}
+
+#disclaimer{
+	padding-left:8px;
+	padding-top:20px;
+	padding-bottom:20px;
+	width:300px;
+	font-size:26px;
+	font-weight:italics;
+	color:palevioletred;
 }
 
 /* MISC PARTIALS */
@@ -264,7 +292,7 @@ input{
 
 h2{
 	font-family: "Noticia Text", sans-serif;
-	font-size: 78px;
+	font-size: 40px;
 	color: darkslategray;
 	text-shadow:3px 5px palegoldenrod;
 
@@ -309,7 +337,8 @@ h2{
 }
 
 #buoy_preferences{
-	padding:16px;
+	padding:8px;
+	color:darkgoldenrod;
 }
 
 select{
@@ -399,22 +428,27 @@ h1{
 }
 
 .login div, .register div{
-	width:999px;
-	margin:0 auto;
+	padding-left:8px;
 }
 
 .row{
 	width:auto;
 }
 
-#recommend_source{
+.recommend{
 	box-shadow:2px 3px 5px darkseagreen;
 	font-family: "Pirata One", serif;
+	margin-top:40px;
 	margin-bottom:40px;
+	margin-left:8px;
 	font-size:32px;
 	width:300px;
 	height:60px;
 	border-radius:5px;
+}
+
+button{
+	background-color:darkseagreen;
 }
 
 .login button, .register button{
@@ -827,7 +861,7 @@ body .ui-autocomplete {
 
 h3{
 	font-size: 45px;
-	padding-left: 16px;
+	padding-left: 8px;
 	padding-bottom: 16px;
 }
 
@@ -1029,6 +1063,13 @@ a.link a.visited{
 
 .mobile_title, .mobile_menu{
 	display:none;
+}
+
+.upload .titleBreak span{
+	width:300px;
+	margin-bottom:60px;
+	padding-left:8px;
+	display:block;
 }
 
 /* MOBILE */
@@ -1249,7 +1290,7 @@ a.link a.visited{
   }
 
   h2{
-  	font-size: 40px;
+  	font-size: 33px;
   	padding: 36px 8px 36px 8px;
 
   }
@@ -1290,6 +1331,8 @@ a.link a.visited{
   .tableHeading{
   	font-size: 13px;
   }
+
+
 
   /* UPLOAD */
   .grid_1{

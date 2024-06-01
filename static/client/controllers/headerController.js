@@ -5,7 +5,7 @@ function switchBuoy(){
 		setPanel();
 		setTabs();
 		setH1();
-		$(".buoy_select").val(ANCHOR.getParams().buoy)
+		//$(".buoy_select").val(ANCHOR.getParams().buoy)
 	})
 }
 
@@ -28,7 +28,7 @@ function initializeBuoySelect(uuid){
 		if(uuid && uuid !== "undefined")
 			$(".buoy_select").val(uuid);
 		$(".buoy_select").on('change', function(){
-			ANCHOR.route("#" + ANCHOR.getPage() + "?buoy=" + $(this).val() + ANCHOR.getPage() === "user" ? "&user=" + getUser().uuid : "")
+			ANCHOR.route("#" + ANCHOR.page() + "?buoy=" + $(this).val() + (ANCHOR.page() === "user" ? "&user=" + getUser().uuid : ""))
 			$.get("/buoy/" + $(this).val(), function(data){				
 				switchBuoy();
 				console.log(getBuoy().uuid);					
@@ -43,7 +43,7 @@ function initializeBuoySelect(uuid){
 function setPanel(){
 	$(".upload_panel").attr("href", ANCHOR.getParams() ? "#upload?buoy="+ ANCHOR.getParams().buoy : "#upload?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".login").attr("href", ANCHOR.getParams() ? "#login?buoy="+ ANCHOR.getParams().buoy : "#login?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".reg").attr("href", ANCHOR.getParams() ? "#register?buoy="+ ANCHOR.getParams().buoy : "register?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
+	$(".register").attr("href", ANCHOR.getParams() ? "#register?buoy="+ ANCHOR.getParams().buoy : "register?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".user_profile").attr("href", ANCHOR.getParams() ? "#user?buoy="+ ANCHOR.getParams().buoy : "#user?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".logout").attr("href", ANCHOR.getParams() ? "#buoy?buoy="+ ANCHOR.getParams().buoy : "#logout?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
 	$(".create_buoy").attr("href", ANCHOR.getParams() ? "#create_buoy?buoy="+ ANCHOR.getParams().buoy : "#create_buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");

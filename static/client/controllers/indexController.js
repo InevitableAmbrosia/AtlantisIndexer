@@ -156,6 +156,7 @@ var firstLoad = true;
  }
 
 $(document).ready(function(){
+
 	$(document).on("ANCHOR", function(){
 		if(!firstLoad){
 			//so the loader appears to reload when headers are clicked while original page is loading
@@ -212,7 +213,6 @@ $(document).ready(function(){
 							$("div.source").html(data);
 								$("#recommend_source").click(function(e){
 								e.preventDefault();
-								console.log("CLICKED!!!")
 								$.post("/recommend/source?uuid=" + ANCHOR.getParams().uuid, function(data){
 									ANCHOR.route("#source?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.source.uuid);
 								})
@@ -221,7 +221,12 @@ $(document).ready(function(){
 
 								$("div.author").html(data);
 								$.get("../client/views/graph.html", function(data){
-
+									$("#recommend_author").click(function(e){
+										e.preventDefault();
+										$.post("/recommend/author?uuid=" + ANCHOR.getParams().uuid, function(data){
+											ANCHOR.route("#author?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.author.uuid);
+										})
+									})
 									$("div.graph").html(data);
 									$.get("../client/views/torrents.html", function(data){
 										$("div.torrents").html(data)	
@@ -230,8 +235,22 @@ $(document).ready(function(){
 										//initializeTorrents();
 										$.get("../client/views/classes.html", function(data){
 											$("div.classes").html(data);
+											$("#add_class_button").click(function(){
+												console.log("clicked");
+												$("#add_class_button").attr("disabled", "disabled")
+												$.post("/add_class", {name : $("#class_name").val()}, function(data){
+													ANCHOR.route("#class?uuid=" + data.uuid + "&buoy=" + ANCHOR.getParams().buoy);
+												})
+											})
 											$.get("../client/views/class.html", function(data){
 												$("div.class").html(data);
+												$("#recommend_class").click(function(e){
+													e.preventDefault();
+													console.log("CLASSY");
+													$.post("/recommend/class?uuid=" + ANCHOR.getParams().uuid, function(data){
+														ANCHOR.route("#class?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.class.uuid);
+													})
+												})
 												$.get("../client/views/upload.html", function(data){
 													$("div.upload").html(data);
 													//upload.initialize();
@@ -251,6 +270,8 @@ $(document).ready(function(){
 																		$.get("../client/views/edit_buoy.html", function(data){
 																			$("div.edit_buoy").html(data);
 																			ANCHOR.buffer();
+
+																			
 																	    var page = ANCHOR.page();
 																	    if(!page){
 																	    	ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");

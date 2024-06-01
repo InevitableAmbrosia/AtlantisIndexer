@@ -15,12 +15,16 @@
 			$("#create_buoy_button").click(function(){
 				
 				console.log("genesis!");
+				$('.pos_msg').show();
+				$("#buoy_errors").hide();
 				var that = this;
 				$(this).prop("disabled",true)
 				$("#buoy_pos").text("Creating Buoy IN Genesis!!!")
 				$.post("/buoy", {private : $("#private").val(), buoy: $("#buoy_name").val(), user:getUser().uuid},function(data){
 					if(data.errors){
-						$("#buoy_errors").text(data.errors[0].msg);
+						$("#buoy_errors").fadeIn()
+						$("#buoy_errors").text(data.errors.msg);
+						$(".pos_msg").hide();
 					}
 					else{
 						ANCHOR.route("#buoy?buoy="+data.buoy.uuid)

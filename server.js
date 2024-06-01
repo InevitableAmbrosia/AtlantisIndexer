@@ -250,7 +250,27 @@ app.post("/recommend/:switch", check("switch").not().isEmpty().trim().escape(), 
             return res.json({errors : [{msg : ""}]})
           }
         })
-        break;
+      break;
+      case "author":
+        st_george.recommendAuthor(driver, req.query.uuid, function(data){
+          if(data.records[0]){
+            return res.json({author : data.records[0]._fields[0].properties})
+          }
+          else{
+            return res.json({errors : [{msg : ""}]})
+          }
+        })
+      break;
+      case "class":
+        st_george.recommendClass(driver, req.query.uuid, function(data){
+          if(data.records[0]){
+            return res.json({class : data.records[0]._fields[0].properties})
+          }
+          else{
+            return res.json({errors : [{msg : ""}]})
+          }
+        })
+      break;
       default :
         return res.end();
         break
@@ -400,7 +420,7 @@ var torrentQuery = "OPTIONAL MATCH (a:Author)-[]->(s) " +
   "OPTIONAL MATCH (e:Edition)<-[:PUB_AS]-(s) " +
   "WITH s,a,e, count " +
   "OPTIONAL MATCH (t:Torrent)<-[:DIST_AS]-(e) WHERE t.deleted = false " +
-  "WITH s,a,e,t,count, {buyHash: t.buyHash, uuid : t.uuid, curatorAddress: t.curatorAddress, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
+  "WITH s,a,e,t,count, {ETH_price: t.ETH_price, uuid : t.uuid, ETH_address: t.ETH_address, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
     "uploaderUser : t.uploaderUser, snatches: t.snatches, created_at : t.created_at, numPeers:  t.numPeers} AS torrent " +  
   "OPTIONAL MATCH (c:Class)-[:TAGS]->(s) " +
   "WITH s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c, count "
@@ -412,13 +432,13 @@ var torrentQuery = "OPTIONAL MATCH (a:Author)-[]->(s) " +
     return res.json({ errors: errors.array() });
   }
   console.log(req.params.uuid);
-  var query = "OPTIONAL MATCH (free:Torrent { uuid : $uuid} ) WHERE free.buyHash = 0 " +
+  var query = "OPTIONAL MATCH (free:Torrent { uuid : $uuid} ) WHERE free.ETH_price = 0 " +
   "OPTIONAL MATCH (prem:Torrent { uuid :$uuid})<-[:BOUGHT {confirmed : true}]-(u:User{uuid : $userUUID}) "+
   "RETURN free.infoHash, prem.infoHash"
   var params = {uuid: req.params.uuid, userUUID : req.user ? req.user.uuid : "null"}
   var session = driver.session();
   session.run(query,params).then(data=>{
-    console.log(data.records[0]);
+    console.log('HERE' + data.records[0]);
     session.close();
     if(data.records[0] && (data.records[0]._fields[0] || data.records[0]._fields[1])){
       return res.json({free : data.records[0]._fields[0], prem: data.records[0]._fields[1] })
@@ -531,7 +551,7 @@ app.post("/author/:uuid", check("uuid").trim().escape().not().isEmpty(), functio
   "MATCH (e:Edition)<-[:PUB_AS]-(s) " +
   "WITH s,a,e, count " +
   "OPTIONAL MATCH (t:Torrent)<-[:DIST_AS]-(e) WHERE t.deleted = false " +
-  "WITH s, a, e,  {buyHash: t.buyHash, uuid : t.uuid, curatorAddress: t.curatorAddress, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
+  "WITH s, a, e,  {ETH_price: t.ETH_price, uuid : t.uuid, ETH_address: t.ETH_address, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
     "uploaderUser : t.uploaderUser, snatches: t.snatches, created_at : t.created_at, numPeers:  t.numPeers} AS torrent ,count " +
   "OPTIONAL MATCH (c:Class)-[:TAGS]->(s) " +
   "WITH s,a, collect(DISTINCT {edition: e, torrent: torrent}) AS edition_torrents, c, count " + 
@@ -585,7 +605,7 @@ app.post("/source/:uuid", check("uuid").trim().escape().not().isEmpty(), functio
   "MATCH (e:Edition)<-[:PUB_AS]-(s) " +
   "WITH s,a,e " +
   "OPTIONAL MATCH (t:Torrent)<-[:DIST_AS]-(e) WHERE t.deleted = false " +
-  "WITH s, a, e,  {buyHash: t.buyHash, uuid : t.uuid, curatorAddress: t.curatorAddress, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
+  "WITH s, a, e,  {ETH_price: t.ETH_price, uuid : t.uuid, ETH_address: t.ETH_address, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
     "uploaderUser : t.uploaderUser, snatches: t.snatches, created_at : t.created_at, numPeers:  t.numPeers} AS torrent " + 
   "OPTIONAL MATCH (c:Class)-[:TAGS]->(s) " +
   "WITH s, a, collect(DISTINCT{edition: e, torrent: torrent}) AS edition_torrents, c "
@@ -607,10 +627,10 @@ app.post("/add_class", check("name").trim().escape().toLowerCase().isLength({max
     return res.json({ errors: errors.array() });
   }
   const session = driver.session()
-
+  console.log(req.body.name);
   var uuid = uuidv1();
   var query = 'MERGE (c:Class {name : $className}) ' +
-  'SET c.uuid = randomUUID() ' + 
+  'ON CREATE SET c.uuid = randomUUID() ' + 
   'RETURN c.uuid ';
   var params = {className : he.decode(req.body.name)};
  
@@ -673,7 +693,7 @@ app.post("/class/:uuid", check("uuid").trim().escape().isLength({max : 256}),
   "OPTIONAL MATCH (e:Edition)<-[:PUB_AS]-(s) " +
   "WITH s,a,e, count, cla " +
   "OPTIONAL MATCH (t:Torrent)<-[:DIST_AS]-(e) WHERE t.deleted = false " +  
-  "WITH s, a, cla, count, e, {buyHash: t.buyHash, uuid : t.uuid, curatorAddress: t.curatorAddress, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
+  "WITH s, a, cla, count, e, {ETH_price: t.ETH_price, uuid : t.uuid, ETH_address: t.ETH_address, format : t.format ,media: t.media, uploaderUUID : t.uploaderUUID, "  +
     "uploaderUser : t.uploaderUser, snatches: t.snatches, created_at : t.created_at, numPeers:  t.numPeers} AS torrent " +
   "WITH s, a, cla, collect(DISTINCT {edition: e, torrent: torrent}) AS edition_torrents, count "
   query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) " //SIZE((:Edition)<-[:PUB_AS]-(s))
@@ -895,7 +915,7 @@ app.get("/buyPrice/:uuid", check("uuid").not().isEmpty(), function(req,res){
       return res.json({ errors: errors.array() });
     }
     var query = "MATCH (t:Torrent{uuid : $uuid}) "+
-    "RETURN t.buyHash"
+    "RETURN t.ETH_price"
     var params = {uuid : req.params.uuid};
     var session = driver.session();
     session.run(query,params).then(data=>{
@@ -1042,7 +1062,7 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
       console.log("infoHash cannot be blank.");
       return res.json({errors : [{msg: "infoHash cannot be blank."}]})
     } */
-
+    console.log("HERE" + req.user.uuid)
     //new source upload
     if(req.params.uuid === "undefined"){
       //get image thumbnail
@@ -1050,8 +1070,9 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
 
           query += 'MATCH (ua:User {uuid : $user})-[ac:ACCESS]->(h:Buoy {uuid:"d2b358ee-b58d-11ed-afa1-0242ac120002"}) ' +
           "SET ac.uploads = ac.uploads + 1 " +
-          'WITH ac ' +
-          'MERGE (s:Source {buoy : $buoy, title : $sourceTitle, snatches: toFloat(0), top10: DATETIME(), type: $sourceType, date: $sourceDate, uuid : $uniqueID, ' +
+          'WITH ac, ua ' +
+          'MERGE (s:Source {buoy : $buoy, title : $sourceTitle, snatches: toFloat(0), top10: DATETIME(), ' +
+          'type: $sourceType, date: $sourceDate, uuid : $uniqueID, ' +
           'created_at: toFloat(TIMESTAMP())}) ' +
             //"SET s.img = CASE WHEN $editionIMG IS NOT NULL THEN $editionIMG END " +//, img : $editionIMG 
             //'SET s.date = $sourceDate ' +
@@ -1063,7 +1084,8 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
             'MERGE (e:Edition {title : $editionTitle, snatches: toFloat(0), publisher: $editionPublisher, uuid : randomUUID()})<-[:PUB_AS]-(s) ' +
             'SET e.pages = $editionPages, e.no = $editionNo, e.date = $editionDate, e.img = $editionIMG, e.created_at = toFloat(TIMESTAMP()) ' +     
             'MERGE (t:Torrent {infoHash : $infoHash, media : $media, format: $format})<-[:DIST_AS]-(e) ' +
-            'ON CREATE SET t.snatches = toFloat(0), t.ETH_address = $ETH_address, t.ETH_price = $ETH_price, t.created_at = toFloat(TIMESTAMP()), t.deleted = false ' +
+            'ON CREATE SET t.snatches = toFloat(0), t.uuid = randomUUID(), t.uploaderUUID = $user, t.uploaderUser = $name, t.ETH_address = $ETH_address, ' +
+            ' t.ETH_price = $ETH_price, t.created_at = toFloat(TIMESTAMP()), t.deleted = false ' +
             'ON MATCH SET t.created_at = toFloat(TIMESTAMP()) ' +
             "MERGE (ua)-[:UPLOADED]->(t) " 
 
@@ -1082,9 +1104,11 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
           params["media"] = torrent.media;
           params["format"] = torrent.format;
           params["user"] = req.user ? req.user.uuid : "null";
+          //TODO: STATE QUESTION!
+          params["name"] = req.user ? req.user.user : "Anonymous"
           params["buoy"] = req.body.buoy;
           params["ETH_address"] = req.body.ETH_address;
-          params["ETH_price"] = req.body.ETH_price;
+          params["ETH_price"] = req.body.ETH_price ? req.body.ETH_price : 0.0;
           //params["length"] = torrent.length
 
         
@@ -1140,44 +1164,6 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
           })
       }
 
-      //fetch image thumbnail then call newUpload
-     /* const options = {
-        hostname: 'bookcoverapi.herokuapp.com',
-        port: 443,
-        path: encodeURI('/bookcover?book_title='+ req.body.title +'&author_name=' + (authors[0] ? authors[0].author : "")),
-        method: 'GET',
-      };
-
-      const request = https.request(options, response => {
-        console.log(`statusCode: ${res.statusCode}`);
-        console.log("EDITION IMG: " + req.body.edition_img);
-        var imgData = [];
-
-        response.on('data', d => {
-          imgData.push(d);
-          
-        })
-        .on('end', function() {
-            //at this point data is an array of Buffers
-            //so Buffer.concat() can make us a new Buffer
-            //of all of them together
-            console.log(imgData);
-            var buffer = Buffer.concat(imgData);
-            var value = JSON.parse(buffer);
-            console.log("IMG URL: " + value.url)
-            if(req.body.edition_img === ""){
-              req.body.edition_img = value.url;
-            }
-            newUpload();
-        });;
-      });
-
-      request.on('error', error => {
-        newUpload();
-      });
-
-      request.end();*/
-
       newUpload();
 
 
@@ -1219,7 +1205,7 @@ app.post("/upload/:uuid", check("buoy").trim().escape().not().isEmpty(), check("
        'e1.pages = $editionPages, e1.title = $editionTitle, e1.publisher = $editionPublisher ' +
        'ON MATCH SET e1.date = $editionDate, e1.no = $editionNo, e1.created_at = toFloat(TIMESTAMP()), e1.pages = $editionPages '
         query += "MERGE (t:Torrent {snatches: toFloat(0), infoHash : $torrentInfoHash, created_at: toFloat(TIMESTAMP()), "+
-        "deleted : false, media : $torrentMedia, format: $torrentFormat})<-[di:DIST_AS]-(e1) " 
+        "deleted : false, uuid: randomUUID(), media : $torrentMedia, format: $torrentFormat})<-[di:DIST_AS]-(e1) " 
     
        }
 
@@ -1364,6 +1350,10 @@ app.post("/snatched/:infoHash", check("infoHash").trim().escape(), function(req,
                 "WITH t " +
                 "MATCH (s:Source)-[:PUB_AS]->(e) " +
                 "SET s.snatches = toFloat(s.snatches + 1) " +
+                "MATCH (c:Class)-[:TAGS])(s) " +
+                "SET c.snatches = toFloat(c.snatches + 1) " +
+                "MATCH (a:Author)-[:AUTHOR]->(s) " + 
+                "SET a.snatches = toFloat(a.snatches +1) " + 
                 "WITH t " +
                 "MATCH (u:User {uuid : $user}) " + 
                 "MERGE (u)-[:DOWNLOADED]->(t)"
@@ -1806,6 +1796,7 @@ app.get("/buoys", function(req,res){
   "RETURN h"
 
   session.run(query,params).then(data=>{
+    console.log(util.inspect(data.records))
     session.close();
     console.log("RECORDS! " + util.inspect(data.records))
     return res.json({buoys : data.records})
@@ -1847,29 +1838,42 @@ app.post("/buoy", check("private").trim().escape().not().isEmpty(),
       return res.json({ errors: errors.array() });
     }
     const session = driver.session();
-    var priv = req.body.private === "private" ? true : false;
-    var query = "MATCH (ua:User {uuid :$user}) " +
-    "MERGE (h:Buoy {private : $private, buoy : $buoy, types : ['Nonfiction', 'Fiction', 'Holy Book', 'Journal', 'Classical Music', 'Documentary'], " +
-    "media : ['Ebook', 'Audiobook', 'Single', 'Album', 'Feature Film'], " + 
-    "formats : ['PDF', 'mp3', 'FLAC', 'mkv'], bulletin_title : [], bulletin_text : []" + 
-    "})<-[a:ACCESS {invites: true, description:true, rank:0, " +
-    "rankTitle:'Philosopher King'}]-(ua) " +
-    "SET h.uuid = randomUUID() " + 
-    "WITH {uuid : h.uuid, buoy : h.buoy} AS buoy, h " +
-    "FOREACH(i in CASE WHEN h.private = false THEN [1] ELSE [] END | " +
-      "MERGE (u:User)-[:ACCESS {rank:1, rankTitle:'Bronze', description:false, invites:false}]-(h)) " +
-    "RETURN buoy"
-    var params = {private : priv, buoy : req.body.buoy, user : req.user.uuid}
-    session.run(query,params).then(data=>{
-      console.log(req.body.private)
+    const session0 = driver.session();
+    var query0 = "MATCH (h:Buoy {buoy : $buoy}) " + 
+    "RETURN h"
 
-      session.close();
-      console.log(util.inspect(data.records[0]._fields[0]))
-      if(!req.body.private)
+    var params0 = {buoy : req.body.buoy};
+    session0.run(query0,params0).then(data=>{ 
+      if(data.records.length > 0){
+        return res.json({errors : {msg : "Buoy name already exists in our Library!"}})
+      }
+      else{
+        var priv = req.body.private === "private" ? true : false;
+        var query = "MATCH (ua:User {uuid :$user}) " +
+        "MATCH (u:User) " +
+        "MERGE (h:Buoy {private : $private, buoy : $buoy, types : ['Nonfiction', 'Fiction', 'Holy Book', 'Journal', 'Classical Music', 'Documentary'], " +
+        "media : ['Ebook', 'Audiobook', 'Single', 'Album', 'Feature Film'], " + 
+        "formats : ['PDF', 'mp3', 'FLAC', 'mkv'], bulletin_title : [], bulletin_text : []" + 
+        "})" + 
+        "SET h.uuid = randomUUID() " + 
+        "WITH {uuid : h.uuid, buoy : h.buoy} AS buoy, h, ua, u " +
+        "FOREACH(i in CASE WHEN NOT h.private THEN [1] ELSE [] END | " +
+          "MERGE (u)-[:ACCESS {rank:1, rankTitle:'Bronze', description:false, invites:false}]->(h)) " +
+        "MERGE (h)<-[a:ACCESS {invites: true, description:true}]-(ua) " +
+        "RETURN buoy"
+        var params = {private : priv, buoy : req.body.buoy, user : req.user.uuid}
+        session.run(query,params).then(data=>{
 
-        public_buoys.push(data.records[0]._fields[0].uuid);
-      return res.json({buoy : data.records[0]._fields[0]})
+          session.close();
+          console.log("LEN: " + data.records.length)
+          if(!req.body.private)
+
+            public_buoys.push(data.records[0]._fields[0].uuid);
+          return res.json({buoy : data.records[0]._fields[0]})
+        })
+      }
     })
+    
 })
 
 

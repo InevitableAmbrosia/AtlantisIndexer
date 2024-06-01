@@ -70,9 +70,14 @@ function initializeTorrents(table, cb){
 					  console.log(data);
 						data.data.every(function(data){
 							var classData = data._fields[3].find(x => x.properties.uuid === ANCHOR.getParams().uuid)
+							console.log(data._fields[3]);
+							console.log(classData);
 							if(classData){
 								$("#classTitle").text(classData.properties.name)
 								return true;
+							}
+							else{
+								$("#classTitle").text("No class");
 							}
 						})
 						break;
@@ -146,7 +151,6 @@ function initializeTorrents(table, cb){
 
 			      	if(edition.torrent){
 			      		
-			      		console.log(edition.torrent.buyHash);
 
 				      	switch(edition.torrent.media){
 					      		default : 
@@ -226,7 +230,7 @@ function initializeTorrents(table, cb){
 
 							      //magnet:?xt=urn:btih:5d96abd0e938b9ff35cf3939a5e63258d029995f&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com
 						      	//add torrents
-						      	console.log(edition.torrent)
+						      	console.log(edition.torrent.ETH_price)
 						        var tr = "<tr>";
 						        tr += "<td>" + edition.torrent.media + "</td>";
 						        tr += "<td>" + edition.torrent.format + "</td>"
@@ -242,13 +246,14 @@ function initializeTorrents(table, cb){
 						       tr += "<td>" + (edition.torrent.numPeers ? edition.torrent.numPeers : 0) + "</td>"
 						        tr += "<td>" + edition.torrent.snatches + "</td>";
 						        tr += "<td class='here'>" + timeSince(edition.torrent.created_at) + " ago</td>"
-						        tr += "<td>" + (edition.torrent.buyHash === 0 ? "<input class='donateInput' id='" + edition.torrent.uuid + 
+						        tr += "<td>" + (edition.torrent.ETH_price <= 0 ? "<input class='donateInput' id='" + edition.torrent.uuid + 
 						        	"' placeholder='Donate ETH' class='yarrr'>" : "") 
-						         +"<button class='web3' data-info-hash='" + (edition.torrent.buyHash > 0 ? "Protected." : edition.torrent.infoHash) +
-						          "' data-curator-address='" + edition.torrent.curatorAddress + "'" 
-						        	+ "data-booty='" + (edition.torrent.buyHash > 0 ? true : false) + 
-						        	"'" + "data-torrent-uuid='" + edition.torrent.uuid + "'>" + (edition.torrent.buyHash === 0 ? "Arrr!!!" : 
-						        edition.torrent.buyHash + " ETH") + "</button></td>"
+						         +"<button class='web3' data-info-hash='" + (edition.torrent.ETH_price > 0 
+						         	? "Protected." : edition.torrent.infoHash) +
+						          "' data-curator-address='" + edition.torrent.ETH_address + "'" 
+						        	+ "data-booty='" + (edition.torrent.ETH_price <= 0 ? true : false) + 
+						        	"'" + "data-torrent-uuid='" + edition.torrent.uuid + "'>" + (edition.torrent.ETH_price <= 0 ? "Arrr!!!" : 
+						        edition.torrent.ETH_price + " ETH") + "</button></td>"
 						        tr+="<td><a class='ANCHOR user' href='#user?buoy=" + ANCHOR.getParams().buoy + " &uuid=" + edition.torrent.uploaderUUID + "'>" 
 						        + edition.torrent.uploaderUser + "</a></td>"
 						        tr += "</tr>"
@@ -300,30 +305,7 @@ function initializeTorrents(table, cb){
 				initPayButton($(this));
 			})
 
-			/*$(document).on("click", ".torrentFile", function(e){
-				e.preventDefault();
-				var client = new WebTorrent();
-				var that = $(this);
-				$.get("/infoHash/" + $(this).data("torrent-uuid"), function (data){
-					if(data.free){
-						client.seed("magnet:?xt=urn:btih:" + data.free, function(torrent){
-							document.getElementById('my_iframe').src = torrent.torrentFileBlobURL;
-							client = null;
-						})
-					}
-					else if(data.prem){
-						client.seed("magnet:?xt=urn:btih:" + data.prem, function(torrent){
-							document.getElementById('my_iframe').src = torrent.torrentFileBlobURL;
-							client = null;
-						})
-					}
-					else{
-						alert("Please purchase torrent infoHash first!")					
-					}
-					client = null;
-				})
-			})*/
-
+			
 			$(document).on("click", ".infoHash", function(e){
 				e.preventDefault();
 				var that = $(this);
@@ -449,7 +431,7 @@ function humanFileSize(bytes, si=false, dp=1) {
   return bytes.toFixed(dp) + ' ' + units[u];
 }
 
-/*
+
 function toNumber({ low, high }) {
   let res = high
 
@@ -458,7 +440,7 @@ function toNumber({ low, high }) {
   }
 
   return low + res
-}*/
+}
 
 function timeSince(date) {
 

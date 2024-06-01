@@ -6,6 +6,7 @@ function initializeBuoy(cb){
 	$("#invite_input").hide();
 	$("#edit_buoy_description").hide();
 	$(".buoy_bulletins").empty();
+	$("#buoy_preferences").hide();
 
 	console.log("HARBOR");
 	$.get("/buoy/" + ANCHOR.getParams().buoy + "?user="+ (getUser() ? getUser().uuid : null), function(data){
@@ -16,7 +17,13 @@ function initializeBuoy(cb){
 		console.log(data);
 		console.log(access);
 		if(access){
+			if(access.rankTitle === "Philosopher King" || access.rankTitle === "Silver" || access.rankTitle === "Gold" || access.rankTitle === "Guardian"){
+				$("#buoy_preferences").show();
+			}
+			console.log(getUser())
 			if(access.description){
+				console.log("ACCESS")
+
 				$("#edit_buoy_description").show();
 			}
 			if(buoy.private && access.invites){
