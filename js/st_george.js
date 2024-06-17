@@ -32,10 +32,10 @@ export default {
 	recommendAuthor : function(driver, uuid, cb){
 		var query = "MATCH (a:Author {uuid: $uuid})-[:AUTHOR]->(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
 		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
-		"WHERE s <> coCoSource " +
 		"MATCH (coCoSource)<-[:AUTHOR]-(author:Author) " + 
+		"WHERE a <> author " +
 		"RETURN author " +
-		"ORDER_BY author.snatches DESC LIMIT 1"
+		"ORDER BY author.snatches DESC LIMIT 1"
 		console.log(uuid);
 		var params = {uuid : uuid};
 		var session = driver.session()
@@ -47,10 +47,38 @@ export default {
 	recommendClass : function(driver, uuid, cb){
 		var query = "MATCH (c:Class {uuid: $uuid})-[:TAGS]->(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
 		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
-		"WHERE s <> coCoSource " +
 		"MATCH (coCoSource)<-[:TAGS]-(class:Class) " + 
-		"RETURN class ORDER BY class.snatches" +
+		"WHERE class <> c " +
+		"RETURN class ORDER BY class.snatches " +
 		"LIMIT 1"
+		console.log(uuid);
+		var params = {uuid : uuid};
+		var session = driver.session()
+		session.run(query,params).then(data => {
+			cb(data);
+		})
+	},
+	recommendUserUpload : function(driver, uuid, cb){
+		var query = "MATCH (u:User {uuid: $uuid, paranoia: false})-[:UPLOADED]->(t:Torrent)-[]-(:Edition)-[]-(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
+		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"MATCH (coCoSource)-[]-(:Edition)-[]-(:Torrent)<-[:UPLOADED]-(user:User {paranoia : false}) " + 
+		"WHERE u <> user " +
+		"RETURN user " +
+		"ORDER BY user.snatches DESC LIMIT 1"
+		console.log(uuid);
+		var params = {uuid : uuid};
+		var session = driver.session()
+		session.run(query,params).then(data => {
+			cb(data);
+		})
+	},
+	recommendUserDownload : function(driver, uuid, cb){
+		var query = "MATCH (u:User {uuid: $uuid, paranoia : false})-[:DOWNLOADED]->(t:Torrent)-[]-(:Edition)-[]-(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
+		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"MATCH (coCoSource)-[]-(:Edition)-[]-(:Torrent)<-[:DOWNLOADED]-(user:User { paranoia : false }) " + 
+		"WHERE u <> user " +
+		"RETURN user " +
+		"ORDER BY user.snatches DESC LIMIT 1"
 		console.log(uuid);
 		var params = {uuid : uuid};
 		var session = driver.session()

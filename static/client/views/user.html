@@ -1,5 +1,25 @@
-<div>
+<div class="titleBreak">
 	<h2 id="user_name"></h2>
+</div>
+	<div class="settings">
+		<h3>Settings</h3>
+		<input type="checkbox" name="paranoia" id="paranoia">
+		<label for="paranoia">Paranoia (Hide snatches & uploads!)</label><br><br>
+		<input id="settings_atlsd" placeholder="ATLS address"><button id='settings_atlsd_submit'>OK!</button>
+	</div>
+	<div class="stats">
+		<h3>Stats</h3>
+		<span class="stats_bold">Rank: </span><span class="stats_span" id="stats_rank"></span><br><br>
+		<span class="stats_bold">Uploads: </span><span class="stats_span" id="stats_uploads"></span>
+		&nbsp;
+		<a href="#" id="stats_user_uploads" class="ANCHOR user_uploads"></a><br><br>
+		<span class="stats_bold">ATLANTIS: </span><span class="stats_span" id="stats_user_ATLANTIS"></span>&nbsp;<a href="#" class="ANCHOR ATLANTIS" id="link_ATLANTIS"></a><br><br>
+		<span class="stats_bold">Snatches: </span><span class="stats_span" id="stats_snatches"></span>&nbsp;
+		<a href="#" id="stats_user_downloads" class="ANCHOR user_downloads"></a><br><br>
+		<span class="stats_bold">Uploaded: </span><span class="stats_span" id="stats_uploaded"></span><br><br>
+		<span class="stats_bold">Downloaded: </span><span class="stats_span" id="stats_downloaded"></span><br><br>	
+		<span class="stats_bold">Ratio: </span><span class="stats_span" id="stats_ratio"></span>
+	</div><br>
 	<div class="invites">
 		<h3 id="invites_h3">Invites</h3>
 		<ul id="invites">
@@ -13,4 +33,3 @@
 	</div>
 	<br><br><br>
 	
-</div>

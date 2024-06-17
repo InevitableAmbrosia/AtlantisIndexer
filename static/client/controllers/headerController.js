@@ -41,6 +41,7 @@ function initializeBuoySelect(uuid){
 }
 
 function setPanel(){
+	$(".ATLANTIS").attr("href", ANCHOR.getParams() ? "#ATLANTIS?buoy=" + ANCHOR.getParams().buoy : "#ATLANTIS?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".upload_panel").attr("href", ANCHOR.getParams() ? "#upload?buoy="+ ANCHOR.getParams().buoy : "#upload?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".login").attr("href", ANCHOR.getParams() ? "#login?buoy="+ ANCHOR.getParams().buoy : "#login?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".register").attr("href", ANCHOR.getParams() ? "#register?buoy="+ ANCHOR.getParams().buoy : "register?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
@@ -55,8 +56,8 @@ function setTabs(){
 	$(".torrentTab").attr("href", ANCHOR.getParams() ? "#torrents?buoy="+ ANCHOR.getParams().buoy : "#torrents?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
 	$(".classesTab").attr("href", ANCHOR.getParams() ? "#classes?buoy=" + ANCHOR.getParams().buoy : "#classes?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
 	$(".top10Tab").attr("href", ANCHOR.getParams() ? "#top10?buoy="+ ANCHOR.getParams().buoy : "#top10?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+	$(".worldSpiritTab").attr("href", ANCHOR.getParams() ? "#world_spirit?buoy=" + ANCHOR.getParams().buoy : "#world_spirit?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	$(".graphTab").attr("href", ANCHOR.getParams() ? "#graph?buoy="+ ANCHOR.getParams().buoy : "#graph?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".forumTab").attr("href", ANCHOR.getParams() ? "#forum?buoy="+ ANCHOR.getParams().buoy : "#forum?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	ANCHOR.buffer();
 }
 

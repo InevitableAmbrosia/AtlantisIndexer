@@ -27,8 +27,7 @@ function htmlSearch(){
     var timeoutId;
     var classes;
 
-
-     $(".search_sources_input").autocomplete({
+    $(".search_dialectic_classes_input").autocomplete({
         scroll : true,
         source: function( request, response ) {
             $.ajax({
@@ -36,7 +35,58 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_sources',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_classes',
+                type: "get", //send it through get method
+                success: function(data) {
+                    console.log(data)
+
+                    response(data);
+                 }
+            });
+        },
+        select : function(event, ui){
+            
+            $(".search_dialectic_classes_input").val($(this).val().substring(0, $(this).val().lastIndexOf(",")) + 
+                                            ($(this).val().indexOf(",") > -1 ? ", " : "") +
+                                         ui.item.label)      
+            return false;         
+        }
+    })
+
+    $(".src_search_dialectic_classes_input").autocomplete({
+        scroll : true,
+        source: function( request, response ) {
+            $.ajax({
+                /* Snip */
+                data : { 
+                    term : request.term
+                },
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_classes',
+                type: "get", //send it through get method
+                success: function(data) {
+                    console.log(data)
+                    response(data);
+                 }
+            });
+        },
+        select : function(event, ui){
+            
+            $(".src_search_dialectic_classes_input").val($(this).val().substring(0, $(this).val().lastIndexOf(",")) + 
+                                            ($(this).val().indexOf(",") > -1 ? ", " : "") +
+                                         ui.item.label)      
+            return false;         
+        }
+    })
+
+    $(".search_publishers_input").autocomplete({
+        scroll : true,
+        source: function( request, response ) {
+            $.ajax({
+                /* Snip */
+                data : { 
+                    term : request.term
+                },
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_publishers',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)
@@ -46,6 +96,30 @@ function htmlSearch(){
         },
         select : function(event, ui){
             $(".mobile_menu").hide();
+            $(".search_sources_input").val(decodeEntities(ui.item.value))
+            ANCHOR.route("#publisher?publisher=" + ui.item.value + "&buoy=" + ANCHOR.getParams().buoy)               
+        }
+    })
+
+     $(".search_sources_input").autocomplete({
+        scroll : true,
+        source: function( request, response ) {
+            $.ajax({
+                /* Snip */
+                data : { 
+                    term : request.term
+                },
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_sources',
+                type: "get", //send it through get method
+                success: function(data) {
+                    console.log(data)
+                    response(data);
+                 }
+            });
+        },
+        select : function(event, ui){
+            $(".mobile_menu").hide();
+            $(".search_sources_input").val(decodeEntities(ui.item.value))
             ANCHOR.route("#source?uuid=" + ui.item.value + "&buoy=" + ANCHOR.getParams().buoy)               
         }
     })
@@ -58,7 +132,7 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_sources',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_sources',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)
@@ -80,7 +154,7 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_authors',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_authors',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)
@@ -89,6 +163,8 @@ function htmlSearch(){
             });
         },
         select : function(event, ui){
+            this.value = $('<div />').html(ui.item.label).text();
+
             ANCHOR.route("#author?uuid=" + ui.item.value + "&buoy=" + ANCHOR.getParams().buoy)               
         }
     })
@@ -102,7 +178,7 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_authors',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_authors',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)
@@ -126,7 +202,7 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_classes',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_classes',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)
@@ -136,6 +212,7 @@ function htmlSearch(){
         },
         select : function(event, ui){
             $(".mobile_menu").hide()
+
             ANCHOR.route("#class?uuid=" + ui.item.value + "&buoy=" + ANCHOR.getParams().buoy)               
         }
     })
@@ -149,7 +226,7 @@ function htmlSearch(){
                 data : { 
                     term : request.term
                 },
-                url: '/search?field=search_classes',
+                url: '/search/' + ANCHOR.getParams().buoy + '?field=search_classes',
                 type: "get", //send it through get method
                 success: function(data) {
                     console.log(data)

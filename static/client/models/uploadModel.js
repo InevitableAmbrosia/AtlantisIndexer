@@ -4,7 +4,9 @@ var uploadModel = {
 	torrent : {
 		infoHash : "",
 		media : "",
-		format : ""
+		format : "",
+		LINK_price : "",
+		LINK_address :""
 	},
 	edition: {
 		edition_date : "",

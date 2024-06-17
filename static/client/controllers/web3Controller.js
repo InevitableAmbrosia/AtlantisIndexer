@@ -14,7 +14,6 @@ const getAccount = async () => {
 
 
 async function initPayButton(btn){
-  return;
     $(".web3").prop("disabled", true)
     if (window.ethereum) {
         window.web3 = new Web3(ethereum);
@@ -46,8 +45,9 @@ async function initPayButton(btn){
     //const contract = await new web3.eth.Contract(json, "0x8f370C3a42054A0C1A216270a85f67B678E2711a")
     console.log("CLICKED")
     // paymentAddress is where funds will be send to
+    const contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
 
-    const propagateAddress = "0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
+    const propagateAddress = "0xd6616Cf7F133F0c00E2712718B8133c20E3F6605" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
     const curatorAddress = btn.data("curator-address");
     const torrentUUID = btn.data("torrent-uuid");
     console.log(torrentUUID);
@@ -56,29 +56,45 @@ async function initPayButton(btn){
     console.log(yarrr);
     
     $.get("/buyPrice/" + torrentUUID, async function(data){
-
+      if(data.confirmed && data.USD_price > 0){
+        $(".web3").prop("disabled", false)
+        alert("You have already purchased this infoHash.")
+        return;
+      }
       //no donation just add link to chain with GAS ether
 
     console.log(curatorAddress);
-      console.log(data.buyHash);
-      const amountEth = data.buyHash > 0 ? data.buyHash * .5 : yarrr * .5;
-      const suggestion_gas = await web3.eth.getGasPrice();
-       if(data.buyPrice === 0 && !yarrr) {
+      console.log(data);
+      var amountLINK = parseFloat(data.USD_price) > 0 ? (parseFloat(data.USD_price) * .5).toString() : (yarrr * .5).toString();
+       if(data.USD_price === 0.0 && !yarrr) {
         yarr = 0
 
         $.get("/infoHash/" + torrentUUID, async function(data){
-          const estimate_gas3 = await web3.eth.estimateGas({
-            "from" : account,
-            "to" : "0x" + data.free
+          
+          let myContract2 = new web3.eth.Contract(abi, contractAddress, {from:account});
+          let data8 = myContract.methods.transfer(curatorAddress, web3.utils.toWei(parseFloat($(".donateInput").val()), "ether")).encodeABI();
+          const suggestion_gas2 = await web3.eth.getGasPrice();
+          console.log(account);
+          console.log(curatorAddress);
+          let value2 = web3.utils.toWei(parseFloat($(".donateInput").val()), "ether");
+          const estimate_gas2 = await web3.eth.estimateGas({
+              'from': account,
+              'to': curatorAddress
+           
+          });
+          let rawTx = {
+              'gasPrice': web3.utils.toHex(suggestion_gas2),
+              'gasLimit': web3.utils.toHex(estimate_gas2),
+              "from" : account,
+             // "nonce" : web3.utils.toHex(transCount),
+              "to": contractAddress,
+              "value" : value2,
+              "data" : data8
+          }
+          var batch = new web3.BatchRequest();
+          web3.eth.sendTransaction(rawTx).on('receipt', function(receipt){
+            $(".web3").prop("disabled", false)
           })
-          web3.eth.sendTransaction({
-            to:"0x" + data.free, 
-            from:account,
-            gasPrice: web3.utils.toHex(suggestion_gas),
-            gasLimit: web3.utils.toHex(estimate_gas3),
-            value:web3.utils.toWei(0, "ether")
-          })
-          $(".web3").prop("disabled", false)
           return;  
         })
         
@@ -89,18 +105,6 @@ async function initPayButton(btn){
       var transactionHash1;
       //get suggestion Gas price
 
-//get estimate Gas
-const estimate_gas = await web3.eth.estimateGas({
-    'from': account,
-    'to': propagateAddress
- 
-});
-
-const estimate_gas2 = await web3.eth.estimateGas({
-  'from' : account,
-  'to' : curatorAddress
-})
-
 
 //params for sign transaction
         var waitInterval;
@@ -108,40 +112,413 @@ const estimate_gas2 = await web3.eth.estimateGas({
         var uuid = crypto.randomUUID();
         var sent = false;
         var recCtn = false;
-    web3.eth.sendTransaction({
-          to:propagateAddress, 
-          from:account,
-          gasPrice: web3.utils.toHex(suggestion_gas),
-          gasLimit: web3.utils.toHex(estimate_gas),
-          value:web3.utils.toWei(amountEth, "ether")
-        }).once("transactionHash", function(hash){
-          transactionHash0 = hash;
-        }).on("sent",function(){
-            web3.eth.sendTransaction({
-              to:curatorAddress, 
-              from:account,
-              gasPrice: web3.utils.toHex(suggestion_gas),
-              gasLimit: web3.utils.toHex(estimate_gas),
-              value:web3.utils.toWei(amountEth, "ether")
-            }).once("transactionHash", function(hash){
-              transactionHash1 = hash;
-              }).on("sent",function(){
-              sentTransaction();
-            }).on('receipt', function(receipt){
-              procReceipt(transactionHash1);
 
-           }).catch(function(err){
-            transErr(err);
-           })
-           sentTransaction();
-         })
-        .on('receipt', function(receipt){
-          procReceipt(transactionHash0)
-          }).catch(function(err){
+      var abi = [
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "name",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "string"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_spender",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "approve",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "totalSupply",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_from",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_to",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "transferFrom",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "decimals",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint8"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [
+                  {
+                      "name": "_owner",
+                      "type": "address"
+                  }
+              ],
+              "name": "balanceOf",
+              "outputs": [
+                  {
+                      "name": "balance",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "symbol",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "string"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_to",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "transfer",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [
+                  {
+                      "name": "_owner",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_spender",
+                      "type": "address"
+                  }
+              ],
+              "name": "allowance",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "payable": true,
+              "stateMutability": "payable",
+              "type": "fallback"
+          },
+          {
+              "anonymous": false,
+              "inputs": [
+                  {
+                      "indexed": true,
+                      "name": "owner",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": true,
+                      "name": "spender",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": false,
+                      "name": "value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "Approval",
+              "type": "event"
+          },
+          {
+              "anonymous": false,
+              "inputs": [
+                  {
+                      "indexed": true,
+                      "name": "from",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": true,
+                      "name": "to",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": false,
+                      "name": "value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "Transfer",
+              "type": "event"
+          }
+      ]
+      /*
+          web3.eth.sendTransaction({
+                to:propagateAddress, 
+                from:account,
+                gasPrice: web3.utils.toHex(suggestion_gas),
+                gasLimit: web3.utils.toHex(estimate_gas),
+                value:web3.utils.toWei(amountEth, "ether")
+              }).once("transactionHash", function(hash){
+                transactionHash0 = hash;
+              }).on("sent",function(){
+                  web3.eth.sendTransaction({
+                    to:curatorAddress, 
+                    from:account,
+                    gasPrice: web3.utils.toHex(suggestion_gas),
+                    gasLimit: web3.utils.toHex(estimate_gas2),
+                    value:web3.utils.toWei(amountEth, "ether")
+                  }).once("transactionHash", function(hash){
+                    transactionHash1 = hash;
+                    }).on("sent",function(){
+                    sentTransaction();
+                  }).on('receipt', function(receipt){
+                    procReceipt(transactionHash1);
+
+                 }).catch(function(err){
+                  transErr(err);
+                 })
+                 sentTransaction();
+               })
+              .on('receipt', function(receipt){
+                procReceipt(transactionHash0)
+                }).catch(function(err){
+              transErr(err);
+             })
+             */
+      /**
+ * THIS IS EXAMPLE CODE THAT USES HARDCODED VALUES FOR CLARITY.
+ * THIS IS EXAMPLE CODE THAT USES UN-AUDITED CODE.
+ * DO NOT USE THIS CODE IN PRODUCTION.
+ */
+
+    const aggregatorV3InterfaceABI = [
+      {
+        inputs: [],
+        name: "decimals",
+        outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "description",
+        outputs: [{ internalType: "string", name: "", type: "string" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "uint80", name: "_roundId", type: "uint80" }],
+        name: "getRoundData",
+        outputs: [
+          { internalType: "uint80", name: "roundId", type: "uint80" },
+          { internalType: "int256", name: "answer", type: "int256" },
+          { internalType: "uint256", name: "startedAt", type: "uint256" },
+          { internalType: "uint256", name: "updatedAt", type: "uint256" },
+          { internalType: "uint80", name: "answeredInRound", type: "uint80" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "latestRoundData",
+        outputs: [
+          { internalType: "uint80", name: "roundId", type: "uint80" },
+          { internalType: "int256", name: "answer", type: "int256" },
+          { internalType: "uint256", name: "startedAt", type: "uint256" },
+          { internalType: "uint256", name: "updatedAt", type: "uint256" },
+          { internalType: "uint80", name: "answeredInRound", type: "uint80" },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "version",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+      },
+    ]
+    const addr = "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c"
+    const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, addr)
+    priceFeed.methods
+      .latestRoundData()
+      .call()
+      .then(async roundData => {
+        // Do something with roundData
+        var price = Number(roundData.answer) / 1e8;
+        price = price.toFixed(2);
+        console.log("Latest Round Data", price)
+        function convertCurrency(amount, fromCurrency, toCurrency) { 
+          const exchangeRate = getExchangeRate(fromCurrency, toCurrency); 
+          const convertedAmount = exchangeRate * amount; 
+          return convertedAmount; 
+        } 
+         
+        function getExchangeRate(fromCurrency, toCurrency) { 
+          // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
+          const exchangeRates = { 
+            LINK: 1,
+            USD : price
+          }; 
+          return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
+        } 
+         
+        const amount = parseFloat(amountLINK); 
+        const fromCurrency = "USD"; 
+        const toCurrency = "LINK"; 
+         
+        const convertedAmount = convertCurrency(amount, "USD", "LINK"); 
+        console.log(convertedAmount);
+        //get estimate Gas
+        const suggestion_gas = await web3.eth.getGasPrice();
+        console.log(account);
+        console.log(curatorAddress);
+        let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
+        var transCount = web3.eth.getTransactionCount(account);
+        let value = web3.utils.toWei(parseFloat(convertedAmount), "ether");
+        let data4 = myContract.methods.transfer(propagateAddress, web3.utils.toWei(parseFloat(convertedAmount), "ether")).encodeABI();
+        var data5 = myContract.methods.transfer(curatorAddress, web3.utils.toWei(parseFloat(convertedAmount), "ether")).encodeABI();
+        const estimate_gas = await web3.eth.estimateGas({
+            'from': account,
+            'data' : data4,
+            'to': contractAddress
+         
+        });
+        let rawTx = {
+            'gasPrice': web3.utils.toHex(suggestion_gas),
+            'gasLimit': web3.utils.toHex(estimate_gas),
+            "from" : account,
+           // "nonce" : web3.utils.toHex(transCount),
+            "to": contractAddress,
+            "data" : data4,
+            "value" : "0x0"
+        }
+        let rawTx2 = {
+            'gasPrice': web3.utils.toHex(suggestion_gas),
+            'gasLimit': web3.utils.toHex(estimate_gas),
+            "from" : account,
+           // "nonce" : web3.utils.toHex(transCount),
+            "to": contractAddress,
+            "data" : data5,
+            "value" : "0x0"
+
+        }
+        var batch = new web3.BatchRequest();
+      batch.add(web3.eth.sendTransaction(rawTx).on('transactionHash', function(txHash){
+        transactionHash0 = txHash;
+      }));
+      batch.add(web3.eth.sendTransaction(rawTx2).on('transactionHash', function(txHash){
+        transactionHash1 = txHash;
+      }).on('confirmation', function(confirmationNumber, receipt){
+        procReceipt(transactionHash1, confirmationNumber)
+      }));
+      batch.execute();
+    })
+
+
+      /*
+      web3.eth.sendTransaction(rawTx).on('transactionHash', function (txHash) {
+
+      }).once("transactionHash", function(hash){
+        transactionHash0 = hash;
+      }).on("sent", function(){
+        sentTransaction();
+      }).on('receipt', function (receipt) {
+          console.log("receipt:" + receipt);
+          procReceipt(transactionHash0);
+      }).on('confirmation', function (confirmationNumber, receipt) {
+          //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
+      }).on('error', function (error) {
+        $(".web3").prop("disabled", false)
         transErr(err);
-       })
-       
-    
+      });
+      */
         
        function transErr(err){
          alert(err.message)
@@ -183,61 +560,42 @@ const estimate_gas2 = await web3.eth.estimateGas({
             }, intervalMs);
         }
         var pollInterval;
-      function procReceipt(transactionHash){
-          $(".web3Loader").fadeIn(1337);
+      function procReceipt(transactionHash, confirmationNumber){
+          //$(".web3Loader").fadeIn(1337);
           clearInterval(waitInterval);
-        
-         
-         
+          console.log(confirmationNumber);
+          var uuid = crypto.randomUUID();
           
-          console.log(recCtn);
-          if(!recCtn){
-            recCtn = true;
-            startLoading();
-           pollInterval = setInterval(function(){
-              $.post("/pollTransactions/" + uuid, function(data){
-              $(".web3Loader").text("Verifying: " + (20 - data.confirmations) + " remaining")
-                confirmations = 20 - data.confirmations;                   
-              })
-            }, 33333)
-          }
-          else{
-            recCtn = false;
-            $(".web3Loader").text("Verifying: " + (20 - confirmations) + "  remaining")
 
-            transactionInterval = setInterval(function(){
-         
-            
-              $.post("/pollBatch/" + uuid + "?torrentUUID=" + torrentUUID, async function(data){
-                if(data.bought){
-                  dismissPP2();
-                  $(".web3Status").hide();
-                  $(".web3Loader").hide();
-                  sent = false;
-
-                  const estimate_gas3 = await web3.eth.estimateGas({
-                    "from" : account,
-                    "to" : "0x" + data.infoHash 
-                  })
-                  web3.eth.sendTransaction({
-                    to:"0x" + data.infoHash, 
-                    from:account,
-                    gasPrice: web3.utils.toHex(suggestion_gas),
-                    gasLimit: web3.utils.toHex(estimate_gas3),
-                    value:web3.utils.toWei(0, "ether")
-                  })
-                  clearInterval(pollInterval);
-                  clearInterval(waitInterval);
-                  clearInterval(transactionInterval);
-                  $(".web3").prop("disabled", false)
+          transactionInterval = setInterval(function(){
+       
+          
+            $.post("/pollBatch/" + uuid + "?torrentUUID=" + torrentUUID, async function(data){
+              if(data.bought){
+                dismissPP2();
+                $(".web3Status").hide();
+                $(".web3Loader").hide();
+                sent = false;
+                if(data.prem){
+                  ANCHOR.route("#torrent?buoy=" + ANCHOR.getParams().buoy + "&infoHash=" + data.infoHash);
                 }
-              })
-           }, 37800)   
-          }
+                clearInterval(pollInterval);
+                clearInterval(waitInterval);
+                clearInterval(transactionInterval);
+                $(".web3").prop("disabled", false)
+              }
+            })
+         }, 30000)   
+         if(data.prem){
+          alert("Transaction completed. Save your Transaction hash: " + transactionHash + "! You will be transferred to the torrent after 30 seconds of mining!!!")
+         }
+         else{
+          alert("Donated " + amountLINK + " ETH to " + $("#uptight").text() + " at " + curatorAddress + "! Transaction Hash: " + transactionHash);
+         }
          
           
          
-         $.post("/web3/" + transactionHash + "?uuid=" + uuid + "&torrentUUID=" + torrentUUID +"&booty=" + (data.buyHash > 0 ? "true" : "false"), function(){
+         $.post("/web3/" + transactionHash + "?uuid=" + uuid + "&torrentUUID=" + torrentUUID +"&booty=" + (data.USD_price > 0 ? "true" : "false"), function(){
           
          })
          

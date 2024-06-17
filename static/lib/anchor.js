@@ -71,7 +71,7 @@ var ANCHOR = {
 		this._show_div(link.path);
 	}
 	,
-	setParams : function(param,value){
+	/*setParams : function(param,value){
 		var url = window.location.href;
 		var hash = url.indexOf('#');
 		if(hash==-1)hash=url.length;
@@ -79,6 +79,24 @@ var ANCHOR = {
 		var partTwo = url.substring(hash,url.length);
 		var newURL = partOne+'&'+param+'='+value+partTwo
 		return window.location.replace(newURL);
+	}*/
+	setParams : function(param,value){
+		if (history.pushState) {
+		    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash + (!ANCHOR.getParams() ? 
+		    '?' : "&") + param + "=" + value;
+		    window.history.pushState({path:newurl},'',newurl);
+		}
+	}
+	,
+	removeParams : function(param){
+		var url = window.location.href;
+		console.log(url);
+		const params = new URLSearchParams(window.location.hash.split("?")[1]);
+		params.delete(param)
+		console.log(params.toString());
+		window.history.replaceState(null, '', window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash.split("?")[0] 
+			+ "?" + params);
+
 	}
 	,
 	getParams : function(){

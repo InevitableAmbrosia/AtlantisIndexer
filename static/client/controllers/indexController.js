@@ -92,18 +92,39 @@ var firstLoad = true;
  }
 
  function pages(){
-	if(ANCHOR.page() === "torrents" || ANCHOR.page() === "class" || ANCHOR.page() === "source" || ANCHOR.page() === "author"){
+	if(ANCHOR.page() === "torrents" || ANCHOR.page() === "class" || ANCHOR.page() === "source" || ANCHOR.page() === "author" ||
+	 ANCHOR.page() === "user_uploads" || ANCHOR.page() === "user_downloads" || ANCHOR.page() === "publisher"){
 		console.log("INITIALIZING TORRENTS FROM INDEX")
+		initializeLoader();
 		initializeTorrents(ANCHOR.page(), dismissLoader);
 		if(ANCHOR.page() === "source"){
+			initializeSource();
+			initializeSourceSpirit()
 			initializeGraph(dismissLoader);
 		}
 	}
+	else if(ANCHOR.page() === "ATLANTIS"){
+		initializeATLANTIS();
+	}
+	else if(ANCHOR.page() === "request_invite"){
+		initializeRequestInvite();
+		initializeLoader();
+	}
+	else if(ANCHOR.page() === "king_invites"){
+		initializeLoader();
+	}
+	else if(ANCHOR.page() === "world_spirit"){
+		initializeLoader();
+		initializeWorldSpirit();
+
+	}
 	else if(ANCHOR.page() === "graph"){
+		initializeLoader()
 		initializeGraph(dismissLoader);
 	}
 	else if(ANCHOR.page() === "top10"){
 		//sort of wonky dismisslaoder
+		initializeLoader();
 		initializeTorrents("top10_day", dismissLoader);
 		initializeTorrents("top10_week", dismissLoader);
 		initializeTorrents("top10_month", dismissLoader);
@@ -116,13 +137,15 @@ var firstLoad = true;
 		initializeUpload(dismissLoader);
 	}
 	else if(ANCHOR.page() === "classes"){
+		initializeLoader();
 		initializeClasses(dismissLoader);
 	}
 	else if(ANCHOR.page() === "user"){
+		initializeLoader();
 		initializeUser(dismissLoader);
 	}
 	else if(ANCHOR.page() === "buoy"){
-		
+		initializeLoader();
 		initializeBuoy(dismissLoader);
 	}
 	else if(ANCHOR.page() === "login"){
@@ -131,6 +154,7 @@ var firstLoad = true;
 		dismissLoader()
 	}
 	else if(ANCHOR.page() === "file_manager"){
+		initializeLoader();
 		dismissLoader()
 	}
 	else if(ANCHOR.page() === "register"){
@@ -140,22 +164,37 @@ var firstLoad = true;
 	}
 	else if(ANCHOR.page() === "torrent"){
 		initializeTorrent();
+		initializeLoader();
 		dismissLoader();
 	}
 	else if(ANCHOR.page() === "create_buoy"){
 		$("#buoy_errors").text("");
 		$("#buoy_pos").text("")
+		initializeLoader();
 		dismissLoader();
 	}
 	else if(ANCHOR.page() === "edit_buoy"){
+		initializeLoader();
 		initializeEditBuoy(dismissLoader);
 	}
 	else if((ANCHOR.page() === "login" || ANCHOR.page()=== "register") && auth){
+		initializeLoader();
 		ANCHOR.route("#user?buoy="+ getBuoy().uuid + "&uuid=" + getUser().uuid);
 	}
  }
 
 $(document).ready(function(){
+	var $window = $(window);
+
+  function checkWidth() {
+      var windowsize = $window.width();
+      if (windowsize >= 1080) {
+          //if the window is greater than 440px wide then turn on jScrollPane..
+          $(".mobile_menu").hide();
+      }
+  }
+  // Bind event listener
+  $(window).resize(checkWidth);
 
 	$(document).on("ANCHOR", function(){
 		if(!firstLoad){
@@ -201,7 +240,6 @@ $(document).ready(function(){
 						$(".mobile_menu").fadeOut();
 					})
 					initializeUserPanel();
-					initializeWeb3()
 					
 					$.get("../client/views/buoy.html", function(data){
 						$("div.buoy").html(data);
@@ -211,6 +249,7 @@ $(document).ready(function(){
 							//if(ANCHOR.page() === "source")
 								//initializeSource();
 							$("div.source").html(data);
+							//initializeSource();
 								$("#recommend_source").click(function(e){
 								e.preventDefault();
 								$.post("/recommend/source?uuid=" + ANCHOR.getParams().uuid, function(data){
@@ -255,7 +294,7 @@ $(document).ready(function(){
 													$("div.upload").html(data);
 													//upload.initialize();
 													htmlUpload();
-													htmlSearch();
+													
 													$.get("../client/views/top10.html", function(data){
 														$("div.top10").html(data);
 														$.get("../client/views/401.html", function(data){
@@ -269,23 +308,67 @@ $(document).ready(function(){
 																		$("div.file_manager").html(data);
 																		$.get("../client/views/edit_buoy.html", function(data){
 																			$("div.edit_buoy").html(data);
-																			ANCHOR.buffer();
+																			$.get("../client/views/world_spirit.html", function(data){
+																				$("div.world_spirit").html(data);
+																				htmlSearch();
+																					$.get("../client/views/user_uploads.html", function(data){
+																						$("div.user_uploads").html(data);
+																						$("#recommend_uploads").click(function(){
+																							$.post("/recommend/user_uploads?uuid=" + ANCHOR.getParams().uuid, function(data){
+																								if(data.errors){
+																									alert(data.errors[0].msg)
+																								}
+																								else{
+																									ANCHOR.route("#user_uploads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.user.uuid)
+																								}
+																							})
+																						})
+																						$.get("../client/views/user_downloads.html", function(data){
+																							$("div.user_downloads").html(data);
+																							$.get("../client/views/ATLANTIS.html", function(data){
+																								$("div.ATLANTIS").html(data);
+																								$.get("../client/views/publisher.html", function(data){
+																									$("div.publisher").html(data);
+																										$("#recommend_downloads").click(function(){
+																										$.post("/recommend/user_downloads?uuid=" + ANCHOR.getParams().uuid, function(data){
+																											if(data.errors){
+																													alert(data.errors[0].msg)
+																												}
+																												else{
+																													ANCHOR.route("#user_downloads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.user.uuid)
+																												}
+																											})
+																										})
+																										ANCHOR.buffer();																				
+																								    var page = ANCHOR.page();
+																								    console.log(page);
+																								    if(!page){
+																								    	ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+																								    }
+																								    else if(!$.isEmptyObject(ANCHOR.getParams())){
+																									    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
+																								    }							    	
+																								    else{
+																								    	ANCHOR.route("#" + page)
+																								    }
+																								    authenticateUser();
+																																								    
+																										init();
+																										pages();
 
+																									
+																									
+																								})
+																							})
+																							
+
+																						})
+																							
+																					})
+																				
+
+																			})
 																			
-																	    var page = ANCHOR.page();
-																	    if(!page){
-																	    	ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-																	    }
-																	    else if(!$.isEmptyObject(ANCHOR.getParams())){
-																		    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
-																	    }							    	
-																	    else{
-																	    	ANCHOR.route("#" + page)
-																	    }
-																	    authenticateUser();
-																																	    
-																			init();
-																			pages();
 																		})
 																		
 																	})

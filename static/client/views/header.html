@@ -1,11 +1,11 @@
 
 <div class="mobile_title">
 	<a href="#" id="mobile_menu">≡</a>
-	<img id="logo" src="img/pharaohs.jpg">
+	<img id="logo" src="https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/pi.png?v=1718028937386">
 	<h1 class="mobile_h1"><a class="ANCHOR buoy" href="#buoy">propagate.info</a></h1>
 	<span id="LOGOS">In the Age of Gold, the people were not conscious of their rulers...</span>
 </div>
-	<img id="logo" src="img/pharaohs.jpg">
+	<img id="logo" src="https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/pi.png?v=1718028937386">
 	<h1 class="desktop_h1"><a class="ANCHOR buoy" href="#buoy">propagate.info</a></h1>
 	<span id="LOGOS">In the Age of Gold, the people were not conscious of their rulers...</span>
 
@@ -15,21 +15,29 @@
 		<select class="buoy_select">
 		</select>
 	</div>
-	<ul class="mobile_tabs">
-			<li><a href="#torrents" class="ANCHOR torrents headerTab torrentTab">Torrents</a></li>
-			<li><a href="#classes" class="ANCHOR classes headerTab classesTab">Classes</a></li>
-			<li><a href="#top10" class="ANCHOR top10 headerTab top10Tab">Top 10</a></li>
-			<li><a href="#graph" class="ANCHOR graph headerTab graphTab">Graph</a></li>
-			<li><a href="#torrent" class="ANCHOR torrent headerTab torrentTab">Files</a></li>
-	</ul><br><br><br>
 	<div class="search">
 		<ul id="search_ul"> 
 			<li class="search_sources"><input class="searchField search_sources_input" placeholder="Sources"><ul class="autosuggestBox"></ul></li>
 			<li class="search_authors"><input class="searchField search_authors_input" placeholder="Authors"><ul class="autosuggestBox"></ul></li>
 			<li class="search_classes"><input class="searchField search_classes_input" placeholder="Classes"><ul class="autosuggestBox"></ul></li>
+			<li class="search_publisher"><input class="searchField search_publishers_input" placeholder="Publisher or Journal"><ul class="autosuggestBox"></ul></li>
+
 		</ul>
-	</div><br><br><br>
+	</div>
+	<br>
+	<br>
+	<br>
+	<ul class="mobile_tabs">
+			<li><a href="#torrents" class="ANCHOR torrents headerTab torrentTab">Torrents</a></li>
+			<li><a href="#classes" class="ANCHOR classes headerTab classesTab">Classes</a></li>
+			<li><a href="#world_spirit" class="ANCHOR world_spirit headerTab worldSpiritTab">Forum</a></li>
+			<li><a href="#top10" class="ANCHOR top10 headerTab top10Tab">Top 10</a></li>
+			<li><a href="#graph" class="ANCHOR graph headerTab graphTab">Graph</a></li>
+	</ul><br>
 	<ul class="mobile_panel">
+		<li class="health"><span>&darr;&nbsp;</span><a class="stat_downloaded"></a><span>&nbsp;&nbsp;&nbsp;&uarr;</span><a class="stat_uploaded"></a><span>&nbsp;&nbsp;&nbsp;Ratio:&nbsp;</span><a class="stat_ratio"></a><span>&nbsp;&nbsp;&nbsp;ATLANTIS:&nbsp;</span>
+			<a href ="#ATLANTIS" class="ANCHOR ATLANTIS stat_ATLANTIS"></a>
+		</li>
 		<li class="user_li"><a class="ANCHOR user user_profile" href="#user">Profile</a></li>
 		<li class="logout_li"><a class="logout" href="#">Logout</a></li>
 		<li class="create_buoy_li"><a href="#create_buoy" class="ANCHOR create_buoy">Create Buoy!</a></li>
@@ -51,34 +59,6 @@
 </script>
 <div class="panel">
 	<ul>
-		<style>
-			.donate-button {
-			    text-align: center;
-			}
-			.donate-button {
-			    font-size: 1.5em;
-			}
-
-			.bitcoin-address{
-				font-size: 10px;
-			}
-
-			.btc{
-				color: lightcoral;
-			}
-
-			.adr{
-				color: white;
-			}
-		</style>
-
-		<!--<li id="donate_li" class="donate-button">
-		    <a class="donate-button-link" href="#donate">
-		        Donate!
-		    </a>
-		    <div class="bitcoin-address"><span class="adr">ɃTC: </span><span class="btc"><code>3D3wMrdQ44p92YcL2fzyxHTdmkWqHoz9wQ</code></span></div>
-		</li>!-->
-
 		<script>
 			$(document).ready(function () {
 			    $(".logout").click(function(e){
@@ -95,12 +75,11 @@
 				
 			});
 			
-			// Hide address immediately if JS is enabled
-			document.querySelector('.bitcoin-address').style.display = 'none';
 
 		
 		</script>
-		<!--<li id="health">&darr;&nbsp;<a id="stat_downloaded"></a>&nbsp;&nbsp;&nbsp;&uarr;<a id="stat_uploaded"></a>&nbsp;&nbsp;&nbsp;Ratio:&nbsp;<a id="stat_ratio"></a></li>!-->
+		<li class="health" id="desktop_health"><span>&darr;&nbsp;</span><a class="stat_downloaded"></a><span>&nbsp;&nbsp;&nbsp;&uarr;</span><a class="stat_uploaded"></a><span>&nbsp;&nbsp;&nbsp;Ratio:&nbsp;</span><a class="stat_ratio"></a><span>&nbsp;&nbsp;&nbsp;ATLANTIS:&nbsp;</span>
+			<a href ="#ATLANTIS" class="ANCHOR ATLANTIS stat_ATLANTIS"></a></li>
 		<li class="user_li"><a class="user_profile" href="#user">Profile</a></li>
 		<li class="logout_li"><a class="logout" href="#">Logout</a></li>
 		<li class="create_buoy_li"><a href="#create_buoy" class="ANCHOR create_buoy">Create Buoy!</a></li>
@@ -118,8 +97,8 @@
 		<li><a href="#torrents" class="ANCHOR torrents headerTab torrentTab">Torrents</a></li>
 		<li><a href="#classes" class="ANCHOR classes headerTab classesTab">Classes</a></li>
 		<li><a href="#top10" class="ANCHOR top10 headerTab top10Tab">Top 10</a></li>
+		<li><a href="#world_spirit" class="ANCHOR world_spirit headerTab worldSpiritTab">Forum</a></li>
 		<li><a href="#graph" class="ANCHOR graph headerTab graphTab">Graph</a></li>
-		<li><a href="#torrent" class="ANCHOR torrent headerTab torrentTab">Files</a></li>
 
 	</ul>
 	<script>
@@ -133,5 +112,6 @@
 		<li class="search_sources"><input class="searchField search_sources_input" placeholder="Sources"><ul class="autosuggestBox"></ul></li>
 		<li class="search_authors"><input class="searchField search_authors_input" placeholder="Authors"><ul class="autosuggestBox"></ul></li>
 		<li class="search_classes"><input class="searchField search_classes_input" placeholder="Classes"><ul class="autosuggestBox"></ul></li>
+		<li class="search_publisher"><input class="searchField search_publishers_input" placeholder="Publisher or Journal"><ul class="autosuggestBox"></ul></li>
 	</ul>
 </div>

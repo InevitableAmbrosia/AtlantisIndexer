@@ -75,7 +75,7 @@ function graph(data, cb){
 		})
 		
 		if(ANCHOR.page() === "source"){
-			sourceGraph();	
+			//sourceGraph();	
 		}
 		else{
 			pageGraph();

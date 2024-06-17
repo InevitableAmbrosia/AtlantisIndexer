@@ -3,7 +3,13 @@ $("#buoys").empty();
 $("#buoys_h3").hide();
 $("#invites_h3").hide();
 $("#invites").empty();
+$(".settings").hide();
+$("#stats_user_uploads").hide();
+$("#stats_user_downloads").hide();
+$("#settings_atlsd").hide();
+$("#settings_atlsd_submit").hide()
 function initializeUser(cb){
+	$(".stats_span").text("")
 	$(".buoys").hide();
 	$("#buoys").empty();
 	$("#invites").empty();
@@ -14,7 +20,59 @@ function initializeUser(cb){
 		console.log(data);
 		$("#user_name").text(data.user.user);
 		console.log(getUser());
+		$("#stats_rank").text(data.access.rankTitle);
+		$("#stats_uploads").text(data.uploads);
+		console.log(data.uploads)
+		$("#stats_snatches").text(parseInt(data.snatches));
+		console.log(data.user.paranoia)
+		if(!data.user.paranoia){
+			$("#stats_user_uploads").text("[See Uploads]");
+			$("#stats_user_uploads").attr("href", "#user_uploads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + ANCHOR.getParams().uuid)
+			$("#stats_user_uploads").show();
+			$("#stats_user_downloads").text("[See Downloads]")
+			$("#stats_user_downloads").attr("href", "#user_downloads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + ANCHOR.getParams().uuid)
+
+		}
+		$("#stats_uploaded").text(prettyBytes(data.user.totalUp));
+		$("#stats_downloaded").text(prettyBytes(data.user.totalDown));
+		$("#stats_ratio").text((data.user.totalUp / data.user.totalDown).toFixed(3));
 		if(data.self){
+			$("#settings").show();
+			$("#settings_atlsd").show();
+			$("#settings_atlsd_submit").show();
+			$("#settings_atlsd").val(data.user.atlsd ? data.user.atlsd : "");
+
+
+			$("#stats_user_ATLANTIS").text(data.user.ATLANTIS)
+			$("#link_ATLANTIS").text("[Payouts]")
+			$("#link_ATLANTIS").href("#ATLANTIS?buoy=" + ANCHOR.getParams().buoy);
+
+			$("#settings_atlsd_submit").click(function(){
+				$(this).prop("disabled", true)
+				var that = $(this);
+				$.post("/settings_atlsd/" + data.user.uuid, {atlsd : $("#settings_atlsd").val()}, function(){
+					that.prop('disabled', false)
+				})				
+			})
+			if(data.user.paranoia){
+				$("#paranoia").prop("checked", true)
+			}
+			else{
+				$("#paranoia").prop("checked", false)
+			}
+			$("#paranoia").change(function(){
+				$.post("/settings_paranoia/" + ANCHOR.getParams().uuid, {paranoia : $("#paranoia").prop("checked") }, function(data){
+
+				})
+				if($(this).prop("checked")){
+					$("#stats_user_uploads").hide();
+					$("#stats_user_downloads").hide();
+				}
+				else{
+					$("#stats_user_uploads").show();
+					$("#stats_user_downloads").show();
+				}
+			})
 			if(data.buoys){
 				data.buoys.forEach(function(buoy){	
 					if(buoy.private){
@@ -70,7 +128,7 @@ function initializeUser(cb){
 			
 			$(".buoys").show();
 			$("#buoys_h3").show()	
-				
+			
 		}
 		console.log("here");
 		cb();
@@ -88,6 +146,8 @@ function logout(){
 		$("body").css("cursor", "default");
 		setAccess(null);
 		userPanel(null);
+		clearInterval(health.healthInterval);
+		initializeHealth();
 		initializeBuoySelect(ANCHOR.getParams().buoy);
 		ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
 
@@ -100,5 +160,7 @@ function authenticateUser(){
 	 	setUser(data.user)
 	 	userPanel(data.user)
 		initializeBuoySelect(ANCHOR.getParams().buoy);
+		clearInterval(health.healthInterval);
+		initializeHealth();
  	})
 }

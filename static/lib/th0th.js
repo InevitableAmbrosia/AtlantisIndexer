@@ -157,10 +157,10 @@ seedFiles :	function(){
 				if(that.i === that.dataCount){
 					$(".th0th_status").hide();
 					that.client.torrents.forEach(function(torrent){
-		  			setTimeout(function(){
+		  			/*setTimeout(function(){
 							window.location = "magnet:?xt=urn:btih:" +torrent.infoHash + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
 
-		  			},100)
+		  			},100)*/
 					})
 					console.log("DONE LOADING ALL!")						
 					
