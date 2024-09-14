@@ -31,7 +31,7 @@ function initializeUser(cb){
 			$("#stats_user_uploads").show();
 			$("#stats_user_downloads").text("[See Downloads]")
 			$("#stats_user_downloads").attr("href", "#user_downloads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + ANCHOR.getParams().uuid)
-
+			$("#stats_payout").text(data.user.payout + " ATLANTIS!")			
 		}
 		$("#stats_uploaded").text(prettyBytes(data.user.totalUp));
 		$("#stats_downloaded").text(prettyBytes(data.user.totalDown));
@@ -43,10 +43,7 @@ function initializeUser(cb){
 			$("#settings_atlsd").val(data.user.atlsd ? data.user.atlsd : "");
 
 
-			$("#stats_user_ATLANTIS").text(data.user.ATLANTIS)
-			$("#link_ATLANTIS").text("[Payouts]")
-			$("#link_ATLANTIS").href("#ATLANTIS?buoy=" + ANCHOR.getParams().buoy);
-
+			
 			$("#settings_atlsd_submit").click(function(){
 				$(this).prop("disabled", true)
 				var that = $(this);
@@ -73,7 +70,7 @@ function initializeUser(cb){
 					$("#stats_user_downloads").show();
 				}
 			})
-			if(data.buoys){
+			/*if(data.buoys){
 				data.buoys.forEach(function(buoy){	
 					if(buoy.private){
 						var li = document.createElement("li");
@@ -97,8 +94,8 @@ function initializeUser(cb){
 					}			
 				
 				})
-			}			
-			if(data.invite_uuids){
+			}*/		
+			/*if(data.invite_uuids){
 				data.invite_uuids.forEach(function(obj, i){
 					console.log(getUser())
 					var li = document.createElement("li");
@@ -123,12 +120,12 @@ function initializeUser(cb){
 				})	
 			}	
 			$("#invites").show();
-			$("#invites_h3").show();
+			$("#invites_h3").show();*/
 			ANCHOR.buffer();
-			
+			/*
 			$(".buoys").show();
 			$("#buoys_h3").show()	
-			
+			*/
 		}
 		console.log("here");
 		cb();
@@ -148,8 +145,8 @@ function logout(){
 		userPanel(null);
 		clearInterval(health.healthInterval);
 		initializeHealth();
-		initializeBuoySelect(ANCHOR.getParams().buoy);
-		ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+		//initializeBuoySelect(ANCHOR.getParams().buoy);
+		ANCHOR.route("#home");
 
 	})
 }
@@ -159,7 +156,7 @@ function authenticateUser(){
 		console.log(data.user)
 	 	setUser(data.user)
 	 	userPanel(data.user)
-		initializeBuoySelect(ANCHOR.getParams().buoy);
+		//initializeBuoySelect(ANCHOR.getParams().buoy);
 		clearInterval(health.healthInterval);
 		initializeHealth();
  	})

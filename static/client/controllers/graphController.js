@@ -104,13 +104,13 @@ function pageGraph(){
 	        	//if(clicked){
 	        		switch(node.group){
 		        		case "Source":
-		        			ANCHOR.route("#source?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#source?uuid="+node.id)
 		        			break;
 		        		case "Author":
-		        			ANCHOR.route("#author?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#author?&uuid="+node.id)
 		        			break;
 		        		case "Class":
-		        			ANCHOR.route("#class?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#class?uuid="+node.id)
 		        			break;
 		        	}
 		        	document.exitFullScreen();
@@ -141,13 +141,13 @@ function sourceGraph(){
 	        	console.log(node);
 	        		switch(node.group){
 		        		case "Source":
-		        			ANCHOR.route("#source?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#source?uuid="+node.id)
 		        			break;
 		        		case "Author":
-		        			ANCHOR.route("#author?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#author?uuid="+node.id)
 		        			break;
 		        		case "Class":
-		        			ANCHOR.route("#class?buoy="+ ANCHOR.getParams().buoy + "&uuid="+node.id)
+		        			ANCHOR.route("#class?uuid="+node.id)
 		        			break;
 		        	}
 		        	document.exitFullScreen();
@@ -257,7 +257,7 @@ function initializeGraph(cb){
 			})
 			break;
 		case "graph":
-			$.get("page_graph/?buoy=" + ANCHOR.getParams().buoy, function(data){
+			$.get("page_graph", function(data){
 				graph(data, cb);
 			})
 			break;

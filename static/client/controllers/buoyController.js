@@ -9,10 +9,10 @@ function initializeBuoy(cb){
 	$("#buoy_preferences").hide();
 
 	console.log("HARBOR");
-	$.get("/buoy/" + ANCHOR.getParams().buoy + "?user="+ (getUser() ? getUser().uuid : null), function(data){
+	$.get("/home?user="+ (getUser() ? getUser().uuid : null), function(data){
 		setBuoy(data.buoy);
 		setAccess(data.access);
-		var buoy = getBuoy();
+		var buoy = data.buoy
 		var access = getAccess();
 		console.log(data);
 		console.log(access);
@@ -81,7 +81,7 @@ function initializeEditBuoy(cb){
 	$("#add_types_buoy").empty();
 	$("#add_media_buoy").empty();
 	$("#add_formats_buoy").empty();
-	$.get("/upload_structure/" + ANCHOR.getParams().buoy, function(data){
+	$.get("/upload_structure", function(data){
 		console.log(data);
 		data.buoy.types.forEach(function(val){
 			populate("add_types", val);

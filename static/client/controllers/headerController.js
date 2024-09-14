@@ -1,5 +1,5 @@
 function switchBuoy(){
-	$.get("/buoy/" + ANCHOR.getParams().buoy + "?user="+ (getUser() ? getUser().uuid : null), function(data){
+	$.get("/home?user="+ (getUser() ? getUser().uuid : null), function(data){
 		setAccess(data.access);
 		setBuoy(data.buoy);
 		setPanel();
@@ -41,30 +41,28 @@ function initializeBuoySelect(uuid){
 }
 
 function setPanel(){
-	$(".ATLANTIS").attr("href", ANCHOR.getParams() ? "#ATLANTIS?buoy=" + ANCHOR.getParams().buoy : "#ATLANTIS?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".upload_panel").attr("href", ANCHOR.getParams() ? "#upload?buoy="+ ANCHOR.getParams().buoy : "#upload?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".login").attr("href", ANCHOR.getParams() ? "#login?buoy="+ ANCHOR.getParams().buoy : "#login?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".register").attr("href", ANCHOR.getParams() ? "#register?buoy="+ ANCHOR.getParams().buoy : "register?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".user_profile").attr("href", ANCHOR.getParams() ? "#user?buoy="+ ANCHOR.getParams().buoy : "#user?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".logout").attr("href", ANCHOR.getParams() ? "#buoy?buoy="+ ANCHOR.getParams().buoy : "#logout?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".create_buoy").attr("href", ANCHOR.getParams() ? "#create_buoy?buoy="+ ANCHOR.getParams().buoy : "#create_buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".file_manager").attr("href", ANCHOR.getParams() ? "#file_manager?buoy="+ ANCHOR.getParams().buoy : "#file_manager?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+	$(".upload_panel").attr("href", "#upload")
+	$(".login").attr("href", "#login")
+	$(".register").attr("href", "#register")
+	$(".user_profile").attr("href", "#user")
+	$(".logout").attr("href", "#home");
+	$(".file_manager").attr("href", "#file_manager");
 	ANCHOR.buffer();
 }
 
 function setTabs(){
-	$(".torrentTab").attr("href", ANCHOR.getParams() ? "#torrents?buoy="+ ANCHOR.getParams().buoy : "#torrents?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".classesTab").attr("href", ANCHOR.getParams() ? "#classes?buoy=" + ANCHOR.getParams().buoy : "#classes?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".top10Tab").attr("href", ANCHOR.getParams() ? "#top10?buoy="+ ANCHOR.getParams().buoy : "#top10?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
-	$(".worldSpiritTab").attr("href", ANCHOR.getParams() ? "#world_spirit?buoy=" + ANCHOR.getParams().buoy : "#world_spirit?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
-	$(".graphTab").attr("href", ANCHOR.getParams() ? "#graph?buoy="+ ANCHOR.getParams().buoy : "#graph?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+	$(".torrentTab").attr("href", "#torrents");
+	$(".classesTab").attr("href", "#classes");
+	$(".top10Tab").attr("href", "#top10");
+	$(".worldSpiritTab").attr("href", "#world_spirit")
+	$(".graphTab").attr("href", "#graph");
 	ANCHOR.buffer();
 }
 
 function setH1(){
-	$(".buoy").attr("href", ANCHOR.getParams() ? "#buoy?buoy=" + ANCHOR.getParams().buoy : "#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002")
 	ANCHOR.buffer();
 }
+
 
 function userPanel(user){
 	if(user){
@@ -93,4 +91,8 @@ function initializeUserPanel(){
 	$(".logout_li").hide();
 	$(".login_li").hide();
 	$(".reg_li").hide();
+	$(".donate").click(function(e){
+	e.preventDefault();
+		alert("BTC Address: 3D3wMrdQ44p92YcL2fzyxHTdmkWqHoz9wQ")
+	})
 }

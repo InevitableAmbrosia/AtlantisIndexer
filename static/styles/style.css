@@ -188,8 +188,8 @@ body.is-seed .show-leech {
 	/*background-color:#f7f6e6;
  	background-color:#fae1ec;
  	background-color:silver;*/
-	padding-top:60px;
-	padding-bottom:60px;
+	padding-top:24px;
+	padding-bottom:24px;
  	/*box-shadow:4px 5px 4px lightgoldenrodyellow;*/
 
 }
@@ -245,15 +245,19 @@ h3{
 #submit{
 	width:200px;
 	height:60px;
-	background-color:palevioletred;
-	box-shadow:2px 3px 2px palegoldenrod;
-	border-radius:7px;
+	margin-top:37px;
+	margin-bottom:55px;
 }
 
 #source_spirit{
 	height:600px;
 	width:100%;
 	margin-top:37px;
+}
+
+.grid_1 input:not(.copyright){
+	height:25px;
+	font-size:16px;
 }
 
 .upload input:not(#edition_check, #payment, #payWhatYouWant, #copyrighted, #public_domain){
@@ -298,10 +302,10 @@ h3{
   	color:black;
   	overflow-x: hidden;
   	width: 100%;
-  	height: calc(100% - 237px);
+  	height: calc(100% - 173px);
   	position: absolute;
   	box-sizing: border-box;
-  	top: 237px;
+  	top: 173px;
   	bottom: 0px;
 	background-color: #FEFEFE;
 	/*padding: 12px 8px 6px 8px;*/
@@ -309,6 +313,11 @@ h3{
 
 input{
 	font-family: "Cairo", sans-serif;
+}
+
+#add_author, #create_author{
+	margin-top:13px;
+	margin-bottom:16px;
 }
 
 #payout{
@@ -321,11 +330,11 @@ input{
 }
 
 h2{
-	font-family: "Roboto", sans-serif;
+	font-family: "Pirata One", sans-serif;
 	font-size: 55px;
-	color: goldenrod;
+	color: goldenrod;/*#3c5e6c;*/
 	text-decoration:underline;
-	text-shadow:3px 5px lightseagreen;/*#3c5e6c;*/
+	text-shadow:3px 3px darkslateblue;/*#3c5e6c;*/
 
 }
 
@@ -355,12 +364,12 @@ h3{
 }
 
 header{
-	height: 237px;
+	height: 173px;
 	width: 100%;
 	/*background-color: #e6eef5;*/
 	/*background-color: #413839;*/
 	background-color:#3c5e6c;
-  	box-shadow: 8px 7px 6px lightsteelblue;
+  	box-shadow: 2px 2px 3px mediumslateblue;
   	position: fixed;
   	z-index: 999;
 }
@@ -370,12 +379,8 @@ h2{
 }
 
 #addFormat{
-	font-family: "Pirata One", serif;
-	font-size:32px;
-	background-color:palevioletred;
 	width:200px;
-	height:60px;
-	box-shadow:2px 2px 2px goldenrod;
+	margin-left:8px;
 }
 
 button{
@@ -392,12 +397,11 @@ select{
 }
 
 a{
-	color: darksalmon;
+	color: lightseagreen;
 }
 
 a:visited{
-	color: darkolivegreen;
-	text-shadow:1px 2px cyan;
+	color: seagreen;
 }
 
 #classes a, #classes a:visited{
@@ -455,9 +459,9 @@ header a:visited{
 
 
 h1 a, h1 a:visited{
-	color:#19e0e3;
-	font-family: "Secular One", sans-serif;
-	text-shadow: 3px 7px palevioletred;
+	color:palevioletred;
+	font-family: "Pirata One", sans-serif;
+	text-shadow: 4px 4px lightseagreen;
 }
 
 .donate{
@@ -479,12 +483,6 @@ h1{
 	float:left;
 }
 
-.buoy_div{
-	float:left;
-	position:relative;
-	right:120px;
-	top:20px;
-}
 
 .login div, .register div{
 	padding-left:8px;
@@ -494,25 +492,22 @@ h1{
 }
 
 .recommend{
-	box-shadow:2px 3px 5px darkseagreen;
-	background-color:darkcyan;
-	font-family: "Pirata One", serif;
-	margin-top:40px;
-	margin-bottom:40px;
 	margin-left:8px;
-	font-size:32px;
 	width:300px;
-	height:60px;
-	border-radius:5px;
 }
 
 button{
-	background-color:darkseagreen;
+	background-color:lightseagreen;
+	padding:9px;
+	border-radius:22px;
+	color:palevioletred;
+	font-size:20px;
+	text-shadow: 1px 1px lightgoldenrodyellow;
+	font-family:"Pirata One", sans-serif;
+	box-shadow:2px 2px 3px slateblue;
 }
 
 .login button, .register button{
-	box-shadow:2px 3px 5px darkseagreen;
-	border-radius:5px;
 }
 
 .sourceTitle, .sourceOptions{
@@ -550,11 +545,11 @@ span{
 }
 
 h1{
-	font-size: 16px;
-	padding: 7px 0px 72px 18px;
+	font-size: 55px;
+	padding: 7px 0px 7px 8px;
 	position:relative;
 	z-index:9999;
-	top:16px;
+	top:5px;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
@@ -626,9 +621,9 @@ body{
 #overlay {
  position: fixed;
  left: 0;
- top: 237px;
+ top: 173px;
  bottom: 0px;
- height: calc(100% - 237px);
+ height: calc(100% - 173px);
  width: 100%;
  background:lightcyan;
  /*opacity: 0.777;*/
@@ -668,8 +663,8 @@ body{
 
 #LOGOS{
 	position:fixed;
-	left:150px;
-	top:27px;
+	left:8px;
+	top:78px;
 	font-family:"Poppins", sans-serif;
 	color:gold;
 	font-size:13px;
@@ -709,13 +704,13 @@ body{
 }
 
 .sorting{
-	padding:13px 0px 13px 8px;
+	padding:17px 0px 17px 8px;
 	/*background-color:#cc70d1;*/
 	background-color:lightseagreen;/*#db7093;*/
 	font-family:"Pirata One", sans;
-	color:darkslategray;
+	color:#fae1ec;
 	font-size:32px;
-	box-shadow:3px 4px 7px lightcyan;/*#2d9666;*/
+	box-shadow:4px 3px 3px mediumslateblue;/*#2d9666;*/
 }
 
 
@@ -771,9 +766,15 @@ table.dataTable tr.dtrg-group th{
 	background-color: #fcfce8;
 	background-color:#e6e7b2;
 	background-color:#ebdec7;
-	border-top:3px dotted #fae1ec;
+	background-color:lightcyan;
 
 	font-family:"Maven Pro", sans-serif;
+}
+
+
+table.dataTable tr.dtrg-group th:not(:first-child){
+	border-top:5px dotted mediumvioletred;
+
 }
 
 table.dataTable tr.dtrg-group th a:not(.torrentClasses a){
@@ -781,7 +782,7 @@ table.dataTable tr.dtrg-group th a:not(.torrentClasses a){
 }
 
 td p{
-	color:lightsteelblue;
+	color:palevioletred;
 }
 
 .torrentSource{
@@ -798,6 +799,12 @@ td p{
 	width:33px;
 }
 
+.download_all{
+	padding-left:8px;
+	padding-top:8px;
+	padding-bottom:17px;
+}
+
 .sourceType{
 	position:absolute;
 	bottom:5px;
@@ -807,9 +814,9 @@ td p{
 	font-size:23px;
 	left:-113px;
 	font-family:"Secular One", Arial;
-	color:#19e0e3;
+	color:mediumvioletred;/*#19e0e3;*/
 	text-align:center;
-	text-shadow:3px 2px palevioletred;
+	text-shadow:2px 2px palegoldenrod;
 ;
 }
 
@@ -830,7 +837,7 @@ td p{
 	float: left;
 	height: 55px;
 	padding: 11px 11px 2px 11px;
-	top: 0px;
+	top: 8px;
 	width: 100%;
 }
 
@@ -854,7 +861,7 @@ td{
 
 .dataTable td{
 	font-family:"Poppins", sans-serif;
-	color:mediumvioletred;
+	color:darkslateblue;
 }
 
 .tableHeading a, .tableHeading a:visited{
@@ -863,7 +870,8 @@ td{
 
 
 .torrentClasses a, .torrentClasses a:visited{
-	font-family:"Secular One", sans-serif;
+	font-family:"Roboto", sans-serif;
+	font-style:italic;
 	color:/*#19e0e3;*/darkcyan;
 }
 
@@ -902,12 +910,11 @@ td{
 }
 
 .buoy_select{
-	width: 510px;
-	height: 78px;
-	margin-top:45px;
+	width: 238px;
+	height: 33px;
 	display: none;
 	font-family: "Pirata One", sans-serif;
-	font-size: 55px;
+	font-size: 18px;
 	font-weight:bold;
 	background-color:black;
 	border-top-right-radius: 37px;
@@ -923,7 +930,7 @@ td{
 
 .tabs{
 	position: absolute;
-	top: 163px;
+	top: 108px;
 	left: 0;
 	font-size: 32px;
 	font-variant: small-caps;
@@ -936,7 +943,7 @@ td{
 
 .panel{
 	position: relative;
-	top:163px;
+	top:72px;
 	right: 0px;
 	float: right;
 	font-size: 16px;
@@ -947,7 +954,7 @@ td{
 
 .search{
 	position: absolute;
-	top: 196px;
+	top: 136px;
 	left: 8px;
 
 }
@@ -1018,7 +1025,7 @@ body .ui-autocomplete {
 
 #desktop_health{
 	position:fixed;
-	top:27px;
+	top:24px;
 	right:13px;
 }
 
@@ -1064,7 +1071,7 @@ h3{
 #3d-graph{
 	position: fixed;
 	top:237px;
-	height:calc(100% - 237px);
+	height:calc(100% - 173px);
 	bottom: 0px;
 	z-index: 998;
 }
@@ -1153,12 +1160,8 @@ svg{
 }
 
 #dialectic_submit, #new_aphorism, #fresh_aphorism, #src_dialectic_submit, #src_new_aphorism, #src_fresh_aphorism{
-    width:120px;
-    font-size:36px;
-    font-family:"Pirata One", sans-serif;
-    height:40px;
-    background-color:goldenrod;
-    box-shadow:3px 4px 5px darkgoldenrod;
+    
+    padding:20px;
 }
 
 #src_new_aphorism{
@@ -1181,7 +1184,7 @@ svg{
     width:200px;
     font-size:18px;
     position:relative;
-    left:26px;
+    left:8px;
     top:22px;
 }
 
@@ -1493,12 +1496,12 @@ a.link a.visited{
 }
 
 .adv_search{
-	width:320px;
-	height:400px;
+	width:292px;
+	height:478px;
 	margin-left:8px;
 	margin-bottom:33px;
 	text-align:center;
-	border: 3px dotted palevioletred;
+	border: 5px dotted #fae1ec;
 	border-radius:18px;
 }
 
@@ -1521,19 +1524,15 @@ a.link a.visited{
 
 
 #adv_submit{
-	margin-top:7px;
-	width:76px;
-	height:32px;
-	background-color:goldenrod;
-	box-radius:5px;
-	box-shadow:1px 2px 1px #fae1ec;
+	margin-top:28px;
 }
 
 #adv_heading{
 	font-family: "Pirata One", sans-serif;
-	font-size:22px;
+	font-size:32px;
 	text-align:center;
-	color:steelblue;
+	color:darkslateblue;
+	text-shadow:1px 2px lightgoldenrodyellow;
 	margin:20px 0px 20px 0px;
 }
 
@@ -1556,6 +1555,13 @@ a.link a.visited{
 	color:darkcyan;
 }
 
+#addFormat, .recommend{
+		border-radius:16px;
+		margin-bottom:40px;
+		width:250px;
+
+	}
+
 
 /* MOBILE */
 
@@ -1565,6 +1571,10 @@ a.link a.visited{
 		left:-3px;
 	}
 
+	h1{
+		font-size:32px;
+		left:140px;
+	}
 
 	.upload .titleBreak span{
 		width:300px;
@@ -1593,9 +1603,7 @@ a.link a.visited{
 	}
 
 	#addFormat, .recommend{
-		width:100px;
-		height:40px;
-		font-size:15px;
+		padding:7px;
 	}
 
 
@@ -1632,6 +1640,8 @@ a.link a.visited{
 	.mobile_h1{
 		display:block;
 		padding:0px;
+		position:fixed;
+		left:50px;
 	}
 
   
@@ -1671,7 +1681,7 @@ a.link a.visited{
 
 	#LOGOS{
 		left:50px;
-		top:40px;
+		top:41px;
 		font-size:9px;
 	}
 
@@ -1718,29 +1728,28 @@ a.link a.visited{
 	}
 
 
-	.buoy_div{
-		display:none;
-	}
+
 
 	.mobile_buoy_div{
+		margin-left:6px;
 		display:block;
 		position:relative;
-		top:55px;
-		left:49px;
+		top:5px;
+		left:200px;
 		width:100%;
 		z-index:9999;
 	}
 
 	.buoy_select{
-		margin-left:-43px;
-		font-size:33px;
+		font-size:24px;
+		height:40px;
 		width:260px;
 	}
 
 	h1{
 		position:fixed;
-		top:7px;
-		left:50px;
+		top:2px;
+		left:8px;
 		z-index:9999;
 	}
 
@@ -1848,6 +1857,7 @@ a.link a.visited{
   .health a, .health span{
   		padding:13px 0px 13px 0px;
   		margin:15px 0px 15px 0px;
+  		font-size:16px;
   		
   }
 

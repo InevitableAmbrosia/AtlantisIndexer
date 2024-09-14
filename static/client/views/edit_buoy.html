@@ -47,11 +47,11 @@
 	$(".bulletin_submit").click(function(){
 		var that = this;
 		$(this).prop("disabled",true)
-		$.post("/bulletin/" + ANCHOR.getParams().buoy, {title : $("#bulletin_title").val(), text : $(".bulletin_text").val()}, function(data){
+		$.post("/bulletin", {title : $("#bulletin_title").val(), text : $(".bulletin_text").val()}, function(data){
 			$(that).prop('disabled',false)
 			$("#bulletin_title").val("");
 			$(".bulletin_text").val("");
-			ANCHOR.route("#buoy?buoy=" + ANCHOR.getParams().buoy)
+			ANCHOR.route("#home")
 		})
 	})
 
@@ -72,8 +72,8 @@
 			formats.push($(input).val())
 		})
 
-		$.post("/edit_select/" + ANCHOR.getParams().buoy, {types : JSON.stringify(types), media: JSON.stringify(media), formats: JSON.stringify(formats) }, function(data){
-			ANCHOR.route("#buoy?buoy=" + ANCHOR.getParams().buoy);
+		$.post("/edit_select", {types : JSON.stringify(types), media: JSON.stringify(media), formats: JSON.stringify(formats) }, function(data){
+			ANCHOR.route("#home");
 		})
 	})
 

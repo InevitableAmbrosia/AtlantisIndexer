@@ -85,13 +85,14 @@ var firstLoad = true;
 
 	$(".autosuggestBox").hide();
 	//for back button when buoy changes
-	if(ANCHOR.getParams() && getBuoy() && getBuoy().uuid !== ANCHOR.getParams().buoy){
+	/*if(ANCHOR.getParams() && getBuoy() && getBuoy().uuid !== ANCHOR.getParams().buoy){
 		switchBuoy();
-	}
+	}*/
 	ANCHOR.buffer();
  }
 
  function pages(){
+ 	audioModel.audio.pause();
 	if(ANCHOR.page() === "torrents" || ANCHOR.page() === "class" || ANCHOR.page() === "source" || ANCHOR.page() === "author" ||
 	 ANCHOR.page() === "user_uploads" || ANCHOR.page() === "user_downloads" || ANCHOR.page() === "publisher"){
 		console.log("INITIALIZING TORRENTS FROM INDEX")
@@ -144,7 +145,7 @@ var firstLoad = true;
 		initializeLoader();
 		initializeUser(dismissLoader);
 	}
-	else if(ANCHOR.page() === "buoy"){
+	else if(ANCHOR.page() === "home"){
 		initializeLoader();
 		initializeBuoy(dismissLoader);
 	}
@@ -179,7 +180,7 @@ var firstLoad = true;
 	}
 	else if((ANCHOR.page() === "login" || ANCHOR.page()=== "register") && auth){
 		initializeLoader();
-		ANCHOR.route("#user?buoy="+ getBuoy().uuid + "&uuid=" + getUser().uuid);
+		ANCHOR.route("#user?uuid=" + getUser().uuid);
 	}
  }
 
@@ -241,8 +242,8 @@ $(document).ready(function(){
 					})
 					initializeUserPanel();
 					
-					$.get("../client/views/buoy.html", function(data){
-						$("div.buoy").html(data);
+					$.get("../client/views/home.html", function(data){
+						$("div.home").html(data);
 
 					
 						$.get("../client/views/source.html", function(data){
@@ -253,7 +254,7 @@ $(document).ready(function(){
 								$("#recommend_source").click(function(e){
 								e.preventDefault();
 								$.post("/recommend/source?uuid=" + ANCHOR.getParams().uuid, function(data){
-									ANCHOR.route("#source?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.source.uuid);
+									ANCHOR.route("#source?uuid=" + data.source.uuid);
 								})
 							})
 							$.get("../client/views/author.html", function(data){
@@ -263,7 +264,7 @@ $(document).ready(function(){
 									$("#recommend_author").click(function(e){
 										e.preventDefault();
 										$.post("/recommend/author?uuid=" + ANCHOR.getParams().uuid, function(data){
-											ANCHOR.route("#author?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.author.uuid);
+											ANCHOR.route("#author?uuid=" + data.author.uuid);
 										})
 									})
 									$("div.graph").html(data);
@@ -278,7 +279,7 @@ $(document).ready(function(){
 												console.log("clicked");
 												$("#add_class_button").attr("disabled", "disabled")
 												$.post("/add_class", {name : $("#class_name").val()}, function(data){
-													ANCHOR.route("#class?uuid=" + data.uuid + "&buoy=" + ANCHOR.getParams().buoy);
+													ANCHOR.route("#class?uuid=" + data.uuid);
 												})
 											})
 											$.get("../client/views/class.html", function(data){
@@ -287,7 +288,7 @@ $(document).ready(function(){
 													e.preventDefault();
 													console.log("CLASSY");
 													$.post("/recommend/class?uuid=" + ANCHOR.getParams().uuid, function(data){
-														ANCHOR.route("#class?buoy="+ ANCHOR.getParams().buoy + "&uuid=" + data.class.uuid);
+														ANCHOR.route("#class?uuid=" + data.class.uuid);
 													})
 												})
 												$.get("../client/views/upload.html", function(data){
@@ -319,7 +320,7 @@ $(document).ready(function(){
 																									alert(data.errors[0].msg)
 																								}
 																								else{
-																									ANCHOR.route("#user_uploads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.user.uuid)
+																									ANCHOR.route("#user_uploads?uuid=" + data.user.uuid)
 																								}
 																							})
 																						})
@@ -335,7 +336,7 @@ $(document).ready(function(){
 																													alert(data.errors[0].msg)
 																												}
 																												else{
-																													ANCHOR.route("#user_downloads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.user.uuid)
+																													ANCHOR.route("#user_downloads?uuid=" + data.user.uuid)
 																												}
 																											})
 																										})
@@ -343,7 +344,7 @@ $(document).ready(function(){
 																								    var page = ANCHOR.page();
 																								    console.log(page);
 																								    if(!page){
-																								    	ANCHOR.route("#buoy?buoy=d2b358ee-b58d-11ed-afa1-0242ac120002");
+																								    	ANCHOR.route("#home");
 																								    }
 																								    else if(!$.isEmptyObject(ANCHOR.getParams())){
 																									    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());

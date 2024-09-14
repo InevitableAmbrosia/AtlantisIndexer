@@ -22,7 +22,7 @@
 		</div>
 		<div class='grid_1'>
 			<!--<input type="file" id="upload_files" multiple name="files">!-->
-			<input id="infoHash" disabled placeholder="infoHash">
+			<input id="infoHash" placeholder="infoHash">
 		</div>
 		<br>
 		<div class="torrent_message">
@@ -92,7 +92,11 @@
 			function addAuthorArea(id, author, cb){
 				var a = document.createElement("a");
 				$(a).text((author.charAt(0) == author.charAt(0).toUpperCase() ? author + " " : toTitleCase(author) + " "));
-				$(a).attr("href", "#authors?id=" +id)
+				$(a).attr("href", "#author?uuid=" + id)
+				$(a).click(function(e){
+					e.preventDefault();
+					ANCHOR.route("#author?uuid=" + id);
+				})
 				var div = document.createElement("div");
 				$(div).attr("id", "authors_div")
 				$(div).attr("data-id", id)
@@ -179,7 +183,7 @@
 				<label for="edition_title">Trans., Ed. or Vol.:</label> 
 			</div>
 			<div class="grid_1">
-				<input name="edition" id="edition_title" placeholder="Title of Edition or Volume (e.g. II)">
+				<input name="edition" id="edition_title" placeholder="Ed., Trans., or Vol.">
 			</div>
 			<br><br><br>
 			<div class="grid_0">
@@ -219,9 +223,9 @@
 		<label>Copyright</label>
 	</div>
 	<div class="grid_1">
-		<input type="radio" name="copyrightz" id="public_domain">
+		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
 		<label for="public_domain">Public Domain</label>
-		<!--<input type="radio" name="copyrightz" id="copyrighted">
+		<!--<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
 		<label for="copyrighted">I own the copyrights and would like to be paid.</label>!-->
 	</div>
 	<div class="copyrighted">
@@ -248,13 +252,7 @@
 			<input id="link_address" name="LINK_address">
 		</div>
 	</div>
-	<br><br><br><br><br><br>
-	<br>
-	
-	<br>
-	<br>
-	<br>
-	<br>
+	<br><br><br>
 	<div class="grid_0">
 		<button id="submit">Upload!</button>
 	</div><br><br><br>

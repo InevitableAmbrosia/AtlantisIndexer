@@ -69,7 +69,7 @@ function initializeUpload(cb){
 			//get the data for this uuid, it's a new format being added
 			
 			caller = setTimeout(function(){
-				$.get("/upload/" + uploadModel.uuid + "?buoy=" + ANCHOR.getParams().buoy, function(data){
+				$.get("/upload/" + uploadModel.uuid, function(data){
 					$("#submit").prop("disabled", false)
 					console.log(data);
 					uploadModel.atlsd = data.atlsd;
@@ -98,10 +98,10 @@ function initializeUpload(cb){
 						
 					})*/
 
-					$("#newUploadHeader a").text(" " + toTitleCase(data.record._fields[0]))
+					$("#newUploadHeader a").text(" " + toTitleCase(decodeEntities(decodeEntities(data.record._fields[0]))))
 					$("#newUploadHeader a").click(function(e){
 						e.preventDefault();
-						ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + uploadModel.uuid)
+						ANCHOR.route("#source?uuid=" + uploadModel.uuid)
 					})
 					$("#title").val(decodeEntities(data.record._fields[0])).trigger("change")
 					$("#date").val(decodeEntities(data.record._fields[3])).trigger("change");
@@ -283,12 +283,12 @@ function initializeUpload(cb){
 					cb();
 				})
 				console.log(uploadModel)
-			},3333)			
+			},889)			
 			
 		}
 	}
-	if(!params.uuid){
-		$.get("/upload_structure/" + ANCHOR.getParams().buoy, function(data){
+	if($.isEmptyObject(params)){
+		caller = setTimeout(function(){$.get("/upload_structure", function(data){
 			$("#submit").prop("disabled", false)
 			uploadModel.atlsd = data.atlsd;
 			$("#link_address").val(data.atlsd ? data.atlsd : "")
@@ -318,7 +318,8 @@ function initializeUpload(cb){
 
 			})
 			cb();
-		})	
+		})
+		},889)	
 	}
 
 	$("#format").change(function(){
@@ -406,7 +407,7 @@ function htmlUpload(){
 		var files = this.files; 
 		seed(files, function(err, torrent){
 
-			alert("Please download the torrent file and seed in BiglyBT with the WebTorrent plugin. Other torrent clients do not support WebTorrent seeding to the Browser. ****WEBTORRENT DESKTOP IS CURRENTLY BROKEN, SO DO NOT USE IT****")
+			//alert("Please download the torrent file and seed in BiglyBT with the WebTorrent plugin. Other torrent clients do not support WebTorrent seeding to the Browser. ****WEBTORRENT DESKTOP IS CURRENTLY BROKEN, SO DO NOT USE IT****")
 			$(".torrentArea").empty();
 			uploadModel.torrent.length = torrent.length;
 			uploadModel.torrent.infoHash = torrent.infoHash;
@@ -553,15 +554,14 @@ function htmlUpload(){
 		$("#submit").prop("disabled", true)
 		$("body").css("cursor", "progress");
 		$.post("/upload/" + uploadModel.uuid, {public_domain: $("#public_domain").val(), payWhatYouWant : $("#payWhatYouWant").prop("checked"), 
-			payment : $("#payment").prop("checked"), copyrighted : $("#copyrighted").prop("checked"), 
-			buoy : ANCHOR.getParams().buoy, type: uploadModel.type, edition_img : uploadModel.edition.edition_img, 
+			payment : $("#payment").prop("checked"), copyrighted : $("#copyrighted").prop("checked"), type: uploadModel.type, edition_img : uploadModel.edition.edition_img, 
 			edition_pages : uploadModel.edition.edition_pages, edition_publisher : uploadModel.edition.edition_publisher,
 		 date: uploadModel.date, title : uploadModel.title, authors : JSON.stringify(uploadModel.authors), ETH_address: uploadModel.torrent.LINK_address, 
 		 USD_price
 : uploadModel.torrent.LINK_price, 
 		 torrent : JSON.stringify(uploadModel.torrent), 
 			edition_date : uploadModel.edition.edition_date, edition_uuid : uploadModel.edition.edition_uuid, 
-			edition_title : uploadModel.edition.edition_title, classes : JSON.stringify(uploadModel.classes)},
+			edition_title : uploadModel.edition.edition_title, edition_no : uploadModel.edition.edition_no, classes : JSON.stringify(uploadModel.classes)},
 			 function(data){
 			 	$("body").css("cursor", "default");
 			if(data.errors && data.errors.length > 0){
@@ -573,7 +573,7 @@ function htmlUpload(){
 			}
 			if(data.uuid)
 				postHealth();
-				ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.uuid);
+				ANCHOR.route("#source?uuid=" + data.uuid);
 			return false; 
 		})
 	})

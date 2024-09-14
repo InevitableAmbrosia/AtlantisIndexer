@@ -4,7 +4,7 @@ function initializeHealth(){
 		postHealth();
 	},30000)
 
-	health.mintInterval = setInterval(function(){
+	/*health.mintInterval = setInterval(function(){
 		var numSeeding = th0th.client.torrents.length;
 		var amount = parseInt(numSeeding / 8)
 		console.log("ASDF: " + numSeeding, amount)
@@ -13,7 +13,7 @@ function initializeHealth(){
 			$.post("/mintSeeding", {amount : amount}, function(data){
 		})
 		}
-	},86400000) //
+	},86400000) //*/
 }
 
 function postHealth(){

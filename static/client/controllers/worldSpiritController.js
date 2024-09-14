@@ -18,13 +18,11 @@ function getAphorism(id){
     		if(data.classes && data.classes.length > 0){
 	    		data.classes.forEach(function(node, i){
 	    			if(i===0){
-	    				$("#src_aphorism_classes").append("<a class='ANCHOR class' href='#class?buoy='" + ANCHOR.getParams().buoy +
-	    				"&uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
+	    				$("#src_aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
 	    		
 	    			}
 	    			else{
-	    				$("#src_aphorism_classes").append(", <a class='ANCHOR class' href='#class?buoy='" + ANCHOR.getParams().buoy +
-	    				"&uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
+	    				$("#src_aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
 	    			}
 	    		})
     		}
@@ -279,16 +277,16 @@ function initializeSourceSpirit(){
 			$("#src_fresh_aphorism").fadeOut(666)	
 		}
 		else if(e.group === "User"){
-			ANCHOR.route("#user?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id);
+			ANCHOR.route("#user?uuid=" + e.id);
 		}
 		else if(e.group === "Torrent"){
-			ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.sourceUUID);
+			ANCHOR.route("#source?uuid=" + e.sourceUUID);
 		}
 		else if(e.group === "Class"){
-			ANCHOR.route("#class?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id)
+			ANCHOR.route("#class?uuid=" + e.id)
 		}
 		else if(e.group === "Source"){
-			ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id)
+			ANCHOR.route("#source?uuid=" + e.id)
 		}
 
     }
@@ -349,12 +347,11 @@ function initializeSourceSpirit(){
 
     $("#src_cite").click(function(){
     	$(this).prop("disabled", true);
-    	console.log(ANCHOR.getParams().buoy)
-    	$.get("/dialectic_cite/" + $("#src_dialectic_sources").val()+"?buoy=" + ANCHOR.getParams().buoy + "&pages=" + $("#src_cite_pages").val(), function(data){
+    	$.get("/dialectic_cite/" + $("#src_dialectic_sources").val()+"?pages=" + $("#src_cite_pages").val(), function(data){
      		$("#src_cite").prop('disabled', false);
      		var editionText = getEditionText(data.record, data.title, data.date, data.pages);
      		console.log(data.record);
-    		$(".dialectic_citations").append("<li><a class='ANCHOR source' href='#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.uuid + 
+    		$(".dialectic_citations").append("<li><a class='ANCHOR source' href='#source?&uuid=" + data.uuid + 
     		"'>" + editionText + "</a></li>")
     		worldSpirit.citations.push({infoHash : $("#src_dialectic_sources").val(), pages : data.pages, editionText : editionText, sourceUUID : data.uuid});
     	})
@@ -399,7 +396,7 @@ function initializeSourceSpirit(){
     		split = [];
     	}
     	$("#src_dialectic_submit").prop("disabled", true)
-    	$.post("/src_new_aphorism", {buoy: ANCHOR.getParams().buoy, classes: JSON.stringify(split), 
+    	$.post("/src_new_aphorism", {classes: JSON.stringify(split), 
     		type : "", title: $("#src_dialectic_title").val(), text : $("#src_dialectic_text").val(), 
     		dialectic : $("#src_dialectic_select").val(), target : ANCHOR.getParams().uuid,
     		citations : JSON.stringify(worldSpirit.citations), sourceUUID : worldSpirit.sourceUUID},
@@ -427,7 +424,7 @@ function initializeWorldSpirit(){
 	$(".dialectic_citations").empty();
 
 	var color = d3.scaleOrdinal(d3.schemeCategory10);
-    $.get("/dialectic/" + ANCHOR.getParams().buoy,  function(data){
+    $.get("/dialectic",  function(data){
     	var gData = {
     		nodes : [],
     		links : []
@@ -604,7 +601,7 @@ function initializeWorldSpirit(){
     }
     )
 
-    if(ANCHOR.getParams().uuid){
+    if(ANCHOR.getParams() && ANCHOR.getParams().uuid){
     	$("#fresh_aphorism").hide();
     	$("#overWorld").show();
     	$("#oldOverWorld").fadeIn(1337);
@@ -621,16 +618,16 @@ function initializeWorldSpirit(){
 			$("#fresh_aphorism").fadeOut(666)	
 		}
 		else if(e.group === "User"){
-			ANCHOR.route("#user?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id);
+			ANCHOR.route("#user?&uuid=" + e.id);
 		}
 		else if(e.group === "Torrent"){
-			ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.sourceUUID);
+			ANCHOR.route("#source?uuid=" + e.sourceUUID);
 		}
 		else if(e.group === "Class"){
-			ANCHOR.route("#class?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id)
+			ANCHOR.route("#class?uuid=" + e.id)
 		}
 		else if(e.group === "Source"){
-			ANCHOR.route("#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + e.id)
+			ANCHOR.route("#source?uuid=" + e.id)
 		}
 
     }
@@ -691,12 +688,11 @@ function initializeWorldSpirit(){
 
     $("#cite").click(function(){
     	$(this).prop("disabled", true);
-    	console.log(ANCHOR.getParams().buoy)
-    	$.get("/dialectic_cite/" + $("#dialectic_sources").val()+"?buoy=" + ANCHOR.getParams().buoy + "&pages=" + $("#cite_pages").val(), function(data){
+    	$.get("/dialectic_cite/" + $("#dialectic_sources").val()+"?pages=" + $("#cite_pages").val(), function(data){
      		$("#cite").prop('disabled', false);
      		var editionText = getEditionText(data.record, data.title, data.date, data.pages);
      		console.log(data.record);
-    		$(".dialectic_citations").append("<li><a class='ANCHOR source' href='#source?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + data.uuid + 
+    		$(".dialectic_citations").append("<li><a class='ANCHOR source' href='#source?uuid=" + data.uuid + 
     		"'>" + editionText + "</a></li>")
     		worldSpirit.citations.push({infoHash : $("#dialectic_sources").val(), pages : data.pages, editionText : editionText, sourceUUID : data.uuid});
     	})
@@ -712,13 +708,11 @@ function initializeWorldSpirit(){
     		if(data.classes && data.classes.length > 0){
 	    		data.classes.forEach(function(node, i){
 	    			if(i===0){
-	    				$("#aphorism_classes").append("<a class='ANCHOR class' href='#class?buoy='" + ANCHOR.getParams().buoy +
-	    				"&uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
+	    				$("#aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
 	    		
 	    			}
 	    			else{
-	    				$("#aphorism_classes").append(", <a class='ANCHOR class' href='#class?buoy='" + ANCHOR.getParams().buoy +
-	    				"&uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
+	    				$("#aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
 	    			}
 	    		})
     		}
@@ -790,7 +784,7 @@ function initializeWorldSpirit(){
     		split = [];
     	}
     	$("#dialectic_submit").prop("disabled", true)
-    	$.post("/new_aphorism", {buoy: ANCHOR.getParams().buoy, classes: JSON.stringify(split), 
+    	$.post("/new_aphorism", {classes: JSON.stringify(split), 
     		type : "", title: $("#dialectic_title").val(), text : $("#dialectic_text").val(), 
     		dialectic : $("#dialectic_select").val(), target : ANCHOR.getParams().uuid ? ANCHOR.getParams().uuid : "",
     		citations : JSON.stringify(worldSpirit.citations)},
