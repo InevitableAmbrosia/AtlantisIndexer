@@ -289,8 +289,8 @@ export default{
               "type": "event"
           }
       ]
-	    const propagateAddress = "0x1b560b77b1f231BE7CF32b9d02AD778713F0243A" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
-	    const contractAddress = "0x69AdBA76CC067D5B18686b64Dc24a4b69B1b9Ce3"//"0xc20ae321aAb36d23fBAeF94e2D37920CF42c2364"
+	    const propagateAddress = "0x68663EB789CB1b20eBa9F693fdf927Dc195DB114" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
+	    const contractAddress = "0x29Bf962436a63fd1E7b4d803Da9Bff3F079a5806"//"0xc20ae321aAb36d23fBAeF94e2D37920CF42c2364"
     	
 		const web3 = new Web3("https://rpc2.sepolia.org");
 		//0xE9fA7600eaa7f22E7e561f7359E3a090dB7FA936
