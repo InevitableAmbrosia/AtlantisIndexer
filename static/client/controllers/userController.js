@@ -23,14 +23,25 @@ function initializeUser(cb){
 		$("#stats_rank").text(data.access.rankTitle);
 		$("#stats_uploads").text(data.uploads);
 		console.log(data.uploads)
-		$("#stats_snatches").text(parseInt(data.snatches));
+		var infoHashes = []
+		if(data.downloaded && data.downloaded.length > 0){
+			data.downloaded.forEach(function(infoHash){
+				if(infoHashes.indexOf(infoHash) === -1){
+					infoHashes.push(infoHash);
+				}
+				console.log(infoHash)
+			})
+
+		}
+
+		$("#stats_snatches").text(parseInt(infoHashes.length));
 		console.log(data.user.paranoia)
 		if(!data.user.paranoia){
 			$("#stats_user_uploads").text("[See Uploads]");
-			$("#stats_user_uploads").attr("href", "#user_uploads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + ANCHOR.getParams().uuid)
+			$("#stats_user_uploads").attr("href", "#user_uploads?uuid=" + ANCHOR.getParams().uuid)
 			$("#stats_user_uploads").show();
 			$("#stats_user_downloads").text("[See Downloads]")
-			$("#stats_user_downloads").attr("href", "#user_downloads?buoy=" + ANCHOR.getParams().buoy + "&uuid=" + ANCHOR.getParams().uuid)
+			$("#stats_user_downloads").attr("href", "#user_downloads?uuid=" + ANCHOR.getParams().uuid)
 			$("#stats_payout").text(data.user.payout + " ATLANTIS!")			
 		}
 		$("#stats_uploaded").text(prettyBytes(data.user.totalUp));

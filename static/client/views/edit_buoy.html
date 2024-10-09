@@ -1,7 +1,7 @@
-<form>
+<!--<form>
 	<h2>Invite</h2>
 	<input  id="invite_input" placeholder="Invite (uuid)"><button id="invite_button" type="button" onclick="return false">Invite!</button>
-</form>
+</form>!-->
 
 <form>
 	<h2>Post Bulletin</h2>
@@ -47,7 +47,7 @@
 	$(".bulletin_submit").click(function(){
 		var that = this;
 		$(this).prop("disabled",true)
-		$.post("/bulletin", {title : $("#bulletin_title").val(), text : $(".bulletin_text").val()}, function(data){
+		$.post("/bulletin/node", {title : $("#bulletin_title").val(), text : $(".bulletin_text").val()}, function(data){
 			$(that).prop('disabled',false)
 			$("#bulletin_title").val("");
 			$(".bulletin_text").val("");

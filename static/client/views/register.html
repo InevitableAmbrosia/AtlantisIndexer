@@ -21,10 +21,10 @@
 			}
 			else{
 				console.log(data);
-				initializeBuoySelect(ANCHOR.getParams().buoy);
+				//initializeBuoySelect(ANCHOR.getParams().buoy);
 				setUser(data.user);
 				userPanel(data.user)
-				ANCHOR.route("#user?uuid="+getUser().uuid + "&buoy=" + ANCHOR.getParams().buoy);
+				ANCHOR.route("#user?uuid="+getUser().uuid);
 
 			}
 			

@@ -32,7 +32,7 @@
 			if(data.errors){
 				if(data.errors[0].msg === "401"){
 					dismissLoader();
-					ANCHOR.route("#401?buoy=" + ANCHOR.getParams().buoy);
+					ANCHOR.route("#401");
 				}
 				else{
 					$("#login_errors").text(data.errors[0].msg);
@@ -45,7 +45,7 @@
 				userPanel(data.user);
 				clearInterval(health.healthInterval);
 				postHealth();
-				ANCHOR.route("#user?uuid=" + getUser().uuid + "&buoy=" + ANCHOR.getParams().buoy);
+				ANCHOR.route("#user?uuid=" + getUser().uuid);
 
 			}
 			

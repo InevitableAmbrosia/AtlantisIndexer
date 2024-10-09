@@ -15,7 +15,7 @@ function initializeHealth(){
 		}
 	},86400000) //*/
 }
-
+var initHealth = true;
 function postHealth(){
 	health.adjDown = th0th.getDownloaded() - health.prevDown;
 	health.adjUp = th0th.getUploaded() - health.prevUp;
@@ -34,25 +34,29 @@ function postHealth(){
 
 		})	
 	}*/
+	console.log(health.prevDown, th0th.getDownloaded())
+	if(initHealth || health.adjUp > 0 || health.adjDown > 0){
+		$.post("/update_health", {totalDown : health.adjDown, totalUp: health.adjUp}, function(data){
+			initHealth = false;
+			if(user){
+				health.totalUp = data.totalUp;
+				health.totalDown = data.totalDown;
+				health.ATLANTIS = data.ATLANTIS;
+			}
+			else{
+				health.totalUp = data.anonTotalUp;
+				health.totalDown = data.anonTotalDown;
+			}
+			health.ratio = health.totalUp ? (health.totalUp / health.totalDown).toFixed(3) : 0
+			console.log(health.ratio);
+			console.log(data);
+			$(".stat_downloaded").text(health.totalDown !== 0 ? prettyBytes(health.totalDown) : 0);
+			$(".stat_uploaded").text(health.totalUp !== 0 ? prettyBytes(health.totalUp) : 0);
+			$(".stat_ratio").text(health.ratio);
+			$(".stat_ATLANTIS").text(health.ATLANTIS);
+		})
+	}
 	
-	$.post("/update_health", {totalDown : health.adjDown, totalUp: health.adjUp}, function(data){
-		if(user){
-			health.totalUp = data.totalUp;
-			health.totalDown = data.totalDown;
-			health.ATLANTIS = data.ATLANTIS;
-		}
-		else{
-			health.totalUp = data.anonTotalUp;
-			health.totalDown = data.anonTotalDown;
-		}
-		health.ratio = health.totalUp ? (health.totalUp / health.totalDown).toFixed(3) : 0
-		console.log(health.ratio);
-		console.log(data);
-		$(".stat_downloaded").text(health.totalDown !== 0 ? prettyBytes(health.totalDown) : 0);
-		$(".stat_uploaded").text(health.totalUp !== 0 ? prettyBytes(health.totalUp) : 0);
-		$(".stat_ratio").text(health.ratio);
-		$(".stat_ATLANTIS").text(health.ATLANTIS);
-	})
 }
 
 

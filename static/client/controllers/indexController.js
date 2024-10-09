@@ -104,6 +104,9 @@ var firstLoad = true;
 			initializeGraph(dismissLoader);
 		}
 	}
+	else if(ANCHOR.page() === "AI"){
+		initializeAI();
+	}
 	else if(ANCHOR.page() === "ATLANTIS"){
 		initializeATLANTIS();
 	}
@@ -340,22 +343,25 @@ $(document).ready(function(){
 																												}
 																											})
 																										})
-																										ANCHOR.buffer();																				
-																								    var page = ANCHOR.page();
-																								    console.log(page);
-																								    if(!page){
-																								    	ANCHOR.route("#home");
-																								    }
-																								    else if(!$.isEmptyObject(ANCHOR.getParams())){
-																									    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
-																								    }							    	
-																								    else{
-																								    	ANCHOR.route("#" + page)
-																								    }
-																								    authenticateUser();
-																																								    
-																										init();
-																										pages();
+																										$.get("../client/views/AI.html", function(data){
+																											$("div.AI").html(data);
+																											ANCHOR.buffer();																				
+																									    var page = ANCHOR.page();
+																									    console.log(page);
+																									    if(!page){
+																									    	ANCHOR.route("#home");
+																									    }
+																									    else if(!$.isEmptyObject(ANCHOR.getParams())){
+																										    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
+																									    }							    	
+																									    else{
+																									    	ANCHOR.route("#" + page)
+																									    }
+																									    authenticateUser();
+																																									    
+																											init();
+																											pages();
+																										})
 
 																									
 																									

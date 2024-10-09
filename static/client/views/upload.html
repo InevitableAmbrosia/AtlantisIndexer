@@ -1,36 +1,12 @@
 <div class="titleBreak">
 	<h2 id="uploadHeading">Upload</h2>
-	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR MEDIA YOU HAVE COPY-RIGHTS TO!*******</span>
-	<span>To catalogue things properly, if the Source already exists on the site, use "Add Torrent" from the Source's page, or autocomplete the title on this page!<br><br><br> Please take your time to fill out the Edition section, to increase the quality of uploads. If you're uploading an Audiobook of a certian edition that already has a PDF, don't create a new edition, but select the edition of the PDF.<br><br><br> Please do not upload unless you can seed on the desktop using the BiglyBT WebTorrent plugin!</span>
 	<span id="contribution">We thank you for your Contribution!</span>
+	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR MEDIA YOU HAVE COPY-RIGHTS TO!*******</span>
+	<span id="upload_inst">Ebooks, Audiobooks, Classical Music, and Documentaries are allowed.<br><br><br>To catalogue things properly, if the Source already exists on the site, use "Add Torrent" from the Source's page, or autocomplete the title on this page!<br><br><br> Please take your time to fill out the Edition section, to increase the quality of uploads. If you're uploading an Audiobook of a certian edition that already has a PDF, don't create a new edition, but select the edition of the PDF.<br><br><br> It is preferred that if you choose to contribute, you seed with the BiglyBT WebTorrent plugin. This allows torrents to be seeded to the browser. Deluge has incoming support for WebTorrent, but not yet. WebTorrent Desktop does not work! But if you want, you can seed using your preferred client and I will pick it up.<br><br><br>Please do not upload unless you know how to seed a torrent on your Desktop.</span>
+
 </div>
 <h3 id="newUploadHeader"><span>Uploading</span><a href="#"></a></h3>
 <form>
-	<div id="torrent_area">
-		<div class="grid_0">
-			<label for="upload_files">Upload files: </label>
-		</div>
-		<div class="grid_1">
-			<input type="file" id="upload_files" multiple>
-		</div><br><br><br>
-		<div class="torrentArea"></div>
-		<br>
-		<br>
-		<br>
-		<div class="grid_0">
-			<label for="infoHash">infoHash</label>
-		</div>
-		<div class='grid_1'>
-			<!--<input type="file" id="upload_files" multiple name="files">!-->
-			<input id="infoHash" placeholder="infoHash">
-		</div>
-		<br>
-		<div class="torrent_message">
-		</div>
-	</div>
-	<br>
-	<br>
-	<br>
 	<div class="newUpload">
 		<div class="grid_0">
 			<label for="title">Source Title: </label>
@@ -84,9 +60,12 @@
 			<div class="search_authors">
 				<input name="author" class="searchField search_upload_authors_input" autocomplete="off" id="author_input" placeholder="Author"><ul class="autosuggestBox"></ul>
 			</div>
-			<button id="add_author">Add Author</button>
-			<button id="create_author">Create Author</button><!-- TODO: warning if not already created !-->
+			<!--<button id="add_author">Add Author</button>!-->
+			<button id="create_author">Create New Author</button><!-- TODO: warning if not already created !-->
 		</div>
+		<br><br><br>
+			
+
 		<script>
 			var authorCount = 0;
 			function addAuthorArea(id, author, cb){
@@ -225,31 +204,53 @@
 	<div class="grid_1">
 		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
 		<label for="public_domain">Public Domain</label>
-		<!--<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
-		<label for="copyrighted">I own the copyrights and would like to be paid.</label>!-->
+		<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
+		<label for="copyrighted">Sell for ETH.</label>
 	</div>
 	<div class="copyrighted">
-		<div class="grid_0 copy">
-			<label>Media Payment</label>
-		</div>
-		<div class="grid_1 copy">
-			<input id="payWhatYouWant" type="radio" name="payment" value="payWhatYouWant">
-			<label for="payWhatYouWant">Pay What You Want!!!</label>
-			<br>
-			<input id="payment" type="radio" name="payment" value="payment">
-			<label for="payment">Charge ATLS</label>
-		</div>
 		<div class="grid_0 paid copy">
-			<label for="LINK_price"># Coins</label>
+			<label for="LINK_price">USD Price</label>
 		</div>
 		<div class="grid_1 paid copy">
 			<input id="link_price" name="LINK_price">
 		</div>
-		<div class="grid_0 copy">
-		<label for="LINK_address">ATLS Address</label>
+		<div class="grid_0 paid copy">
+		<label for="LINK_address">ETH Address</label>
 		</div>
-		<div class="grid_1 copy">
+		<div class="grid_1 paid copy">
 			<input id="link_address" name="LINK_address">
+		</div>
+	</div>
+	<br><br><br><br>
+	<div class="APA">
+		<div class="grid_0">
+			<label for="rename_file">Rename File APA Format</label>
+		</div>
+		<div class="grid_1">
+			<button id="APA">Copy APA Citation</button>
+		</div>
+	</div>
+	<br><br><br><br>
+	<div id="torrent_area">
+			<div class="grid_0">
+				<label for="upload_files">Upload files: </label>
+			</div>
+			<div class="grid_1">
+				<input type="file" id="upload_files" multiple>
+			</div><br><br><br>
+			<div class="torrentArea"></div>
+			<br>
+			<br>
+			<br>
+			<div class="grid_0">
+				<label for="infoHash">infoHash</label>
+			</div>
+			<div class='grid_1'>
+				<!--<input type="file" id="upload_files" multiple name="files">!-->
+				<input id="infoHash" placeholder="infoHash">
+			</div>
+			<br>
+			<div class="torrent_message">
 		</div>
 	</div>
 	<br><br><br>

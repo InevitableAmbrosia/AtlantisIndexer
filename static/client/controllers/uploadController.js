@@ -106,7 +106,7 @@ function initializeUpload(cb){
 					$("#title").val(decodeEntities(data.record._fields[0])).trigger("change")
 					$("#date").val(decodeEntities(data.record._fields[3])).trigger("change");
 					data.record._fields[1].forEach(function(author){
-						addAuthor(decodeEntities(author));
+						addAuthor(author);
 					})
 					
 					if(data.record._fields[2] && data.record._fields[2].length > 0){
@@ -334,11 +334,10 @@ function initializeUpload(cb){
 }
 
 function addAuthor(data){
-
+	console.log(data);
 	if(!data || !data.author){
 		return false;
 	}
-
 	uploadModel.authors.push({
 		uuid : data.uuid,
 		author : data.author
@@ -403,20 +402,132 @@ function htmlUpload(){
 	$("#author_importance").hide();
 	$("#author_role").hide();
 
-	$("input:file").change(function(){
-		var files = this.files; 
-		seed(files, function(err, torrent){
+	$("#APA").click(function(e){
+		e.preventDefault();
+		console.log("HERE")
+		copyToClipboard(APA())
+		function copyToClipboard(name) {
+		    var $temp = $("<input>");
+		    $("body").append($temp);
+		    $temp.val(name).select();
+		    document.execCommand("copy");
+		    $temp.remove();
+		}
+		function APA(){
+		
 
-			//alert("Please download the torrent file and seed in BiglyBT with the WebTorrent plugin. Other torrent clients do not support WebTorrent seeding to the Browser. ****WEBTORRENT DESKTOP IS CURRENTLY BROKEN, SO DO NOT USE IT****")
-			$(".torrentArea").empty();
-			uploadModel.torrent.length = torrent.length;
-			uploadModel.torrent.infoHash = torrent.infoHash;
-			uploadModel.torrent.torrentFileBlobURL = torrent.torrentFileBlobURL;
-			uploadModel.torrent.media = $("#media").val();
-			uploadModel.torrent.format = $("#format").val();
-			$(".torrentArea").append('<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Torrent]</a>')
-			$(".torrentArea").append('&nbsp;<a href="magnet:?xt=urn:btih:' + torrent.infoHash + '&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337">[magnetURI]</a>')
-		});
+
+		  	var publisherHtml = "";
+		  	var editionField = "";
+		   uploadModel.authors.forEach(function(field, i){
+		      	editionField += decodeEntities(decodeEntities(field.author))
+		      	if(uploadModel.authors[i+1]){
+		      		editionField += ", "
+		      	}
+					else if(field.author && !field.author.endsWith(".")){
+						editionField += ". "
+					}
+					else{
+						editionField += " "
+					}
+		      })
+		      if(!uploadModel.date && uploadModel.edition.edition_date){
+		      	editionField += "(" + uploadModel.edition.edition_date + "). ";
+		      }
+		      else{
+		     	 editionField += uploadModel.date ? "(" + 
+		     	 uploadModel.date + (uploadModel.edition.edition_date && uploadModel.edition.edition_date !== 
+		     	 	uploadModel.date ? "/" + 
+		     	 	uploadModel.edition.edition_date + "). " : "). ") : ""
+
+		      }
+		      editionField += uploadModel.title + '. '
+
+
+		      if(uploadModel.edition.edition_publisher){
+		      	if(uploadModel.edition.edition_publisher && uploadModel.edition.edition_publisher.endsWith(".")){
+		        	publisherHtml += uploadModel.edition.edition_publisher ? uploadModel.edition.edition_publisher + " " : " "
+		      	}
+		      	else{
+		        	publisherHtml += (uploadModel.edition.edition_publisher ? uploadModel.edition.edition_publisher : " ") + 
+		        	(uploadModel.type !== "Journal" ? ". " : ", ")
+		      	}
+		      }
+		     if(uploadModel.type === "Journal"){
+		     	  editionField += publisherHtml;
+		     }
+		      if(uploadModel.edition.edition_title && uploadModel.edition.edition_title !== ""){
+		      	if(!uploadModel.edition.edition_title.endsWith(".")){
+		      		editionField += uploadModel.edition.edition_title + (uploadModel.type !== "Journal" ? ". " : "")
+		      	}
+		      	else{
+		      		editionField += uploadModel.edition.edition_title + " ";
+		      	}
+		      }
+		      if(uploadModel.type !== "Journal"){
+		      	editionField += publisherHtml;
+		      }
+		      if(uploadModel.edition.edition_no){
+		      	editionField += "(" + uploadModel.edition.edition_no + ")"
+		      	if(uploadModel.edition.edition_pages){
+		      		editionField += ": "
+		      	}
+		      }
+		      if(uploadModel.edition.edition_pages){
+		      	editionField += uploadModel.edition.edition_pages + "."
+		      }
+		      console.log(uploadModel.classes)
+		   	//if(uploadModel.classes & uploadModel.classes.length > 0){
+		      	if(uploadModel.classes[0])
+		   		editionField += " ["
+		   		uploadModel.classes.forEach(function(c,i){
+		   			editionField += c;
+		   			if(i < uploadModel.classes.length - 1){
+		   				editionField += ", "
+		   			}
+		   			else{
+		   				editionField += "]"
+		   				editionField = editionField.replace(/[/\\?%*:|"<>]/g, '-');
+			   
+							
+					
+		   			}
+		   		})
+		   	//}
+		   				return editionField.trim();
+		   	
+		      
+		}
+
+	})
+
+	$("input:file").change(function(){
+		function renameFile(originalFile, newName) {
+		    return new File([originalFile], newName, {
+		        type: originalFile.type,
+		        lastModified: originalFile.lastModified,
+		    });
+		}
+
+
+
+		
+		var files = this.files; 
+		
+			seed(files, function(err, torrent){
+
+				//alert("Please download the torrent file and seed in BiglyBT with the WebTorrent plugin. Other torrent clients do not support WebTorrent seeding to the Browser. ****WEBTORRENT DESKTOP IS CURRENTLY BROKEN, SO DO NOT USE IT****")
+				$(".torrentArea").empty();
+				uploadModel.torrent.length = torrent.length;
+				uploadModel.torrent.infoHash = torrent.infoHash;
+				uploadModel.torrent.torrentFileBlobURL = torrent.torrentFileBlobURL;
+				uploadModel.torrent.media = $("#media").val();
+				uploadModel.torrent.format = $("#format").val();
+				$(".torrentArea").append('<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Torrent]</a>')
+				$(".torrentArea").append('&nbsp;<a href="magnet:?xt=urn:btih:' + torrent.infoHash + '&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337">[magnetURI]</a>')
+			});
+		
+		
 	})
 
 	$("#infoHash").change(function(){
@@ -478,33 +589,36 @@ function htmlUpload(){
 
 	$("#copyrighted").change(function(){
 		if($(this).prop("checked")){
-			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. propagate.info will take NO ROYALTIES from your ATLANTIS payment address. Be sure to include an ATLANTIS-compatible ETH address!');
+			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. propagate.info will take a 50% Royalty. Be sure to include an ETH address!');
 			if(cnfrm != true)
 			{
 			 $(this).prop("checked", false)
+			 $('.paid').fadeOut();
 			}
 			else{
 				$(".copyrighted").fadeIn(777);
 				$(".copy:not(.paid)").fadeIn(777);
 				$(this).prop('checked', true)
+				$(".paid").fadeIn();
 			}
 		}
 		else{
 			$(".copyrighted").fadeOut(777);
 			$(".copy").fadeOut(777)
+			$(".paid").fadeOut();
 		}
 	})
 
 	$("#public_domain").change(function(){
 		if($(this).prop("checked")){
-			var cnfrm = confirm("By checking this box, you are certifying that the torrent you are uploading is in the public domain.")
+			/*var cnfrm = confirm("By checking this box, you are certifying that the torrent you are uploading is in the public domain.")
 			if(cnfrm != true){
 				$(this).prop("checked", false)
 			}
 			else{
 				$("#payment").prop('checked', false)
 				$(".copy").fadeOut(666)		
-			}
+			}*/
 		}
 
 	})
@@ -521,13 +635,7 @@ function htmlUpload(){
 		} 
 	})
 
-	$("#payWhatYouWant").change(function(){
-		if($(this).prop("checked")){
-			$(".paid").fadeOut();
-			$("#link_price").val("0");
-		}
-	})
-
+	
 	$("#create_author").click(function(e){
 		e.preventDefault();
        $("body").css("cursor", "progress");

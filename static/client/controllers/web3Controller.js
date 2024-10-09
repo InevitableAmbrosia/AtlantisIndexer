@@ -45,9 +45,8 @@ async function initPayButton(btn){
     //const contract = await new web3.eth.Contract(json, "0x8f370C3a42054A0C1A216270a85f67B678E2711a")
     console.log("CLICKED")
     // paymentAddress is where funds will be send to
-    const contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
 
-    const propagateAddress = "0xd6616Cf7F133F0c00E2712718B8133c20E3F6605" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
+    const propagateAddress = "0xaafB904FFDb0552393651a4E02A88c9f016F41F5" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
     const curatorAddress = btn.data("curator-address");
     const torrentUUID = btn.data("torrent-uuid");
     console.log(torrentUUID);
@@ -65,54 +64,224 @@ async function initPayButton(btn){
 
     console.log(curatorAddress);
       console.log(data);
-      var amountLINK = parseFloat(data.USD_price) > 0 ? (parseFloat(data.USD_price) * .5).toString() : (yarrr * .5).toString();
-       if(data.USD_price === 0.0 && !yarrr) {
-        yarr = 0
+      var amountETH = (parseFloat(data.USD_price) * .5).toString();
+
 
         $.get("/infoHash/" + torrentUUID, async function(data){
-          
-          let myContract2 = new web3.eth.Contract(abi, contractAddress, {from:account});
-          let data8 = myContract.methods.transfer(curatorAddress, web3.utils.toWei(parseFloat($(".donateInput").val()), "ether")).encodeABI();
-          const suggestion_gas2 = await web3.eth.getGasPrice();
-          console.log(account);
-          console.log(curatorAddress);
-          let value2 = web3.utils.toWei(parseFloat($(".donateInput").val()), "ether");
-          const estimate_gas2 = await web3.eth.estimateGas({
-              'from': account,
-              'to': curatorAddress
-           
-          });
-          let rawTx = {
-              'gasPrice': web3.utils.toHex(suggestion_gas2),
-              'gasLimit': web3.utils.toHex(estimate_gas2),
-              "from" : account,
-             // "nonce" : web3.utils.toHex(transCount),
-              "to": contractAddress,
-              "value" : value2,
-              "data" : data8
-          }
-          var batch = new web3.BatchRequest();
-          web3.eth.sendTransaction(rawTx).on('receipt', function(receipt){
-            $(".web3").prop("disabled", false)
-          })
-          return;  
-        })
+          const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
+          priceFeed.methods
+            .latestRoundData()
+            .call()
+            .then(async roundData => {
+              // Do something with roundData
+              var price = Number(roundData.answer) / 1e8;
+              console.log(price)
+              price = price.toFixed(2);
+              console.log("Latest Round Data", price)
+              function convertCurrency(amount, fromCurrency, toCurrency) { 
+                const exchangeRate = getExchangeRate(fromCurrency, toCurrency); 
+                const convertedAmount = exchangeRate * amount; 
+                return convertedAmount; 
+              } 
+               
+              function getExchangeRate(fromCurrency, toCurrency) { 
+                // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
+                const exchangeRates = { 
+                  ETH: 1,
+                  USD : price
+                }; 
+                return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
+              } 
+              const amount = parseFloat(amountETH); 
+              console.log(amount)
+              const fromCurrency = "USD"; 
+              const toCurrency = "ETH"; 
+               
+              const convertedAmount = convertCurrency(amount, "USD", "ETH");
+              const suggestion_gas2 = await web3.eth.getGasPrice();
+              console.log(convertedAmount);
+              let value2 = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
+              const estimate_gas2 = await web3.eth.estimateGas({
+                  'from': account,
+                  'to': propagateAddress
+               
+              });
+
+              let rawTx2 = {
+                  'gasPrice': web3.utils.toHex(suggestion_gas2),
+                  'gasLimit': web3.utils.toHex(estimate_gas2),
+                  "from" : account,
+                 // "nonce" : web3.utils.toHex(transCount),
+                  "to": propagateAddress,
+                  "value" : value2,
+              }
+              console.log(estimate_gas2);
+              //var batch = new web3.BatchRequest();
+              alert("You will process two transactions. The first is to the propagate.info address, for 50%. The second is to the curator address, for the other 50%. After your transaction has gone through in your client, it will take another 1-2 minutes to mine the transaction before your infoHash will be available to you! You must submit both transactions to receive an infoHash.")
+              web3.eth.sendTransaction(rawTx2).on('transactionHash', function (txHash) {
+
+                }).once("transactionHash", function(hash){
+                  transactionHash0 = hash;
+                }).on("sent", function(){
+                  sentTransaction();
+                }).on('receipt', async function (receipt) {
+                    const suggestion_gas = await web3.eth.getGasPrice();
+                    console.log(convertedAmount);
+                    let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
+                    const estimate_gas = await web3.eth.estimateGas({
+                        'from': account,
+                        'to': curatorAddress
+                     
+                    });
+                    let rawTx = {
+                        'gasPrice': web3.utils.toHex(suggestion_gas),
+                        'gasLimit': web3.utils.toHex(estimate_gas),
+                        "from" : account,
+                       // "nonce" : web3.utils.toHex(transCount),
+                        "to": curatorAddress,
+                        "value" : value,
+                    }
+                    web3.eth.sendTransaction(rawTx).once('transactionHash', function (hash) {
+                      transactionHash1 = hash;
+                    }).on("sent", function(){
+                      sentTransaction();
+                    }).on('receipt', function(receipt){
+                      console.log("receipt:" + receipt);
+                      procReceipt(transactionHash1);
+                    }).on('error', function (error) {
+                      $(".web3").prop("disabled", false)
+                      transErr(err);
+                    })                    
+                }).on('error', function (error) {
+                  $(".web3").prop("disabled", false)
+                  transErr(err);
+                });
+
+
+                var transactionHash0;
+                var transactionHash1;
+
+                var waitInterval;
+                var transactionInterval;
+                var uuid = crypto.randomUUID();
+                var sent = false;
+                var recCtn = false;
+
+                function transErr(err){
+                   alert(err.message)
+                  console.log(err)
+                  $(".web3").prop("disabled", false)
+                  $(".web3Status").hide();
+                  $(".web3Loader").fadeOut(777)
+                    dismissPP2();
+                    clearInterval(transactionInterval);
+                    clearInterval(waitInterval);
+                 } 
+            
+                function sentTransaction(){
+                    if(!sent){
+                       initializePP2();
+                      $(".web3Status").show();
+                      $(".web3Loader").show();
+                      $(".web3Loader").text("Processing payment!!!!")
+                      startLoading();
+                      sent = true;
+                    }      
+                    
+                     
+                }
+
+              function procReceipt(transactionHash, confirmationNumber){
+                    //$(".web3Loader").fadeIn(1337);
+                    clearInterval(waitInterval);
+                    console.log(confirmationNumber);
+                    var uuid = crypto.randomUUID();
+                    
+
+                    transactionInterval = setInterval(function(){
+                 
+                    
+                      $.post("/pollBatch/" + uuid + "?torrentUUID=" + torrentUUID, async function(data){
+                        if(data.bought){
+                          dismissPP2();
+                          $(".web3Status").hide();
+                          $(".web3Loader").hide();
+                          sent = false;
+                          if(data.prem){
+                            ANCHOR.route("#torrent?infoHash=" + data.infoHash);
+                          }
+                          clearInterval(pollInterval);
+                          clearInterval(waitInterval);
+                          clearInterval(transactionInterval);
+                          $(".web3").prop("disabled", false)
+                        }
+                      })
+                   }, 30000)   
+                   if(data.prem){
+                    alert("Transaction completed. Save your Transaction hash: " + transactionHash + "! You will be transferred to the torrent after 30 seconds of mining!!!")
+                   }
+                  
+                   
+                    
+                   
+                   $.post("/web3/" + transactionHash + "?uuid=" + uuid + "&torrentUUID=" + torrentUUID +"&booty=" + (data.USD_price > 0 ? "true" : "false"), function(){
+                    
+                   })
+                   
+                }
+
+
+                var confirmations = 0;
+                function startLoading(){
+                      var intervalMs = 300;
+
+                      waitInterval = setInterval(function(){
+                        var el = $(".web3Status");
+                        var dotsStr = el.text();
+                        var dotsLen = dotsStr.length;
+
+                        var maxDots = 5;
+                        $(".web3Status").text(dotsLen < maxDots ? dotsStr + '.' : '');
+                      }, intervalMs);
+                  }
+                  var pollInterval;
+                
+
+                function send(){
+                    sent = true;
+                    initializePP();
+                    $(".web3Status").show();
+                    $(".web3Loader").show();
+                    $(".web3Loader").text("Processing crypto pay!")
+                    
+                  function startLoading(){
+                      var intervalMs = 300;
+
+                      waitInterval = setInterval(function(){
+                        var el = $(".web3Status");
+                        var dotsStr = el.text();
+                        var dotsLen = dotsStr.length;
+
+                        var maxDots = 5;
+                        $(".web3Status").text(dotsLen < maxDots ? dotsStr + '.' : '');
+                      }, intervalMs);
+                  }
+                  startLoading(); 
+                }
+                  
+                return;
+            
+            })
         
-      };
+         
+        
+        
+      });
+  })
+}
       //  var batch = new web3.BatchRequest();
      /* */
-      var transactionHash0;
-      var transactionHash1;
-      //get suggestion Gas price
-
-
-//params for sign transaction
-        var waitInterval;
-        var transactionInterval;
-        var uuid = crypto.randomUUID();
-        var sent = false;
-        var recCtn = false;
-
+   
       var abi = [
           {
               "constant": true,
@@ -424,7 +593,7 @@ async function initPayButton(btn){
         type: "function",
       },
     ]
-    const addr = "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c"
+    /*const addr = "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c"
     const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, addr)
     priceFeed.methods
       .latestRoundData()
@@ -443,7 +612,7 @@ async function initPayButton(btn){
         function getExchangeRate(fromCurrency, toCurrency) { 
           // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
           const exchangeRates = { 
-            LINK: 1,
+            ETH: 1,
             USD : price
           }; 
           return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
@@ -451,7 +620,7 @@ async function initPayButton(btn){
          
         const amount = parseFloat(amountLINK); 
         const fromCurrency = "USD"; 
-        const toCurrency = "LINK"; 
+        const toCurrency = "ETH"; 
          
         const convertedAmount = convertCurrency(amount, "USD", "LINK"); 
         console.log(convertedAmount);
@@ -459,12 +628,12 @@ async function initPayButton(btn){
         const suggestion_gas = await web3.eth.getGasPrice();
         console.log(account);
         console.log(curatorAddress);
-        let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
+        //let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
         var transCount = web3.eth.getTransactionCount(account);
         let value = web3.utils.toWei(parseFloat(convertedAmount), "ether");
         let data4 = myContract.methods.transfer(propagateAddress, web3.utils.toWei(parseFloat(convertedAmount), "ether")).encodeABI();
-        var data5 = myContract.methods.transfer(curatorAddress, web3.utils.toWei(parseFloat(convertedAmount), "ether")).encodeABI();
-        const estimate_gas = await web3.eth.estimateGas({
+        var data5 = myContract.methods.transfer(curatorAddress, web3.utils.toWei(parseFloat(convertedAmount), "ether")).encodeABI();*/
+        /*const estimate_gas = await web3.eth.estimateGas({
             'from': account,
             'data' : data4,
             'to': contractAddress
@@ -499,7 +668,7 @@ async function initPayButton(btn){
         procReceipt(transactionHash1, confirmationNumber)
       }));
       batch.execute();
-    })
+    })*/
 
 
       /*
@@ -520,116 +689,10 @@ async function initPayButton(btn){
       });
       */
         
-       function transErr(err){
-         alert(err.message)
-        console.log(err)
-        $(".web3").prop("disabled", false)
-        $(".web3Status").hide();
-        $(".web3Loader").fadeOut(777)
-          dismissPP2();
-          clearInterval(transactionInterval);
-          clearInterval(waitInterval);
-       } 
-  
-      function sentTransaction(){
-          if(!sent){
-             initializePP2();
-            $(".web3Status").show();
-            $(".web3Loader").show();
-            $(".web3Loader").text("Processing payment!!!!")
-            startLoading();
-            sent = true;
-          }
+   
 
-             
-          
-           
-      }
-
-      var confirmations = 0;
-      function startLoading(){
-            var intervalMs = 300;
-
-            waitInterval = setInterval(function(){
-              var el = $(".web3Status");
-              var dotsStr = el.text();
-              var dotsLen = dotsStr.length;
-
-              var maxDots = 5;
-              $(".web3Status").text(dotsLen < maxDots ? dotsStr + '.' : '');
-            }, intervalMs);
-        }
-        var pollInterval;
-      function procReceipt(transactionHash, confirmationNumber){
-          //$(".web3Loader").fadeIn(1337);
-          clearInterval(waitInterval);
-          console.log(confirmationNumber);
-          var uuid = crypto.randomUUID();
-          
-
-          transactionInterval = setInterval(function(){
-       
-          
-            $.post("/pollBatch/" + uuid + "?torrentUUID=" + torrentUUID, async function(data){
-              if(data.bought){
-                dismissPP2();
-                $(".web3Status").hide();
-                $(".web3Loader").hide();
-                sent = false;
-                if(data.prem){
-                  ANCHOR.route("#torrent?buoy=" + ANCHOR.getParams().buoy + "&infoHash=" + data.infoHash);
-                }
-                clearInterval(pollInterval);
-                clearInterval(waitInterval);
-                clearInterval(transactionInterval);
-                $(".web3").prop("disabled", false)
-              }
-            })
-         }, 30000)   
-         if(data.prem){
-          alert("Transaction completed. Save your Transaction hash: " + transactionHash + "! You will be transferred to the torrent after 30 seconds of mining!!!")
-         }
-         else{
-          alert("Donated " + amountLINK + " ETH to " + $("#uptight").text() + " at " + curatorAddress + "! Transaction Hash: " + transactionHash);
-         }
-         
-          
-         
-         $.post("/web3/" + transactionHash + "?uuid=" + uuid + "&torrentUUID=" + torrentUUID +"&booty=" + (data.USD_price > 0 ? "true" : "false"), function(){
-          
-         })
-         
-      }
-
-      function send(){
-          sent = true;
-          initializePP();
-          $(".web3Status").show();
-          $(".web3Loader").show();
-          $(".web3Loader").text("Processing crypto pay!")
-          
-        function startLoading(){
-            var intervalMs = 300;
-
-            waitInterval = setInterval(function(){
-              var el = $(".web3Status");
-              var dotsStr = el.text();
-              var dotsLen = dotsStr.length;
-
-              var maxDots = 5;
-              $(".web3Status").text(dotsLen < maxDots ? dotsStr + '.' : '');
-            }, intervalMs);
-        }
-        startLoading(); 
-      }
-        /*.catch(function(err){
-        
-       })*/
       
-    })
-  
 
-}
 
 var ppInterval2;
 function initializePP2(){

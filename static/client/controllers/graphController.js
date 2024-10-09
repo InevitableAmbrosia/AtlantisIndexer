@@ -13,14 +13,14 @@ function graph(data, cb){
 				let checkNodes = gData.nodes.some(n => field && n.id === field.properties.uuid);
 				if(!checkNodes && field){
 					if(field.labels[0] === "Source"){
-						gData.nodes.push({id: field.properties.uuid, group: "Source", name : field.properties.title});
+						gData.nodes.push({id: field.properties.uuid, group: "Source", name :decodeEntities(decodeEntities(field.properties.title))});
 					}
 					else if(field.labels[0] === "Author"){
-						gData.nodes.push({id: field.properties.uuid, group: "Author", name : toTitleCase(field.properties.author)})
+						gData.nodes.push({id: field.properties.uuid, group: "Author", name : decodeEntities(decodeEntities(field.properties.author))})
 
 					}
 					else if(field.labels[0] === "Class"){
-						gData.nodes.push({id: field.properties.uuid, group: "Class", name: field.properties.name})
+						gData.nodes.push({id: field.properties.uuid, group: "Class", name: decodeEntities(decodeEntities(field.properties.name))})
 					}
 				}
 				switch(i){
@@ -91,7 +91,7 @@ function pageGraph(){
 	        .nodeAutoColorBy('group')
 	        //.linkAutoColorBy(d => gData.nodes[d.source].group)
 	        .linkOpacity(0.07)
-	        .nodeLabel(node => `${node.name}`)
+	        .nodeLabel(node => `${node.name}`).cooldownTime(5000).d3AlphaDecay(.005).d3VelocityDecay(.005)
 	        /*.nodeThreeObject(node => {
           		const sprite = new SpriteText(node.name);
           		sprite.color = node.color;
@@ -100,8 +100,11 @@ function pageGraph(){
         	})*/
         	
 	        .onNodeClick(function(node){
+	        	setTimeout(function(){
+	        		clicked= false;
+	        	},2000)
 	        	console.log(node);
-	        	//if(clicked){
+	        	if(clicked === node.id){
 	        		switch(node.group){
 		        		case "Source":
 		        			ANCHOR.route("#source?uuid="+node.id)
@@ -114,7 +117,37 @@ function pageGraph(){
 		        			break;
 		        	}
 		        	document.exitFullScreen();
-	        	//}
+	        	}
+	        	else{
+	        		switch(node.group){
+	        		case "Source":
+	        			if($("#graph_title").val()){
+	        			$("#graph_title").val($("#graph_title").val() + ", " + node.name); 
+		        		}
+		        		else{
+		        			$("#graph_title").val(node.name)
+		        		}
+	        			break;
+	        		case "Author":
+	        			if($("#graph_author").val()){
+	        			$("#graph_author").val($("#graph_author").val() + ", " + node.name); 
+		        		}
+		        		else{
+		        			$("#graph_author").val(node.name)
+		        		}
+	        			break;
+	        		case "Class":
+	        			if($("#graph_classes").val()){
+	        			$("#graph_classes").val($("#graph_classes").val() + ", " + node.name); 
+		        		}
+		        		else{
+		        			$("#graph_classes").val(node.name)
+		        		}
+	        			break;
+	        		}
+	        		
+	        	}
+	        	clicked = node.id;
 	/*        	clicked = true;
 	        	var timeout = setTimeout(function()
 				{		
@@ -250,17 +283,135 @@ function sourceGraph(){
 }
 */
 function initializeGraph(cb){
-	switch(ANCHOR.page()){
+	gData = {
+			nodes : [
+			],
+			links : [
+			]
+		}
+
+
+	var windowsize = $(window).width();
+    if (windowsize < 1080) {
+    	$(".graph_search").hide();
+    	$(".graph_mobile").show();
+    	$("#graph_plus").show();
+    }
+    else{
+    	$(".graph_search").show();
+    	$(".graph_mobile").hide();
+    	$(".graph_toggle").hide();
+    }
+
+ 
+    $("#graph_plus").click(function(e){
+    	e.preventDefault()
+    	$("#graph_minus").fadeIn();
+    	$(".graph_mobile").fadeOut();
+    	$(".graph_search").fadeIn();
+    	$(this).fadeOut();
+    })
+
+    $("#graph_minus").click(function(e){
+    	e.preventDefault();
+    	$("#graph_plus").fadeIn();
+    	 $(".graph_mobile").fadeIn();
+    	$(".graph_search").fadeOut();
+    	$(this).fadeOut();
+    })
+	$("#graph_class_all").prop("checked",true)
+	$("#graph_class_any").prop("checked", false)
+	$("#graph_title").val(ANCHOR.getParams() && ANCHOR.getParams().title ? ANCHOR.getParams().title : "")
+	$("#graph_author").val(ANCHOR.getParams() && ANCHOR.getParams().author ? ANCHOR.getParams().author : "")
+	$("#graph_classes").val(ANCHOR.getParams() && ANCHOR.getParams().classes ? (decodeEntities(ANCHOR.getParams().classes) === "undefined" ? "" : decodeEntities(ANCHOR.getParams().classes).replace(/['"]+/g, '')) : "")
+	$("#graph_publisher").val(ANCHOR.getParams() && ANCHOR.getParams().publisher ? ANCHOR.getParams().publisher : "");
+	$("#graph_type").val(ANCHOR.getParams() && ANCHOR.getParams().type ? ANCHOR.getParams().type : "");
+	$("#graph_media").val(ANCHOR.getParams() && ANCHOR.getParams().media ? ANCHOR.getParams().media : "");
+	$("#graph_format").val(ANCHOR.getParams() && ANCHOR.getParams().format ? ANCHOR.getParams().format : "")
+	
+	if(ANCHOR.getParams() && ANCHOR.getParams().class_all === "true"){
+		$("#graph_class_all").prop("checked", true)
+		$("#graph_class_any").prop("checked", false)
+	}
+	else{
+		$("#graph_class_all").prop("checked", false)
+		$("#graph_class_any").prop("checked", true)
+	}
+	
+
+	$.get("/advanced_search_ui", function(data){
+		$("#graph_type").empty();
+		$("#graph_type").append("<option value='all'>All Types</option>")
+		$("#graph_media").empty();
+		$("#graph_media").append("<option value='all'>All Media</option>")
+		$("#graph_format").empty();
+		$("#graph_format").append("<option value='all'>All Formats</option>")
+		
+		data.buoy.types.forEach(function(val){
+			var option = document.createElement("option");
+			$(option).val(val);
+			$(option).text(decodeEntities(val));
+			$("#graph_type").append(option);
+			if(ANCHOR.getParams() && ANCHOR.getParams().type){
+				$("#graph_type").val(ANCHOR.getParams() ? ANCHOR.getParams().type : "");
+			}
+		})
+		data.buoy.media.forEach(function(val){
+			var option = document.createElement("option");
+			$(option).val(val);
+			$(option).text(decodeEntities(val));
+			$("#graph_media").append(option);
+			if(ANCHOR.getParams() && ANCHOR.getParams().media){
+
+				$("#graph_media").val(ANCHOR.getParams() ? ANCHOR.getParams().media : "")
+
+			}
+		})
+		data.buoy.formats.forEach(function(val){
+			var option = document.createElement("option");
+			$(option).val(val);
+			$(option).text(decodeEntities(val));
+			$("#graph_format").append(option);
+			if(ANCHOR.getParams() && ANCHOR.getParams().format){
+				$("#graph_format").val(ANCHOR.getParams() ? ANCHOR.getParams().format : "")
+
+			}
+		})
+	})
+	$("#graph_submit").unbind('click')
+	$("#graph_submit").click(function(){
+		ANCHOR.route("#graph?search=true&title=" + $("#graph_title").val() + "&author=" + $("#graph_author").val() +
+			"&classes=" + ($("#graph_classes").val() ? JSON.stringify($("#graph_classes").val()) : "") + "&class_all=" + $("#graph_class_all").prop("checked") + "&publisher=" + $("#graph_publisher").val() + "&type=" + $("#graph_type").val() +
+			"&media=" + $("#graph_media").val() + "&format=" + $("#graph_format").val())
+
+	})
+
+
+	/*switch(ANCHOR.page()){
 		case "source":
 			$.get("source_graph/" + ANCHOR.getParams().uuid, function(data){
 				graph(data, cb);	      		
 			})
 			break;
-		case "graph":
-			$.get("page_graph", function(data){
-				graph(data, cb);
-			})
-			break;
+		case "graph":*/
+	if(ANCHOR.getParams() && ANCHOR.getParams().search){
+		$.post("/graph_search",  {title : ANCHOR.getParams() ? ANCHOR.getParams().title : "",
+		author : ANCHOR.getParams() ? ANCHOR.getParams().author : "",
+		classes : ANCHOR.getParams() ? ANCHOR.getParams().classes : "",
+		class_all : ANCHOR.getParams() ? ANCHOR.getParams().class_all : "",
+		publisher : ANCHOR.getParams() ? ANCHOR.getParams().publisher : "",
+		type : ANCHOR.getParams() ? ANCHOR.getParams().type : "",
+		media : ANCHOR.getParams() ? ANCHOR.getParams().media : "",
+		format : ANCHOR.getParams() ? ANCHOR.getParams().format : ""}, function(data){
+			graph(data,cb)
+		})
 	}
+	else{
+		$.get("/page_graph",function(data){
+			graph(data, cb);
+		})
+	}
+	//		break;
+	//}
 
 }

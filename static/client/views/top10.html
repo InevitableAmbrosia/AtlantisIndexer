@@ -1,8 +1,28 @@
 <div class="titleBreak">
 	<h2>Top 10</h2>
 </div>
+<div class="adv_search">
+	<br>
+	<span id="adv_heading">Filter Torrents!</span>
+	<br><br><br>
+	<select id="top10_type"><option value="all">All Types</option></select><br>
+	<select id="top10_media"><option value="all">All Media</option></select><br>
+	<select id="top10_format"><option value="all">All Formats</option></select><br>
+	<input id="top10_classes" placeholder="Classes (comma-separated)"><br>
+	<label for="top10_class_all" class="adv_class">ALL</label>
+	<input type="radio" class="adv_class" name="top10_class_toggle" id="top10_class_all">
+	<label for="top10_class_any" class="adv_class">ANY</label>
+	<input type="radio" class="adv_class" name="top10_class_toggle" id="top10_class_any">
+	<br><br>
+	<input id="top10_publisher" placeholder="Publisher or Journal"><br>
+	<button id="top10_submit">Filter!</button>
+</div>
+<br>
 <h3>Top 10 Torrents this Day</h3>
 <br>
+<div class="download_all_top">
+	<button id="top10_all_day">Download Page</button>
+</div>
 <table width="100%" class="top10_table" id="top10_day">
 	<thead>
 		<tr>
@@ -19,6 +39,10 @@
 </table>
 <br><br><br>
 <h3>Top 10 Torrents this Week</h3><br>
+
+<div class="download_all_top">
+	<button id="top10_all_week">Download Page</button>
+</div>
 <table width="100%" class="top10_table" id="top10_week">
 	<thead>
 		<tr>
@@ -35,6 +59,10 @@
 </table>
 <br><br><br>
 <h3>Top 10 Torrents this Month</h3><br>
+
+<div class="download_all_top">
+	<button id="top10_all_month">Download Page</button>
+</div>
 <table width="100%" id="top10_month">
 	<thead>
 		<tr>
@@ -51,6 +79,10 @@
 </table>
 <br><br><br>
 <h3>Top 10 Torrents this Year</h3><br>
+
+<div class="download_all_top">
+	<button id="top10_all_year">Download Page</button>
+</div>
 <table width="100%" id="top10_year">
 	<thead>
 		<tr>
@@ -67,6 +99,10 @@
 </table>
 <br><br><br>
 <h3>Top 10 Torrents of All Time</h3><br>
+
+<div class="download_all_top">
+	<button id="top10_all_time">Download Page</button>
+</div>
 <table width="100%" id="top10_alltime">
 	<thead>
 		<tr>
