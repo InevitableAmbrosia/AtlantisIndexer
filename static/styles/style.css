@@ -61,6 +61,42 @@ q:before, q:after {
 	height: 100%;
 }*/
 
+#upload_inst{
+	font-size:20px;
+	font-family:"Poppins", sans-serif;
+	color:coral;
+	display:block;
+	width:1164px;
+}
+
+.social{
+  padding-left:8px;
+}
+
+
+.time_i_am{
+	font-size:24px;
+	padding:42px;
+	text-align:center;
+	color:mediumvioletred;
+	font-family: "Pirata One", sans-serif;
+}
+
+
+#propagate_publisher{
+	font-size:24px;
+	padding:42px;
+	padding-left:8px;
+	padding-top:0px;
+	color:lightseagreen;
+	font-family: "Pirata One", sans-serif;
+
+}
+
+.buoy_stats{
+  padding-left:8px;
+}
+
 #torrents_wrapper{
 }
 
@@ -121,7 +157,6 @@ q:before, q:after {
 
 .buoy_bulletins p{
 	padding-top:13px;
-	padding-left:8px;
 	font-family:"Poppins", sans-serif;
 }
 
@@ -196,9 +231,11 @@ body.is-seed .show-leech {
 
 #contribution{
 	font-weight:bold;
-	font-size:19px;
+	font-size:32px;
 	padding-top:23px;
-	color:#3c5e6c;
+	font-family:"Pirata One", sans-serif;
+	color:lightseagreen;
+	padding-bottom:32px;
 
 }
 
@@ -330,18 +367,18 @@ input{
 }
 
 h2{
-	font-family: "Pirata One", sans-serif;
-	font-size: 55px;
-	color: goldenrod;/*#3c5e6c;*/
-	text-decoration:underline;
-	text-shadow:3px 3px darkslateblue;/*#3c5e6c;*/
+	font-family: "Secular One", sans-serif;
+  	font-variant:small-caps;
+	font-size: 46px;
+	color: goldenrod;/*#385E5C;*/
+	text-shadow:3px 2px black;/*#385E5C;*/
 
 }
 
 h3{
 	font-variant:small-caps;
 	font-size:32px;
-	color:slategray;
+	color:silver;
 	font-family:  "Secular One", sans-serif;
 	
 }
@@ -368,7 +405,9 @@ header{
 	width: 100%;
 	/*background-color: #e6eef5;*/
 	/*background-color: #413839;*/
-	background-color:#3c5e6c;
+	background-color:#3D8777;
+	background-color:lightseagreen;
+	background-color:#137577;
   	box-shadow: 2px 2px 3px mediumslateblue;
   	position: fixed;
   	z-index: 999;
@@ -414,14 +453,14 @@ a:visited{
 }
 
 .class:visited{
-	color:#fae1ec;
+	color:darkgoldenrod;
 
 }
 
 .tabs a, .tabs a:visited{
-	color:lightgoldenrodyellow;
+	color:palegoldenrod;
 
-	text-shadow:1px 1px #fae1ec;
+	text-shadow:1px 1px coral;
 }
 
 .class{
@@ -451,17 +490,60 @@ header a:visited{
 }
 
 .panel a, .panel a:visited{
-	color:darkcyan;
-	text-shadow:1px 1px lightgoldenrodyellow;/*#19e0e3;/*#19e0e3;*/
+	color:lightgoldenrodyellow;
+		text-shadow:1px 1px goldenrod;/*#19e0e3;/*#19e0e3;*/
   font-size:17px;
-  font-family:"Poppins", sans-serif;
+  font-family:"Pirata One", sans-serif;
 }
 
+.stat{
+  display:block;
+  float:left;
+  width:160px;
+  font-family:"Poppins";
+  font-size:18px;
+}
+
+.stat_text{
+  font-family:"Pirata One";
+  font-size:18px
+  display:block;
+  float:left;
+}
+
+#stats_h3{
+  padding-left:0px;
+}
+
+.buoy_bulletins{
+	margin-top:25px;
+	padding-left:8px;
+	padding-right:8px;
+}
+
+.bulletin{
+	padding-top:12px;
+	padding-bottom:40px;
+	border-top: 3px solid palevioletred;
+}
+
+.bulletin:nth-child(even){
+	background-color:#fcfce8;
+
+}
+
+.bulletin span{
+	color:darkgoldenrod;
+}
+
+.bulletin:nth-child(odd) {
+   background-color:#FFF3B4;
+}
 
 h1 a, h1 a:visited{
-	color:palevioletred;
+	color:black;
 	font-family: "Pirata One", sans-serif;
-	text-shadow: 4px 4px lightseagreen;
+	text-shadow: 1px 2px silver;
 }
 
 .donate{
@@ -498,13 +580,13 @@ h1{
 
 button{
 	background-color:lightseagreen;
+	background-color:#385E5C;
 	padding:9px;
 	border-radius:22px;
-	color:palevioletred;
+	color:lightgoldenrodyellow;
 	font-size:20px;
-	text-shadow: 1px 1px lightgoldenrodyellow;
 	font-family:"Pirata One", sans-serif;
-	box-shadow:2px 2px 3px slateblue;
+	box-shadow:3px 2px 1px darkgoldenrod;
 }
 
 .login button, .register button{
@@ -549,17 +631,27 @@ h1{
 	padding: 7px 0px 7px 8px;
 	position:relative;
 	z-index:9999;
-	top:5px;
+	top:0px;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 	float: left;
 	font-family: 'Lora', sans-serif;
+  left:78px;
+
+}
+
+#stupa{
+  padding:7px 0px 7px 8px;
+  width:70px;
+  position:fixed;
+  left:0px;
 }
 
 body{
 	background-color: #f7f6e6;
 	background-color:white;
+	background-color:#FBFBF6;
 }
 
 .normal{
@@ -666,7 +758,9 @@ body{
 	left:8px;
 	top:78px;
 	font-family:"Poppins", sans-serif;
-	color:gold;
+	color:white;
+
+
 	font-size:13px;
 }
 
@@ -699,21 +793,42 @@ body{
     bottom:191px;
 }
 
+.buoy_bulletins p{
+
+}
+
+.add_source{
+	margin-left:8px;
+}
+
+#torrent_area{
+	margin-top:25px;
+}
+
+#class_name{
+	margin-left:8px;
+}
+
 #torrents td, {
 	padding: 13px;
+}
+
+.node{
+	position:fixed;
+	z-index:1;
 }
 
 .sorting{
 	padding:17px 0px 17px 8px;
 	/*background-color:#cc70d1;*/
 	background-color:lightseagreen;/*#db7093;*/
-	font-family:"Pirata One", sans;
-	color:#fae1ec;
+		background-color:#137577;
+	font-family:"Pirata One", sans-serif;
+	color:#FBFBF6;
 	font-size:32px;
-	box-shadow:4px 3px 3px mediumslateblue;/*#2d9666;*/
+	box-shadow:4px 3px 3px darkgoldenrod;
+
 }
-
-
 thead tr{
 	
 }
@@ -766,7 +881,9 @@ table.dataTable tr.dtrg-group th{
 	background-color: #fcfce8;
 	background-color:#e6e7b2;
 	background-color:#ebdec7;
+	background-color:goldenrod;
 	background-color:lightcyan;
+	background-color:#FFF3B4;
 
 	font-family:"Maven Pro", sans-serif;
 }
@@ -811,17 +928,18 @@ td p{
 	width:113px;
 	z-index:2;
 	font-variant:small-caps;
-	font-size:23px;
+	font-size:28px;
 	left:-113px;
 	font-family:"Secular One", Arial;
-	color:mediumvioletred;/*#19e0e3;*/
+	font-family:"Pirata One", sans-serif;
+	color:#385E5C;/*#19e0e3;*/
 	text-align:center;
 	text-shadow:2px 2px palegoldenrod;
 ;
 }
 
 .dataTables_wrapper{
-	padding: 0px 0px 21px 0px;
+	padding: 0px 8px 21px 8px;
 }
 
 .dtrg-group{
@@ -861,7 +979,7 @@ td{
 
 .dataTable td{
 	font-family:"Poppins", sans-serif;
-	color:darkslateblue;
+	color:#385E5C;
 }
 
 .tableHeading a, .tableHeading a:visited{
@@ -872,7 +990,7 @@ td{
 .torrentClasses a, .torrentClasses a:visited{
 	font-family:"Roboto", sans-serif;
 	font-style:italic;
-	color:/*#19e0e3;*/darkcyan;
+	color:/*#19e0e3;*/#385E5C;
 }
 
 .tableHeading{
@@ -962,7 +1080,7 @@ td{
 .search input{
 	border-radius: 5px 5px 6px;
 	margin: 8px 8px 8px 0px;
-	background-color:#fae1ec;
+	background-color:#FBFBF6;
 }
 
 .search input::placeholder{
@@ -1003,6 +1121,11 @@ body .ui-autocomplete {
   /* font-family to all */
   background-color:red;
   box-shadow:3px 5px 7px lightcyan;
+}
+
+.ui-autocomplete{
+	max-height:200px;
+	overflow-y:auto;
 }
 
 
@@ -1180,13 +1303,23 @@ svg{
     box-shadow:1px 2px 4px goldenrod;
 }
 
-#fresh_aphorism, #src_fresh_aphorism{
+#fresh_aphorism{
     width:200px;
+    font-size:18px;
+    position:absolute;
+    left:8px;
+    top:75px;
+    z-index:901;
+}
+
+ #src_fresh_aphorism{
+ 	width:200px;
     font-size:18px;
     position:relative;
     left:8px;
-    top:22px;
-}
+    top:0px;
+    z-index:901;
+ }
 
 
 #worldSpiritHeader{
@@ -1228,7 +1361,7 @@ svg{
 }
 
 #aphorism_classes a, #src_aphorism_classes a{
-    color:#3c5e6c;
+    color:#385E5C;
 }
 
 #newOverWorld, #src_newOverWorld{
@@ -1369,7 +1502,7 @@ svg{
 }
 
 .torrentsTable a, torrentsTable a:visited{
-	color:palevioletred;
+	color:darkcyan;
 }
 
 
@@ -1474,6 +1607,8 @@ a.link a.visited{
 
 .ANCHOR_partial{
   background-color:white;
+  background-color:#FBFBF6;
+  background-color:#FFFEFF;
   
   }
 
@@ -1496,20 +1631,33 @@ a.link a.visited{
 }
 
 .adv_search{
-	width:292px;
+	width:1080px;
 	height:478px;
 	margin-left:8px;
 	margin-bottom:33px;
 	text-align:center;
-	border: 5px dotted #fae1ec;
+	border: 5px dotted #DEDEDE;
 	border-radius:18px;
+	margin:0 auto;
 }
 
-.adv_class{
+.graph_search{
+	z-index:9998;
+	height:479px;
+	width:290px;
+	text-align:center;
+	border: 5px dotted darkcyan;
+	border-radius:18px;
+	position:fixed;
+	right:8px;
+	margin-top:13px;
+}
+
+.adv_class, .graph_class{
 	width:33px;
 }
 
-.adv_search input:not(.adv_class){
+.adv_search input:not(.adv_class), .graph_search input:not(.graph_class){
 	width:280px;
 	margin-top:13px;
 	background-color:white;
@@ -1517,29 +1665,49 @@ a.link a.visited{
 	
 }
 
-.adv_search select{
+.adv_search select, .graph_search select{
 	margin-top:8px;
 
 }
 
+.graph_class{
+	color:palevioletred;
+}
 
-#adv_submit{
+
+#adv_submit, #graph_submit{
 	margin-top:28px;
 }
 
-#adv_heading{
+#adv_heading, #graph_heading{
 	font-family: "Pirata One", sans-serif;
 	font-size:32px;
 	text-align:center;
-	color:darkslateblue;
+	color:darkcyan;
 	text-shadow:1px 2px lightgoldenrodyellow;
 	margin:20px 0px 20px 0px;
 }
 
-.health a{
+#graph_heading{
+	color:mediumvioletred;
+}
+
+.health a, .health a:visited{
 	font-size:16px;
 	font-family: "Pirata One", sans-serif;	
-	color:silver;
+		color:silver;
+}
+
+.buoy_bulletins span{
+	padding-bottom:26px;
+}
+
+.buoy_bulletins span a{
+	color:darkcyan;
+}
+
+.buoy_bulletins p{
+	padding-top:24px;
 }
 
 .health span{
@@ -1547,8 +1715,10 @@ a.link a.visited{
 	font-weight:bold;
 	font-family: "Pirata One", sans-serif;
 	color:#19e0e3;
-	color:silver;
-	text-shadow:1px 1px palevioletred;
+	color:lightgoldenrodyellow;
+	color:palegoldenrod;
+
+	text-shadow:1px 1px silver;
 }
 
 #home a{
@@ -1562,7 +1732,17 @@ a.link a.visited{
 
 	}
 
+#about_us{
+  padding-left:8px;
+  padding-right:8px;
+  text-justify:justified;
+  font-size:20px;
+  font-family:"Poppins", sans-serif;
+}
 
+  header{
+    box-shadow:5px 4px 3px darkslateblue;
+  }
 /* MOBILE */
 
 @media only screen and (max-width: 1079px) {
@@ -1635,6 +1815,7 @@ a.link a.visited{
 	header{
 		height:55px;
 		box-shadow:0;
+    
 	}
 
 	.mobile_h1{
@@ -1659,7 +1840,6 @@ a.link a.visited{
     top:6px;
 	}
 
-
 	#worldSpiritHeader{
     top:0px;
     position:relative;
@@ -1670,8 +1850,8 @@ a.link a.visited{
 	}
 
 	#worldSpirit{
-		top:45px;
-		height:calc(100% - 45px);
+		top:84px;
+		height:calc(100% - 84px);
 	}
 
 	.health a, .health span{
@@ -1748,7 +1928,7 @@ a.link a.visited{
 
 	h1{
 		position:fixed;
-		top:2px;
+		top:3px;
 		left:8px;
 		z-index:9999;
 	}
@@ -1790,7 +1970,7 @@ a.link a.visited{
 
 	#slogan{
 		position:fixed;
-		top:20px;
+		top:28px;
 		left:200px;
 		color:coral;
 	}
@@ -1810,13 +1990,50 @@ a.link a.visited{
 		height:55px;
 		top:0px;
 		background-color:#0c1337;
-		background-color:#3c5e6c;
+		background-color:#3D8777;
+		background-color:lightseagreen;
+		background-color:#137577;
 		box-shadow: 7px 8px 13px lightsteelblue;
 		position:fixed;
 		z-index:9999;
 
 	}
 
+	.graph_search{
+		width:100%;
+		height:calc(100% - 55px);
+		margin:0 auto;
+		position:fixed;
+		right:0px;
+		z-index:9997;
+		padding:8px;
+	}
+
+	.graph_mobile{
+		font-family: "Pirata One", sans-serif;
+		font-size:32px;
+		text-align:center;
+		color:darkcyan;
+		position:fixed;
+		z-index:9998;
+		color:mediumvioletred;
+		text-shadow:1px 2px lightgoldenrodyellow;
+		margin:20px 0px 20px 32px;
+	}
+
+	.graph_toggle{
+		font-weight:bold;
+		font-family:"Pirata One", sans-serif;
+		font-size:55px;
+		color:cyan;
+		padding-top:7px;
+		position:fixed;
+		z-index:9998;
+	}
+
+	.graph_toggle:visited{
+		color:cyan;
+	}
 	
 
 	.mobile_tabs{
@@ -1842,7 +2059,7 @@ a.link a.visited{
 	 }
 
 	 h2{
-	 	text-shadow:2px 2px slategray;
+	 	text-shadow:2px 2px lightseagreen;
 	 }
 
   .mobile_panel li a:not(.health a, .health span){
@@ -1850,7 +2067,7 @@ a.link a.visited{
   		padding:13px 0px 13px 0px;
   		margin:15px 0px 15px 0px;
   		color:lightgoldenrodyellow;
-		text-shadow:1px 1px palevioletred;
+		text-shadow:1px 1px darkgoldenrod;
 		font-family:"Pirata One", sans-serif;
   }
 
@@ -1864,9 +2081,11 @@ a.link a.visited{
   .mobile_tabs li a{
   		font-size:38px;
   		padding:13px 0px 13px 0px;
-  		margin:15px 0px 15px 0px;
-  		color:lightgoldenrodyellow;
-		text-shadow:1px 4px goldenrod;
+      border-bottom:1px solid #CDCDCD;
+  		color:palegoldenrod;
+    display:block;
+    width:299px;
+		text-shadow:1px 4px coral;
   }
 	.mobile_tabs li, .mobile_panel li{
 		height:40px;
@@ -1904,7 +2123,7 @@ a.link a.visited{
 
   h2{
   	font-size: 40px;
-  	padding: 36px 8px 36px 8px;
+  	padding: 16px 8px 16px 8px;
 
   }
 
@@ -1929,16 +2148,39 @@ a.link a.visited{
   	left: 0px;
   	top: 127px;
   }
+  
+  .mobile_panel li{
+  }
 
-  .tabs li{
-  	padding-top: 7px;
+  .mobile_panel li a:not(.health a){
+    display:block;
+    width:290px;
+    padding:16px;
+    padding-left:0px;
+    border-bottom:1px solid #CDCDCD
+  }
+
+  #upload_inst{
+  	width:290px;
+  }
+  
+  .health a, .health span{
+    float:left;
+    border-bottom:0px;
+  }
+  
+  .mobile_tabs li{
+    
+  	padding-top: 16px;
+    padding-bottom:16px;
   }
 
   /* TABLES */
 
-  .dataTables_wrapper{
-  	padding: 0px;
-  }
+ 
+.dataTables_wrapper{
+	padding: 0px 8px 21px 8px;
+}
 
 
   .tableHeading{
@@ -1946,12 +2188,32 @@ a.link a.visited{
   }
 
   header{
-    box-shadow:5px 4px 3px palevioletred;
+    box-shadow:5px 4px 3px darkslateblue;
   }
 
   /* UPLOAD */
   .grid_1{
   	width: 100%;
   }  
+
+  .adv_search{
+  	width:292px;
+  }
+  
+  .mobile_h1{
+    left:83px;
+  }
+  
+  #stupa{
+    top:2px;
+    display:block;
+    z-index:9999;
+    width:26px;
+    left:50px;
+    position:fixed;
+    padding-left:0px;
+  }
+
+ 
 
 }
