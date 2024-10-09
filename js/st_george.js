@@ -73,8 +73,10 @@ export default {
 		})
 	},
 	recommendUserDownload : function(driver, uuid, cb){
-		var query = "MATCH (u:User {uuid: $uuid, paranoia : false})-[:DOWNLOADED]->(t:Torrent)-[]-(:Edition)-[]-(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
+		var query = "MATCH (u:User {uuid: $uuid, paranoia : false}) " +
+		"MATCH (t:Torrent)-[]-(:Edition)-[]-(s:Source)<-[:TAGS]-(c1:Class)-[:TAGS]->"+
 		"(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"WHERE t.infoHash IN u.downloads " + 
 		"MATCH (coCoSource)-[]-(:Edition)-[]-(:Torrent)<-[:DOWNLOADED]-(user:User { paranoia : false }) " + 
 		"WHERE u <> user " +
 		"RETURN user " +
