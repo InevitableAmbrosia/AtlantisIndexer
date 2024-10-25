@@ -12,17 +12,81 @@ function getAphorism(id){
     	clearAphorism();
     	$.get("/aphorism/" + id, function(data){
     		console.log(data);
-    		$("#src_aphorism_title").text(decodeEntities(data.title));
-    		$("#src_aphorism_text").text(decodeEntities(data.text));
+    		$("#src_aphorism_title").empty();
+    		if(data.dialectic === "thesis"){
+    			$("#src_aphorism_title").append("<span class='green bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+    			if(data.thesis_antithesis){
+    				$("#src_aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.thesis_antithesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit red'>" + decodeEntities(decodeEntities(data.thesis_antithesis.properties.title)) + "</a>")
+    			}
+    			if(data.thesis_synthesis){
+    				$("#src_aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.thesis_synthesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit orange'>" + decodeEntities(decodeEntities(data.thesis_synthesis.properties.title)) + "</a>")
+
+    			}
+    		}
+    		else if(data.dialectic === "antithesis"){
+    			if(data.antithesis_thesis){
+    				$("#src_aphorism_title").append("<a href='#world_spirit?uuid=" + data.antithesis_thesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit green'>" + decodeEntities(decodeEntities(data.antithesis_thesis.properties.title)) + "</a> > ")
+    			}
+    			$("#src_aphorism_title").append("<span class='red bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+
+    			if(data.antithesis_synthesis){
+    				$("#src_aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.antithesis_synthesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit orange'>" + decodeEntities(decodeEntities(data.antithesis_synthesis.properties.title)) + "</a>")
+
+    			}
+
+    		}
+    		else if(data.dialectic === "synthesis"){
+    			if(data.synthesis_thesis){
+    				$("#src_aphorism_title").append("<a href='#world_spirit?uuid=" + data.synthesis_thesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit green'>" + decodeEntities(decodeEntities(data.synthesis_thesis.properties.title)) + "</a> > ")
+    			}
+    			if(data.synthesis_antithesis){
+    				$("#src_aphorism_title").append("<a href='#world_spirit?uuid=" + data.synthesis_antithesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit red'>" + decodeEntities(decodeEntities(data.synthesis_antithesis.properties.title)) + "</a> > ")
+
+    			}
+    			$("#src_aphorism_title").append("<span class='orange bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+
+
+    		}
+    		$("#src_aphorism_text").text(decodeEntities(decodeEntities(data.text)));
+    		$("#src_aphorism_user_dialectic").empty();
+    		$("#src_aphorism_user_dialectic").append(toTitleCase(data.dialectic));
+    		console.log(data.follows)
+    		/*if(data.dialectic === "synthesis"){
+    			$("#aphorism_user_dialectic").append(" of ")
+    			data.follows.forEach(function(aphorism, i){
+    				console.log(aphorism)
+    				$("#aphorism_user_dialectic").append("<a class='ANCHOR world_spirit' href='#world_spirit?uuid=" + aphorism.properties.uuid + 
+    					"'>" + aphorism.properties.title + (i === 0 && data.follows.length > 1 ? "</a> and " : "</a>"))
+    			})
+    		}
+    		else if(data.dialectic === "antithesis"){
+    			if(data.follows[0]){
+    				$("#aphorism_user_dialectic").append(" of ")
+    				$("#aphorism_user_dialectic").append("<a class='ANCHOR world_spirit' href='#world_spirit?uuid=" + data.follows[0].properties.uuid + 
+    					"'>" + data.follows[0].properties.title + "</a>")
+    			}
+    			
+    		}*/
+    		
+    		$("#src_aphorism_user_dialectic").append(" by <a class='ANCHOR user' href='user?uuid=" + data.user.properties.uuid + 
+    			"'>" + data.user.properties.user + "</a>");
     		$("#src_aphorism_classes").text("");
     		if(data.classes && data.classes.length > 0){
 	    		data.classes.forEach(function(node, i){
 	    			if(i===0){
-	    				$("#src_aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
+	    				$("#src_aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + "'>" + 
+	    					decodeEntities(decodeEntities(data.classes[0].properties.name)) + "</a>")
 	    		
 	    			}
 	    			else{
-	    				$("#src_aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
+	    				$("#src_aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + "'>" + 
+	    					decodeEntities(decodeEntities(node.properties.name)) + "</a>")
 	    			}
 	    		})
     		}
@@ -56,7 +120,9 @@ function initializeSourceSpirit(){
 	var svg = d3.select("#source_spirit");
 	$("#source_spirit").height($(".ANCHOR_partial").height() - 84)
 	width = $(".ANCHOR_partial").width();
-	height = $(".ANCHOR_partial").height() - 84;
+	
+	height = $(".ANCHOR_partial").height();
+    
 	d3.select("#source_spirit").selectAll("*").remove();
 	$(".dialectic_citations").empty();
 
@@ -71,10 +137,10 @@ function initializeSourceSpirit(){
     		links : []
     	}
     	var simulation = d3.forceSimulation()
-	    .force("charge", d3.forceManyBody().strength(-10))
+	    .force("charge", d3.forceManyBody().strength(-5))
 	    .force("center", d3.forceCenter(width / 2, height / 2))
 	    .force('collide', d3.forceCollide(function(d){
-	    	return 55
+	    	return 10
 		}))
 
 		$("#sourceSpiritForum").text("Forum");
@@ -86,12 +152,12 @@ function initializeSourceSpirit(){
 				}
 				let checkNodes = gData.nodes.some(n => field && n.id === field.properties.uuid);
 				if(!checkNodes && field){
-					if(field.labels[0] === "Torrent"){
+					/*if(field.labels[0] === "Torrent"){
 						console.log(field.properties);
 						gData.nodes.push({id: field.properties.uuid, group: "Torrent", name : field.properties.editionText, infoHash: field.properties.infoHash, sourceUUID : field.properties.sourceUUID});
 
-					}
-					else if(field.labels[0] === "Source"){
+					}*/
+					if(field.labels[0] === "Source"){
 						gData.nodes.push({id: field.properties.uuid, group:"Source", name : field.properties.title})
 					}
 					else if(field.labels[0] === "Class"){
@@ -159,7 +225,7 @@ function initializeSourceSpirit(){
     	}
     })
       .text(function(d) { 
-      	return decodeEntities(d.name); }).attr("font-family", "Pirata One").attr("font-size", "18px");
+      	return decodeEntities(decodeEntities(d.name)); }).attr("font-family", "Poppins").attr("font-size", "18px");
 
     node.on("click", function(e){
     	onClick(e);
@@ -194,7 +260,7 @@ function initializeSourceSpirit(){
         .force("charge", d3.forceManyBody().strength(-10))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force('collide', d3.forceCollide(function(d){
-    		return 55;
+    		return 47;
 		}))    
 
 	var link = svg.append("g")
@@ -250,7 +316,7 @@ function initializeSourceSpirit(){
     .attr("class", "text_opaque")
     .text(function(d) { 
     	if(d.source.group === "Aphorism" && d.target.group === "Aphorism"){
-    		return decodeEntities(d.name); 
+    		return decodeEntities(decodeEntities(d.name)); 
     	}
     });
 
@@ -262,16 +328,19 @@ function initializeSourceSpirit(){
 
   if(ANCHOR.getParams().forum){
     	$("#src_fresh_aphorism").hide();
-    	$("#src_overWorld").show();
+    	$("#src_overWorld").fadeIn();
     	$("#src_oldOverWorld").fadeIn(1337);
     	getAphorism(ANCHOR.getParams().forum)
     }
     function onClick(e){
 		console.log(e)
 		if(e.group === "Aphorism"){
-			ANCHOR.removeParams("forum");
+			if(ANCHOR.getParams()){
+				ANCHOR.removeParams("forum");
+
+			}
 			ANCHOR.setParams("forum", e.id);
-			$("#src_overWorld").show();
+			$("#src_overWorld").fadeIn();
 			getAphorism(e.id);
 			$("#src_oldOverWorld").fadeIn(1337)
 			$("#src_fresh_aphorism").fadeOut(666)	
@@ -362,28 +431,34 @@ function initializeSourceSpirit(){
     $("#src_fresh_aphorism").click(function(){
     	clearAphorism();
     	$("#src_oldOverWorld").hide();
-    	$("#src_overWorld").show();
+    	$("#src_overWorld").fadeIn();
     	$("#src_newOverWorld").fadeIn();
     	$("#src_dialectic_select").empty();
     	$("#src_dialectic_select").append("<option value='thesis'>Thesis</option>")
     	clearAphorism()
-    	ANCHOR.removeParams("forum");
+    	if(ANCHOR.getParams()){
+    		ANCHOR.removeParams("forum");
+
+    	}
     	$(this).fadeOut(777);
     })
 
     $("#src_close_overworld").click(function(){
     	$("#src_fresh_aphorism").fadeIn(777);
-    	$("#src_oldOverWorld").show();
+    	$("#src_oldOverWorld").fadeIn();
     	$("#src_newOverWorld").hide()
     	$("#src_overWorld").fadeOut(1337);
-    	ANCHOR.removeParams("forum");
+    	if(ANCHOR.getParams()){
+    		ANCHOR.removeParams("forum");
+
+    	}
     })
 
     $("#src_new_aphorism").click(function(){
     	$("#src_fresh_aphorism").hide();
-    	$("#src_overWorld").show();
+    	$("#src_overWorld").fadeIn();
     	$("#src_oldOverWorld").hide();
-    	$("#src_newOverWorld").show()
+    	$("#src_newOverWorld").fadeIn()
     })
 
 
@@ -395,7 +470,24 @@ function initializeSourceSpirit(){
     	if(split[0] === ''){
     		split = [];
     	}
+    	if($("#src_dialectic_text").val().length === 0){
+    		alert("You must enter a text body.")
+    		return;
+   		}
+   		if($("#src_dialectic_title").val().length=== 0){
+   			alert("You must enter a title!")
+   			return;
+   		}
+    	if($("#src_dialectic_text").val().length > 1000){
+    		alert("Aphorism must be <=1000 characters.")
+    		return;
+    	}
+    	if($("#src_dialectic_title").val().length > 256){
+    		alert("Title must be <=256 characters.")
+    		return;
+    	}
     	$("#src_dialectic_submit").prop("disabled", true)
+
     	$.post("/src_new_aphorism", {classes: JSON.stringify(split), 
     		type : "", title: $("#src_dialectic_title").val(), text : $("#src_dialectic_text").val(), 
     		dialectic : $("#src_dialectic_select").val(), target : ANCHOR.getParams().uuid,
@@ -404,7 +496,10 @@ function initializeSourceSpirit(){
     			$("#src_dialectic_submit").prop("disabled", false);
     			$("#src_overWorld").hide();
     			$("#src_newOverWorld").fadeOut()
-    			ANCHOR.removeParams("forum");
+    			if(ANCHOR.getParams()){
+    				ANCHOR.removeParams("forum");
+
+    			}
     			ANCHOR.setParams("forum", data.uuid)
 				initializeSourceSpirit();    			
 			
@@ -434,19 +529,19 @@ function initializeWorldSpirit(){
     .force("charge", d3.forceManyBody().strength(-10))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force('collide', d3.forceCollide(function(d){
-    	return 55
+    	return 15
 	}))
 	console.log(data.data);
     data.data.forEach(function(record){
 			record._fields.forEach(function(field, i, arr){
 				let checkNodes = gData.nodes.some(n => field && n.id === field.properties.uuid);
 				if(!checkNodes && field){
-					if(field.labels[0] === "Torrent"){
+					/*if(field.labels[0] === "Torrent"){
 						console.log(field.properties);
 						gData.nodes.push({id: field.properties.uuid, group: "Torrent", name : field.properties.editionText, infoHash: field.properties.infoHash, sourceUUID : field.properties.sourceUUID});
 
-					}
-					else if(field.labels[0] === "Source"){
+					}*/
+					if(field.labels[0] === "Source"){
 						gData.nodes.push({id: field.properties.uuid, group:"Source", name : field.properties.title})
 					}
 					else if(field.labels[0] === "Class"){
@@ -499,7 +594,7 @@ function initializeWorldSpirit(){
      		return "text_opaque"
      	}
      })
-      .text(function(d) { return decodeEntities(d.name); }).attr("font-family", "Pirata One").attr("font-size", "18px");
+      .text(function(d) { return decodeEntities(decodeEntities(d.name)); }).attr("font-family", "Poppins").attr("font-size", "18px");
 
     node.on("click", function(e){
     	onClick(e);
@@ -534,7 +629,7 @@ function initializeWorldSpirit(){
         .force("charge", d3.forceManyBody().strength(-10))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force('collide', d3.forceCollide(function(d){
-    		return 55;
+    		return 46;
 		}))    
 
 	var link = svg.append("g")
@@ -590,7 +685,7 @@ function initializeWorldSpirit(){
     .attr("class", "text_opaque")
     .text(function(d) { 
     	if(d.source.group === "Aphorism" && d.target.group === "Aphorism"){
-    		return decodeEntities(d.name); 
+    		return decodeEntities(decodeEntities(d.name)); 
     	}
 
     });
@@ -603,16 +698,18 @@ function initializeWorldSpirit(){
 
     if(ANCHOR.getParams() && ANCHOR.getParams().uuid){
     	$("#fresh_aphorism").hide();
-    	$("#overWorld").show();
+    	$("#overWorld").fadeIn();
     	$("#oldOverWorld").fadeIn(1337);
     	getAphorism(ANCHOR.getParams().uuid)
     }
     function onClick(e){
 		console.log(e)
 		if(e.group === "Aphorism"){
-			ANCHOR.removeParams("uuid");
+			if(ANCHOR.getParams()){
+				ANCHOR.removeParams("uuid");
+			}
 			ANCHOR.setParams("uuid", e.id);
-			$("#overWorld").show();
+			$("#overWorld").fadeIn();
 			getAphorism(e.id);
 			$("#oldOverWorld").fadeIn(1337)
 			$("#fresh_aphorism").fadeOut(666)	
@@ -699,20 +796,87 @@ function initializeWorldSpirit(){
     })
 
     function getAphorism(id){
+    	$("#new_aphorism").hide();
     	clearAphorism();
     	$.get("/aphorism/" + id, function(data){
     		console.log(data);
-    		$("#aphorism_title").text(decodeEntities(data.title));
-    		$("#aphorism_text").text(decodeEntities(data.text));
+    		$("#aphorism_title").empty();
+    		if(data.dialectic === "thesis"){
+    			$("#aphorism_title").append("<span class='green bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+    			if(data.thesis_antithesis){
+    				$("#aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.thesis_antithesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit red'>" + decodeEntities(decodeEntities(data.thesis_antithesis.properties.title)) + "</a>")
+    			}
+    			if(data.thesis_synthesis){
+    				$("#aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.thesis_synthesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit orange'>" + decodeEntities(decodeEntities(data.thesis_synthesis.properties.title)) + "</a>")
+
+    			}
+    		}
+    		else if(data.dialectic === "antithesis"){
+    			if(data.antithesis_thesis){
+    				$("#aphorism_title").append("<a href='#world_spirit?uuid=" + data.antithesis_thesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit green'>" + decodeEntities(decodeEntities(data.antithesis_thesis.properties.title)) + "</a> > ")
+    			}
+    			$("#aphorism_title").append("<span class='red bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+
+    			if(data.antithesis_synthesis){
+    				$("#aphorism_title").append(" > <a href='#world_spirit?uuid=" + data.antithesis_synthesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit orange'>" + decodeEntities(decodeEntities(data.antithesis_synthesis.properties.title)) + "</a>")
+
+    			}
+
+    		}
+    		else if(data.dialectic === "synthesis"){
+    			if(data.synthesis_thesis){
+    				$("#aphorism_title").append("<a href='#world_spirit?uuid=" + data.synthesis_thesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit green'>" + decodeEntities(decodeEntities(data.synthesis_thesis.properties.title)) + "</a> > ")
+    			}
+    			if(data.synthesis_antithesis){
+    				$("#aphorism_title").append("<a href='#world_spirit?uuid=" + data.synthesis_antithesis.properties.uuid + 
+    					"' class='ANCHOR world_spirit red'>" + decodeEntities(decodeEntities(data.synthesis_antithesis.properties.title)) + "</a> > ")
+
+    			}
+    			$("#aphorism_title").append("<span class='orange bold underline'>" + decodeEntities(decodeEntities(data.title)) + "</span>")
+
+
+    		}
+    		$("#aphorism_text").text(decodeEntities(decodeEntities(data.text)));
+    		$("#aphorism_user_dialectic").empty();
+    		//$("#aphorism_user_dialectic").append(toTitleCase(data.dialectic));
+    		console.log(data.follows)
+    		/*if(data.dialectic === "synthesis"){
+    			$("#aphorism_user_dialectic").append(" of ")
+    			data.follows.forEach(function(aphorism, i){
+    				console.log(aphorism)
+    				$("#aphorism_user_dialectic").append("<a class='ANCHOR world_spirit' href='#world_spirit?uuid=" + aphorism.properties.uuid + 
+    					"'>" + aphorism.properties.title + (i === 0 && data.follows.length > 1 ? "</a> and " : "</a>"))
+    			})
+    		}
+    		else if(data.dialectic === "antithesis"){
+    			if(data.follows[0]){
+    				$("#aphorism_user_dialectic").append(" of ")
+    				$("#aphorism_user_dialectic").append("<a class='ANCHOR world_spirit' href='#world_spirit?uuid=" + data.follows[0].properties.uuid + 
+    					"'>" + data.follows[0].properties.title + "</a>")
+    			}
+    			
+    		}*/
+    		console.log(data.created_at)
+    		$("#aphorism_user_dialectic").append("Posted by <a class='ANCHOR user' href='user?uuid=" + data.user.properties.uuid + 
+    			"'>" + data.user.properties.user + "</a> " + "<span>" + timeSince(data.created_at) + " ago!</span>");
     		$("#aphorism_classes").text("");
+    		console.log(data.classes)
     		if(data.classes && data.classes.length > 0){
 	    		data.classes.forEach(function(node, i){
+	    			console.log(node)
 	    			if(i===0){
-	    				$("#aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + ">" + decodeEntities(data.classes[0].properties.name) + "</a>")
+	    				$("#aphorism_classes").append("<a class='ANCHOR class' href='#class?uuid=" + data.classes[0].properties.uuid + "'>" + 
+	    					decodeEntities(decodeEntities(data.classes[0].properties.name)) + "</a>")
 	    		
 	    			}
 	    			else{
-	    				$("#aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + ">" + decodeEntities(node.properties.name) + "</a>")
+	    				$("#aphorism_classes").append(", <a class='ANCHOR class' href='#class?uuid=" + node.properties.uuid + "'>" + 
+	    					decodeEntities(decodeEntities(node.properties.name)) + "</a>")
 	    			}
 	    		})
     		}
@@ -729,6 +893,10 @@ function initializeWorldSpirit(){
     				$("#dialectic_select").append("<option value='thesis'>Thesis</option>")
     				break;
     		}
+    		if(!data.final && data.dialectic !== "synthesis"){
+    			$("#new_aphorism").fadeIn()
+    		}
+
     	})
     }
 
@@ -744,12 +912,14 @@ function initializeWorldSpirit(){
     $("#fresh_aphorism").click(function(){
     	clearAphorism();
     	$("#oldOverWorld").hide();
-    	$("#overWorld").show();
+    	$("#overWorld").fadeIn();
     	$("#newOverWorld").fadeIn();
     	$("#dialectic_select").empty();
     	$("#dialectic_select").append("<option value='thesis'>Thesis</option>")
     	clearAphorism()
-    	ANCHOR.removeParams("uuid");
+    	if(ANCHOR.getParams()){
+    		ANCHOR.removeParams("uuid");
+    	}
     	if(ANCHOR.page()=== "source"){
     		ANCHOR.setParams("uuid", sourceUUID)
     	}
@@ -758,10 +928,12 @@ function initializeWorldSpirit(){
 
     $("#close_overworld").click(function(){
     	$("#fresh_aphorism").fadeIn(777);
-    	$("#oldOverWorld").show();
+    	$("#oldOverWorld").fadeIn();
     	$("#newOverWorld").hide()
     	$("#overWorld").fadeOut(1337);
-    	ANCHOR.removeParams("uuid");
+    	if(ANCHOR.getParams()){
+    		ANCHOR.removeParams("uuid");
+    	}
     	if(ANCHOR.page()==="source"){
     		ANCHOR.setParams("uuid", sourceUUID)
     	}
@@ -769,9 +941,9 @@ function initializeWorldSpirit(){
 
     $("#new_aphorism").click(function(){
     	$("#fresh_aphorism").hide();
-    	$("#overWorld").show();
+    	$("#overWorld").fadeIn();
     	$("#oldOverWorld").hide();
-    	$("#newOverWorld").show()
+    	$("#newOverWorld").fadeIn()
     })
 
 
@@ -783,15 +955,36 @@ function initializeWorldSpirit(){
     	if(split[0] === ''){
     		split = [];
     	}
+ 		if($("#dialectic_text").val().length === 0){
+    		alert("You must enter a text body.")
+    		return;
+   		}
+   		if($("#dialectic_title").val().length=== 0){
+   			alert("You must enter a title!")
+   			return;
+   		}
+
+    	if($("#dialectic_text").val().length > 1000){
+    		alert("Aphorism must be <=1000 characters.")
+    		return;
+    	}
+    	if($("#dialectic_title").val().length > 256){
+    		alert("Title must be <=256 characters.")
+    		return;
+    	}
     	$("#dialectic_submit").prop("disabled", true)
     	$.post("/new_aphorism", {classes: JSON.stringify(split), 
     		type : "", title: $("#dialectic_title").val(), text : $("#dialectic_text").val(), 
-    		dialectic : $("#dialectic_select").val(), target : ANCHOR.getParams().uuid ? ANCHOR.getParams().uuid : "",
+    		dialectic : $("#dialectic_select").val(), target : ANCHOR.getParams() && ANCHOR.getParams().uuid ? ANCHOR.getParams().uuid : "",
     		citations : JSON.stringify(worldSpirit.citations)},
     		function(data){
+    			console.log(data);
     			$("#dialectic_submit").prop("disabled", false);
     			$("#overWorld").hide();
     			$("#newOverWorld").fadeOut()
+    			if(ANCHOR.getParams()){
+    				ANCHOR.removeParams("uuid")
+    			}
     			ANCHOR.setParams("uuid", data.uuid)
 				initializeWorldSpirit();    			
 			

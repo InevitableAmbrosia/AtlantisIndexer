@@ -70,7 +70,7 @@
 			var authorCount = 0;
 			function addAuthorArea(id, author, cb){
 				var a = document.createElement("a");
-				$(a).text((author.charAt(0) == author.charAt(0).toUpperCase() ? author + " " : toTitleCase(author) + " "));
+				$(a).text(decodeEntities(decodeEntities(author)) + " ");
 				$(a).attr("href", "#author?uuid=" + id)
 				$(a).click(function(e){
 					e.preventDefault();
@@ -205,7 +205,7 @@
 		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
 		<label for="public_domain">Public Domain</label>
 		<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
-		<label for="copyrighted">Sell for ETH.</label>
+		<label for="copyrighted">Sell for LINK.</label>
 	</div>
 	<div class="copyrighted">
 		<div class="grid_0 paid copy">
@@ -215,7 +215,7 @@
 			<input id="link_price" name="LINK_price">
 		</div>
 		<div class="grid_0 paid copy">
-		<label for="LINK_address">ETH Address</label>
+		<label for="LINK_address">LINK Address</label>
 		</div>
 		<div class="grid_1 paid copy">
 			<input id="link_address" name="LINK_address">

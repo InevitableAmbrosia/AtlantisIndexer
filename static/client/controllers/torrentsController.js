@@ -126,12 +126,18 @@ function initializeTorrents(table, cb){
 		$("#top10_media").append("<option value='all'>All Media</option>")
 		$("#top10_format").empty();
 		$("#top10_format").append("<option value='all'>All Formats</option>")
+		console.log(data.buoy.types)
 		data.buoy.types.forEach(function(val){
 			var option = document.createElement("option");
+			console.log(val)
 			$(option).val(val);
-			$(option).text(decodeEntities(val));
+			$(option).text(decodeEntities(decodeEntities(val)));
+			var option2 = document.createElement("option");
+			console.log(val)
+			$(option2).val(val);
+			$(option2).text(decodeEntities(decodeEntities(val)));
 			$("#adv_type").append(option);
-			$("#top10_type").append(option)
+			$("#top10_type").append(option2)
 			if(ANCHOR.getParams() && ANCHOR.getParams().type){
 				$("#adv_type").val(ANCHOR.getParams() ? ANCHOR.getParams().type : "");
 				$("#top10_type").val(ANCHOR.getParams() ? ANCHOR.getParams().type : "")
@@ -140,9 +146,12 @@ function initializeTorrents(table, cb){
 		data.buoy.media.forEach(function(val){
 			var option = document.createElement("option");
 			$(option).val(val);
-			$(option).text(decodeEntities(val));
+			$(option).text(decodeEntities(decodeEntities(val)));
 			$("#adv_media").append(option);
-			$("#top10_media").append(option)
+			var option2 = document.createElement("option");
+			$(option2).val(val);
+			$(option2).text(decodeEntities(decodeEntities(val)));
+			$("#top10_media").append(option2)
 			if(ANCHOR.getParams() && ANCHOR.getParams().media){
 
 				$("#adv_media").val(ANCHOR.getParams() ? ANCHOR.getParams().media : "")
@@ -153,9 +162,12 @@ function initializeTorrents(table, cb){
 		data.buoy.formats.forEach(function(val){
 			var option = document.createElement("option");
 			$(option).val(val);
-			$(option).text(decodeEntities(val));
+			$(option).text(decodeEntities(decodeEntities(val)));
 			$("#adv_format").append(option);
-			$("#top10_format").append(option)
+			var option2 = document.createElement("option");
+			$(option2).val(val);
+			$(option2).text(decodeEntities(decodeEntities(val)));
+			$("#top10_format").append(option2)
 			if(ANCHOR.getParams() && ANCHOR.getParams().format){
 				$("#adv_format").val(ANCHOR.getParams() ? ANCHOR.getParams().format : "")
 
@@ -367,11 +379,16 @@ function initializeTorrents(table, cb){
 			      var seeAllField = "<span class='seeAllField'>";
 			      record._fields[3].forEach(function(field, i){
 			        if(i === 0){
-			          classesField += "<a class='ANCHOR class' href='#class?uuid=" + field.properties.uuid + "'>" + decodeEntities(field.properties.name) + "</a>";
+			        	if(field.properties.uuid){
+			          		classesField += "<a class='ANCHOR class' href='#class?uuid=" + field.properties.uuid + "'>" + decodeEntities(field.properties.name) + "</a>";
+			        	}
 			        }
 			        else{
-			          classesField += ", <a class='ANCHOR class' href='#class?uuid=" + 
-			          field.properties.uuid + "'>" +  decodeEntities(field.properties.name) + "</a>"
+			          if(field.properties.uuid){
+			          	classesField += ", <a class='ANCHOR class' href='#class?uuid=" + 
+			          	field.properties.uuid + "'>" +  decodeEntities(field.properties.name) + "</a>"
+			          }
+			          	
 			        }
 			      })
 
@@ -387,8 +404,8 @@ function initializeTorrents(table, cb){
 			      var numPeers = 0;
 			      var top10Table = table;
 			      record._fields[2].forEach(function(edition){
-							var table = "<table class='torrentsTable'><thead><th>Media</th><th>Format</th><th>DL</th><th>infoHash</th><th>Peers</th><th>Snatches</th>"
-						 + "<th>Time</th><th>Booty (ETH)</th><th>User</th></tr></thead><tbody><tr>"
+							var table = "<table class='torrentsTable'><thead><th>Media</th><th>Format</th><th>DL</th><th>infoHash</th><th>Snatches</th>"
+						 + "<th>Time</th><th>Booty (LINK)</th><th>User</th></tr></thead><tbody><tr>"
 
 			      	if(edition.torrent){
 			      		
@@ -569,7 +586,7 @@ function initializeTorrents(table, cb){
 						        "' data-torrent-uuid='" + edition.torrent.uuid + 
 						        "' href='#'>[Copy infoHash]</a></td>"
 						       // table += "<td>" + humanFileSize(torrent.properties.length) + "</td>"
-						       tr += "<td class='light'><p>" + (edition.torrent.numPeers ? edition.torrent.numPeers : 0) + "</p></td>"
+						       //tr += "<td class='light'><p>" + (edition.torrent.numPeers ? edition.torrent.numPeers : 0) + "</p></td>"
 						        tr += "<td class='light'><p>" + edition.torrent.snatches + "</p></td>";
 						        tr += "<td class='here'>" + timeSince(edition.torrent.created_at) + " ago</td>"
 						        tr += "<td class='donate'>" + (edition.torrent.ETH_address && edition.torrent.copyrighted ? 
@@ -580,7 +597,6 @@ function initializeTorrents(table, cb){
  									<= 0 ? true : false) + 
 						        	"'" + "data-torrent-uuid='" + edition.torrent.uuid + "'>" + "$" + parseFloat(edition.torrent.USD_price).toFixed(2) + "</button>"
 						        	 : "Public Domain.") +"</td>"
-						        tr+="<td><a class='ANCHOR user' id='uptight' href='#user?uuid=" + edition.torrent.uploaderUUID + "'>" 
 						        tr+="<td><a class='ANCHOR user' id='uptight' href='#user?uuid=" + edition.torrent.uploaderUUID + "'>" 
 						        + edition.torrent.uploaderUser + "</a></td>"
 						        tr += "</tr>"
@@ -594,20 +610,22 @@ function initializeTorrents(table, cb){
 					      		records[editionsAdded.indexOf(edition.edition.properties.uuid)] = ["<img class='tableImg' id='source_" 
 					      			+ record._fields[0].properties.uuid + "' src='" + sourceIMG + "'>" + 
 								       "<div class='torrentSource'><span class='sourceType'>" +
-					      			decodeEntities(record._fields[0].properties.type) + "</span>" + 
+					      			decodeEntities(decodeEntities(decodeEntities(record._fields[0].properties.type))) + "</span>" + 
 								        "<div class='tableHeading'><a id='sourceTab' class='ANCHOR source' href='#source?uuid=" + 
 								        record._fields[0].properties.uuid + "'>" 
 								        + decodeEntities(record._fields[0].properties.title) + "</a>"
 								       + dateField + authorField + "</div><br><div class='torrentClasses normal'>" + classesField 
 								       + "</div></div>",
 								        "<span id='edition_" + edition.edition.properties.uuid + "_field'>" + editionField + "</span>", 
-								        edition.edition.properties.numPeers,
+								       // edition.edition.properties.numPeers,
 								        edition.edition.properties.snatches, timeSince(edition.edition.properties.created_at) + " ago", table]
 		 			    	}	
 				      	else{
-				      		console.log("HERE")				      		
-				      		records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]  = records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]
-				      		.slice(0, -16) + tr + "</tbody></table>";
+				      		console.log("HERE")				      	
+                  if(records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]){
+				      		  records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]  = records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]
+				      		  .slice(0, -16) + tr + "</tbody></table>";
+                  }
 				      	}
 	 			    	  console.log(editionsAdded, edition.edition.properties.uuid)
 	 			    	

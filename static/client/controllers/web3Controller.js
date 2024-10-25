@@ -64,11 +64,11 @@ async function initPayButton(btn){
 
     console.log(curatorAddress);
       console.log(data);
-      var amountETH = (parseFloat(data.USD_price) * .5).toString();
+      var amountETH = (parseFloat(data.USD_price)).toString();
 
 
         $.get("/infoHash/" + torrentUUID, async function(data){
-          const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
+          const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
           priceFeed.methods
             .latestRoundData()
             .call()
@@ -87,7 +87,7 @@ async function initPayButton(btn){
               function getExchangeRate(fromCurrency, toCurrency) { 
                 // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
                 const exchangeRates = { 
-                  ETH: 1,
+                  LINK: 1,
                   USD : price
                 }; 
                 return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
@@ -95,37 +95,46 @@ async function initPayButton(btn){
               const amount = parseFloat(amountETH); 
               console.log(amount)
               const fromCurrency = "USD"; 
-              const toCurrency = "ETH"; 
-               
-              const convertedAmount = convertCurrency(amount, "USD", "ETH");
-              const suggestion_gas2 = await web3.eth.getGasPrice();
+              const toCurrency = "LINK"; 
+              var contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+              let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
+              const convertedAmount = convertCurrency(amount, "USD", "LINK");
+              const suggestion_gas = await web3.eth.getGasPrice();
               console.log(convertedAmount);
-              let value2 = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
-              const estimate_gas2 = await web3.eth.estimateGas({
+              let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(7)), "ether");
+              let data = myContract.methods.transfer(curatorAddress, value).encodeABI()
+
+              const estimate_gas = await web3.eth.estimateGas({
                   'from': account,
-                  'to': propagateAddress
+                  'to': contractAddress,
+                  "data" : data
                
               });
 
-              let rawTx2 = {
-                  'gasPrice': web3.utils.toHex(suggestion_gas2),
-                  'gasLimit': web3.utils.toHex(estimate_gas2),
+              let rawTx = {
+                  'gasPrice': web3.utils.toHex(suggestion_gas),
+                  'gasLimit': web3.utils.toHex(estimate_gas),
                   "from" : account,
                  // "nonce" : web3.utils.toHex(transCount),
-                  "to": propagateAddress,
-                  "value" : value2,
+                  "to": contractAddress,
+                  "value" : "0x0",
+                  "data" : data
               }
-              console.log(estimate_gas2);
               //var batch = new web3.BatchRequest();
-              alert("You will process two transactions. The first is to the propagate.info address, for 50%. The second is to the curator address, for the other 50%. After your transaction has gone through in your client, it will take another 1-2 minutes to mine the transaction before your infoHash will be available to you! You must submit both transactions to receive an infoHash.")
-              web3.eth.sendTransaction(rawTx2).on('transactionHash', function (txHash) {
+              web3.eth.sendTransaction(rawTx).on('transactionHash', function (txHash) {
 
                 }).once("transactionHash", function(hash){
-                  transactionHash0 = hash;
+                  transactionHash = hash;
                 }).on("sent", function(){
                   sentTransaction();
                 }).on('receipt', async function (receipt) {
-                    const suggestion_gas = await web3.eth.getGasPrice();
+                    var uuid = crypto.randomUUID();
+
+                  $.post("/receipt_confirmed/" + uuid, {transactionHash: transactionHash, torrentUUID: torrentUUID }, function(data){
+                    alert("Transaction completed. Your infoHash is now available, congratulations! Now save your Transaction hash: " + transactionHash)
+
+                  })
+                    /*const suggestion_gas = await web3.eth.getGasPrice();
                     console.log(convertedAmount);
                     let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
                     const estimate_gas = await web3.eth.estimateGas({
@@ -151,10 +160,10 @@ async function initPayButton(btn){
                     }).on('error', function (error) {
                       $(".web3").prop("disabled", false)
                       transErr(err);
-                    })                    
+                    })              */      
                 }).on('error', function (error) {
                   $(".web3").prop("disabled", false)
-                  transErr(err);
+                  transErr(error);
                 });
 
 
@@ -282,6 +291,7 @@ async function initPayButton(btn){
       //  var batch = new web3.BatchRequest();
      /* */
    
+      
       var abi = [
           {
               "constant": true,

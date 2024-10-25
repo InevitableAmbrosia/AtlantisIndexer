@@ -103,8 +103,8 @@ function initializeUpload(cb){
 						e.preventDefault();
 						ANCHOR.route("#source?uuid=" + uploadModel.uuid)
 					})
-					$("#title").val(decodeEntities(data.record._fields[0])).trigger("change")
-					$("#date").val(decodeEntities(data.record._fields[3])).trigger("change");
+					$("#title").val(decodeEntities(decodeEntities(data.record._fields[0]))).trigger("change")
+					$("#date").val(decodeEntities(decodeEntities(data.record._fields[3]))).trigger("change");
 					data.record._fields[1].forEach(function(author){
 						addAuthor(author);
 					})
@@ -135,7 +135,7 @@ function initializeUpload(cb){
 						var editionField = "";
 			      	data.record._fields[1].forEach(function(field, i){
 			      		console.log(field);
-				      	editionField += field.author ? decodeEntities(field.author) : ""
+				      	editionField += field.author ? decodeEntities(decodeEntities(field.author)) : ""
 				      	if(data.record._fields[1][i+1]){
 				      		editionField += ", "
 				      	}
@@ -146,32 +146,32 @@ function initializeUpload(cb){
 									editionField += " "
 								}
 				      })
-				      editionField += data.record._fields[3] ? "(" + decodeEntities(data.record._fields[3]) + (edition.date ? "/" + 
-				      	decodeEntities(edition.date) + "). " : "). ") : ""
-				      editionField += decodeEntities(data.record._fields[0]) + ". "
+				      editionField += data.record._fields[3] ? "(" + decodeEntities(decodeEntities(data.record._fields[3])) + (edition.date ? "/" + 
+				      	decodeEntities(decodeEntities(edition.date)) + "). " : "). ") : ""
+				      editionField += decodeEntities(decodeEntities(data.record._fields[0])) + ". "
 
 
 				      if(edition.publisher){
-				        publisherHtml += edition.publisher ? decodeEntities(edition.publisher) + ". " : " "
+				        publisherHtml += edition.publisher ? decodeEntities(decodeEntities(edition.publisher)) + ". " : " "
 				      }
 				     
 				      if(edition.title){
 				      	if(!edition.title.endsWith(".")){
-				      		editionField += decodeEntities(edition.title) + ". "
+				      		editionField += decodeEntities(decodeEntities(edition.title)) + ". "
 				      	}
 				      	else{
-				      		editionField += decodeEntities(edition.title) + " ";
+				      		editionField += decodeEntities(decodeEntities(edition.title)) + " ";
 				      	}
 				      }
 				      editionField += publisherHtml;
 				      if(edition.no){
-				      	editionField += "(" + decodeEntities(edition.no) + ")"
+				      	editionField += "(" + decodeEntities(decodeEntities(edition.no)) + ")"
 				      	if(edition.pages){
 				      		editionField += ", "
 				      	}
 				      }
 				      if(edition.pages){
-				      	editionField += decodeEntities(edition.pages) + "."
+				      	editionField += decodeEntities(decodeEntities(edition.pages)) + "."
 				      }
 						
 						$(option).val(editionField);
@@ -258,7 +258,7 @@ function initializeUpload(cb){
 					data.record._fields[7].properties.types.forEach(function(val){
 						var option = document.createElement("option");
 						$(option).val(val);
-						$(option).text(decodeEntities(val));
+						$(option).text(decodeEntities(decodeEntities(val)));
 						$("#type").append(option);
 						console.log(data.record._fields[6])
 						$("#type").val(data.record._fields[6]);
@@ -268,7 +268,7 @@ function initializeUpload(cb){
 					data.record._fields[7].properties.media.forEach(function(val){
 							var option = document.createElement("option");
 							$(option).val(val);
-							$(option).text(decodeEntities(val));
+							$(option).text(decodeEntities(decodeEntities(val)));
 							$("#media").append(option);
 							uploadModel.torrent.media = $("#media").val();
 						})
@@ -276,7 +276,7 @@ function initializeUpload(cb){
 					data.record._fields[7].properties.formats.forEach(function(val){
 							var option = document.createElement("option");
 							$(option).val(val);
-							$(option).text(decodeEntities(val));
+							$(option).text(decodeEntities(decodeEntities(val)));
 							$("#format").append(option);
 							uploadModel.torrent.format = $("#format").val();
 					})
@@ -295,7 +295,7 @@ function initializeUpload(cb){
 			data.buoy.types.forEach(function(val){
 				var option = document.createElement("option");
 				$(option).val(val);
-				$(option).text(decodeEntities(val));
+				$(option).text(decodeEntities(decodeEntities(val)));
 				$("#type").append(option);
 				uploadModel.type = $("#type").val();
 			})
@@ -303,7 +303,7 @@ function initializeUpload(cb){
 			data.buoy.media.forEach(function(val){
 				var option = document.createElement("option");
 				$(option).val(val);
-				$(option).text(decodeEntities(val));
+				$(option).text(decodeEntities(decodeEntities(val)));
 				$("#media").append(option);
 				uploadModel.torrent.media = $("#media").val();
 
@@ -312,7 +312,7 @@ function initializeUpload(cb){
 			data.buoy.formats.forEach(function(val){
 				var option = document.createElement("option");
 				$(option).val(val);
-				$(option).text(decodeEntities(val));
+				$(option).text(decodeEntities(decodeEntities(val)));
 				$("#format").append(option);
 				uploadModel.torrent.format = $("#format").val();
 
@@ -493,8 +493,15 @@ function htmlUpload(){
 					
 		   			}
 		   		})
-		   	//}
-		   				return editionField.trim();
+		   	//}		... propagate.info 	
+		   		
+		   		editionField = editionField.substring(0,230)
+		   		if(editionField.length === 230){
+		   			editionField = editionField + "..."
+		   		}
+		   		console.log(editionField)
+		   		editionField = editionField + " propagate.info"
+		   		return editionField.trim();
 		   	
 		      
 		}
@@ -589,7 +596,7 @@ function htmlUpload(){
 
 	$("#copyrighted").change(function(){
 		if($(this).prop("checked")){
-			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. propagate.info will take a 50% Royalty. Be sure to include an ETH address!');
+			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. propagate.info will not take any royalty, as this is a free and open source project. Be sure to include a LINK address!');
 			if(cnfrm != true)
 			{
 			 $(this).prop("checked", false)
@@ -611,6 +618,8 @@ function htmlUpload(){
 
 	$("#public_domain").change(function(){
 		if($(this).prop("checked")){
+			$(".paid").fadeOut();
+			$("#link_price").val("")
 			/*var cnfrm = confirm("By checking this box, you are certifying that the torrent you are uploading is in the public domain.")
 			if(cnfrm != true){
 				$(this).prop("checked", false)
