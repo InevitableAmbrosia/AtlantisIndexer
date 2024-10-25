@@ -94,8 +94,14 @@ var ANCHOR = {
 		const params = new URLSearchParams(window.location.hash.split("?")[1]);
 		params.delete(param)
 		console.log(params.toString());
+		if(params.length > 0){
+			console.log("TRUE")
+		}
+		else{
+			console.log("FALSE");
+		}
 		window.history.replaceState(null, '', window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash.split("?")[0] 
-			+ "?" + params);
+			+ (params.length > 0 ? "?" : "") + params);
 
 	}
 	,

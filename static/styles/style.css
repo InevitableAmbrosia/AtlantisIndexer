@@ -367,8 +367,7 @@ input{
 }
 
 h2{
-	font-family: "Secular One", sans-serif;
-  	font-variant:small-caps;
+	font-family: "Dancing Script", sans-serif;
 	font-size: 46px;
 	color: goldenrod;/*#385E5C;*/
 	text-shadow:3px 2px black;/*#385E5C;*/
@@ -386,6 +385,8 @@ h3{
 .panel {
 	 font-family:  "Roboto", "Playfair Display", sans-serif
 }
+
+
 
 .tabs{
 	font-family:  "Secular One", "Playfair Display", sans-serif;
@@ -1257,7 +1258,10 @@ svg{
 }*/
 
 #worldSpirit{
-	position:absolute;
+	position:fixed;
+	top:173px;
+	height:calc(100% - 173px);
+	width:100%;
 }
 
 #overWorld, #src_overWorld{
@@ -1272,6 +1276,10 @@ svg{
     position:relative;
     z-index:956;
     margin:0 auto;
+}
+
+.user_dialectic{
+	font-family:"Pirata Sans", sans-serif;
 }
 
 #src_close_overworld{
@@ -1422,6 +1430,8 @@ svg{
     padding-top:0px;
     margin-top:7px;
     padding-left:0px;
+    font-variant:normal;
+    font-family:"Pirata One", sans-serif;
 }
 
 #aphorism_text, #src_aphorism_text{
@@ -1449,12 +1459,9 @@ svg{
 
 
 #worldSpirit{
-    position:absolute;
-    width:100%;
-    height:calc(100% - 90px);
+
     z-index:900;
     left:0;
-    top:90px;
 }
 
 
@@ -1510,6 +1517,7 @@ svg{
 a.link a.visited{
 	color: cyan;
 }
+
 
 
 
@@ -1607,8 +1615,7 @@ a.link a.visited{
 
 .ANCHOR_partial{
   background-color:white;
-  background-color:#FBFBF6;
-  background-color:#FFFEFF;
+
   
   }
 
@@ -1743,6 +1750,26 @@ a.link a.visited{
   header{
     box-shadow:5px 4px 3px darkslateblue;
   }
+
+  .red, .red:visited{
+	color:red;
+}
+
+.orange, .orange:visited{
+	color:orange;
+}
+
+.green, .green:visited{
+	color:green;
+}
+
+.bold{
+	font-weight:bold;
+}
+
+.underline{
+	text-decoration:underline;
+}
 /* MOBILE */
 
 @media only screen and (max-width: 1079px) {
@@ -1850,8 +1877,7 @@ a.link a.visited{
 	}
 
 	#worldSpirit{
-		top:84px;
-		height:calc(100% - 84px);
+		
 	}
 
 	.health a, .health span{
@@ -1952,6 +1978,11 @@ a.link a.visited{
 	.search input{
 		width:299px;
 
+	}
+
+	#worldSpirit{
+		top:55px;
+		height:calc(100% - 55px);
 	}
 
 	.mobile_panel{
