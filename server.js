@@ -501,12 +501,14 @@ app.get("/stats", function(req,res){
   query += "MATCH (u:User) "
   query += "WITH count(u) AS numUsers, numSources, snatches, numEditions, numTorrents, s "
   query += "MATCH (c:Class) "
-  query += "RETURN s, numSources, snatches, numTorrents, numUsers, count(c)"
+  query += "WITH count(c) AS numClasses, s, numSources, snatches, numTorrents, numUsers " 
+  query += "MATCH (a:Author) "
+  query += "RETURN s, numSources, snatches, numTorrents, numUsers, numClasses, count(a)"
   var params = {}
   session.run(query,params).then(data=>{
     if(data.records && data.records[0]){
       return res.json({source: data.records[0]._fields[0], 
-                       numSources: data.records[0]._fields[1],
+                       numAuthors: data.records[0]._fields[6],
                       snatches: data.records[0]._fields[2],
                       numTorrents: data.records[0]._fields[3],
                       numUsers: data.records[0]._fields[4],
@@ -1008,14 +1010,62 @@ app.post("/advanced_search", check("class_all").trim().escape().isLength({max:10
     }
   
     query += "WITH s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c, count(s) AS count "
-    query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "  
+    //query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "  
     
     
   }
   else{
     query += "OPTIONAL MATCH (c:Class)-[:TAGS]->(s) " 
     query += "WITH s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c, count(s) AS count "
-    query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+    //query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+  }
+  switch(req.body.order[0].column){
+    case '0':
+      query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+      break;
+    case '1':
+      if(req.body.order[0].dir === 'asc'){
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.title ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+      }
+      else{
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.title DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+      }
+      break;
+    case '2':
+      if(req.body.order[0].dir === 'asc'){
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+      }
+      else{
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+      }
+      break;
+    case '3':
+      console.log("SNATCHES SORT")
+      if(req.body.order[0].dir === 'asc'){
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+      }
+      else{
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+      }
+      break;
+    case '4':
+      if(req.body.order[0].dir === 'asc'){
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+      }
+      else{
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+      }
+      break;
+    default :
+      query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.updated DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+      break;
+
+
   }
   console.log(query);
   var params = {skip : req.body.start, limit : req.body.length, title : req.body.title, author :req.body.author, 
@@ -2126,6 +2176,28 @@ app.post("/web3/:hash", check("hash").not().isEmpty(), check("uuid").not().isEmp
 })
 
 var web3Transactions = [];
+
+app.post("/receipt_confirmed/:uuid", check("transactionHash").not().isEmpty().trim().escape(), check("torrentUUID").not().isEmpty().trim().escape(), function(req,res){
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(util.inspect(errors.array()));
+    return res.json({ errors: errors.array() });
+  }
+  var query = "MATCH (t:Torrent{uuid:$torrentUUID}) " +
+      "MATCH (u:User {uuid: $user}) " + 
+      "MERGE (u)-[b:BOUGHT {uuid : $uuid}]->(t) " +
+      "SET b.confirmed = true " + 
+      "RETURN t.infoHash "
+  var params = {user : req.user ? req.user.uuid : "null", uuid : req.params.uuid, torrentUUID : req.body.torrentUUID}
+
+  var session = driver.session();
+  session.run(query,params).then(data=>{
+    session.close();
+
+    return res.json({bought: true, infoHash : data.records[0] && data.records[0]._fields[0] ? data.records[0]._fields[0] : null});
+
+  })
+})
 
 app.get("/buyPrice/:uuid", check("uuid").not().isEmpty(), function(req,res){
   const errors = validationResult(req);
@@ -3636,28 +3708,28 @@ app.get("/dialectic", function(req,res){
   if (!errors.isEmpty()) {
     return res.json({ errors: errors.array() });
   }
-  const session = driver.session();
-
-  var params = {buoy : req.params.buoy}
-  var query = "MATCH (a:Aphorism) " + 
-  "OPTIONAL MATCH (b)<-[:DIALECTIC]-(a) " +
-  "RETURN a,b ORDER BY a.created_at DESC LIMIT 200"
+  const session=driver.session();
+  var params = {uuid : req.params.uuid}
+  var query = "CALL {"+                
+                "MATCH (b)-[]-(a:Aphorism) WHERE NOT b:Torrent AND NOT b:Edition " +
+                "RETURN a " +
+                "LIMIT 150 " +
+              "}" +
+               "CALL {" +
+                "WITH a " +
+                "MATCH (b)-[]-(a) WHERE NOT b:Torrent AND NOT b:Edition " +
+                "RETURN b " +
+                "LIMIT 50 " +
+              "}" +
+              "RETURN a, b ORDER BY a.created_at DESC"
   session.run(query,params).then(data=>{
-    session.close();
-    var nodes = data.records;
-    const session2 = driver.session();
-    var params2 = {buoy : req.params.buoy}
-    var query2 = "MATCH (a:Aphorism) " +
-    "OPTIONAL MATCH (a)<-[d:DIALECTIC]-(t) WHERE NOT t:Aphorism " + 
-    "RETURN a, t LIMIT 150 "
-    session2.run(query2,params2).then(data2=>{
-      session2.close();
-      
-      return res.json({data : nodes.concat(data2.records)})
+    session.close();      
+    return res.json({data : data.records})
     
 
-    })  
+  
   })
+  
   
 })
 
@@ -3710,23 +3782,15 @@ app.get("/source_spirit/:uuid", check("uuid").trim().escape().not().isEmpty(), f
 
   var params = {uuid : req.params.uuid}
   var query = "MATCH (a:Aphorism)-[:DIALECTIC]-(s:Source {uuid : $uuid}) " + 
-  "OPTIONAL MATCH (b)<-[:DIALECTIC]-(a) " +
+  "OPTIONAL MATCH (b)-[:DIALECTIC]-(a) WHERE NOT b:Torrent " +
   "RETURN a, b ORDER BY a.created_at DESC LIMIT 200"
+
   session.run(query,params).then(data=>{
-    session.close();
-    var nodes = data.records;
-    const session2 = driver.session();
-    var params2 = {uuid : req.params.uuid}
-    var query2 = "OPTIONAL MATCH (a:Aphorism)-[:DIALECTIC]-(s:Source {uuid : $uuid}) " + 
-    "OPTIONAL MATCH (a)<-[d:DIALECTIC]-(t) WHERE NOT t:Aphorism " + 
-    "RETURN a, t LIMIT 150 "
-    session2.run(query2,params2).then(data2=>{
-      session2.close();
-      
-      return res.json({data : nodes.concat(data2.records)})
+    session.close();      
+    return res.json({data : data.records})
     
 
-    })  
+  
   })
   
 })
@@ -3742,11 +3806,32 @@ app.get("/aphorism/:uuid", check("uuid").trim().escape().not().isEmpty(), functi
     var params = {uuid : req.params.uuid}
     var query = "MATCH (a:Aphorism { uuid : $uuid }) " + 
     "OPTIONAL MATCH (a)<-[:DIALECTIC]-(c:Class) " +
-    "RETURN a.title, a.text, a.dialectic, collect(DISTINCT c)"
+    "OPTIONAL MATCH (a)<-[:DIALECTIC]-(u:User) " +
+    "OPTIONAL MATCH (a)-[:DIALECTIC]->(b:Aphorism) " +
+    "OPTIONAL MATCH (b)-[:DIALECTIC]->(h:Aphorism) " +
+    "OPTIONAL MATCH (a)<-[:DIALECTIC]-(d:Aphorism) " +
+    "OPTIONAL MATCH (a)-[:DIALECTIC]->(e:Aphorism) " +
+    "OPTIONAL MATCH (a)<-[:DIALECTIC]-(f:Aphorism) " +
+    "OPTIONAL MATCH (f)<-[:DIALECTIC]-(g:Aphorism) " +
+    "RETURN a.title, a.text, a.dialectic, collect(DISTINCT c), u, b, h, d, e, f, g, a.created_at "
     session.run(query,params).then(data => {
       session.close();
       if(data.records.length > 0){
-        return res.json({title: data.records[0]._fields[0], text : data.records[0]._fields[1], dialectic: data.records[0]._fields[2], classes : data.records[0]._fields[3]})
+        return res.json({
+          title: data.records[0]._fields[0], 
+          text : data.records[0]._fields[1], 
+          dialectic: data.records[0]._fields[2],
+          classes : data.records[0]._fields[3],
+          user : data.records[0]._fields[4],
+          synthesis_antithesis: data.records[0]._fields[9],
+          synthesis_thesis: data.records[0]._fields[10],
+          thesis_antithesis: data.records[0]._fields[5],
+          thesis_synthesis :data.records[0]._fields[6],
+          antithesis_thesis : data.records[0]._fields[7],
+          antithesis_synthesis : data.records[0]._fields[8],
+          final : data.records[0]._fields[5] ? true : false,
+          created_at :data.records[0]._fields[11]
+        })
       }
       else{
         res.json({title: "UUID Not Found!", text : ""})
@@ -3777,7 +3862,7 @@ app.get("/dialectic_cite/:infoHash", check("pages").trim().escape(), check("info
 
 })
 
-app.post("/new_aphorism", check("sourceUUID").trim().escape(), check("text").trim().escape().not().isEmpty().isLength({max : 666}), check("title").trim().escape().not().isEmpty().isLength({max:133}),
+app.post("/new_aphorism", check("sourceUUID").trim().escape(), check("text").trim().escape().not().isEmpty().isLength({max : 1000}), check("title").trim().escape().not().isEmpty().isLength({max:256}),
   check("dialectic").trim().escape().not().isEmpty(), check("classes").trim().escape().isLength({max:9000}),
    check("target").trim().escape(), check("citations").trim().escape(), function(req,res){
     const errors = validationResult(req);
@@ -3799,55 +3884,60 @@ app.post("/new_aphorism", check("sourceUUID").trim().escape(), check("text").tri
     dialectic : req.body.dialectic, 
     classes: classes, target: req.body.target}
     var query = "OPTIONAL MATCH (u:User {uuid : $user}) " +
-    "OPTIONAL MATCH (t {uuid : $target}) " +
-    "WITH u, t " +
     "MERGE (a:Aphorism {userName : u.user, userUUID: u.uuid, " +
     "dialectic : $dialectic, title: $title, text : $text, created_at : toFloat(TIMESTAMP())}) " +
     "SET a.uuid = randomUUID() " +
-    "FOREACH (o IN CASE WHEN t IS NOT NULL THEN [1] ELSE [] END | " + 
-      "MERGE (a)-[:DIALECTIC]->(t) " +
-    ") " +
     "WITH a, u " +
     "MERGE (u)-[:DIALECTIC]->(a) " +
-    "WITH a, u " +
-    'FOREACH( ' + 
-              'class IN $classes | MERGE (c:Class {name : class}) ' +
-              'ON CREATE SET c.uuid = randomUUID() ' +
-              'MERGE (a)<-[:DIALECTIC]-(c) ' + 
-            ') ' +
-    "WITH a, u " +   
-/*    "FOREACH(citation in $citations | " +
-      "MERGE (t:Torrent {infoHash : citation.infoHash})-[:DIALECTIC {pages : citation.pages}]->(a)" +
-      "SET t.editionText = citation.editionText " +
-      ") " +*/
-    "UNWIND $citations as citation " +
-    "OPTIONAL MATCH (to:Torrent {infoHash : citation.infoHash}) " +
-    "MERGE (to)-[:DIALECTIC]->(a) " +
-    "WITH a, u, to, citation " +
-    "MATCH (s:Source)-[]-(:Edition)-[]-(to) " +
-    "MERGE (s)-[:DIALECTIC]->(a) " +
-    "WITH s, to, a, u, citation " +
-    "MERGE (to)<-[:DIALECTIC]-(s) " +
-    "WITH a, u, to, citation " +
-    "OPTIONAL MATCH (to)-[]-(:Edition)-[]-(s:Source) " +
-    "WITH a, u, to, citation " +
-    "SET to.editionText = citation.editionText, to.sourceUUID = citation.sourceUUID " +
-    "WITH a, u " +
-    "RETURN a.uuid, u.uuid, u.user "
+    "RETURN a.uuid "
     session.run(query, params).then(data=>{
       session.close();
-      if(data.records.length > 0){
-        console.log(data.records[0]._fields[0]);
-        return res.json({uuid : data.records[0]._fields[0], userUUID : data.records[0]._fields[1], userName: data.records[0]._fields[2]});
-      }
-      else{
-        return res.end();
-      }
+      var query2 = "MATCH (a:Aphorism {uuid: $uuid}) " + 
+       "OPTIONAL MATCH (t {uuid : $target}) " +
+      "FOREACH (o IN CASE WHEN t IS NOT NULL THEN [1] ELSE [] END | " + 
+      "MERGE (a)<-[:DIALECTIC]-(t) " +
+      ") " +
+      "WITH a " +
+      'FOREACH( ' + 
+                'class IN $classes | MERGE (c:Class {name : class}) ' +
+                'ON CREATE SET c.uuid = randomUUID() ' +
+                'MERGE (a)<-[:DIALECTIC]-(c) ' + 
+              ') ' +
+      "WITH a " +   
+  /*    "FOREACH(citation in $citations | " +
+        "MERGE (t:Torrent {infoHash : citation.infoHash})-[:DIALECTIC {pages : citation.pages}]->(a)" +
+        "SET t.editionText = citation.editionText " +
+        ") " +*/
+      "UNWIND $citations as citation " +
+      "OPTIONAL MATCH (to:Torrent {infoHash : citation.infoHash}) " +
+      "MERGE (to)-[:DIALECTIC]->(a) " +
+      "WITH a, to, citation " +
+      "OPTIONAL MATCH (s:Source)-[]-(:Edition)-[]-(to) " +
+      "MERGE (s)-[:DIALECTIC]->(a) " +
+      "WITH s, to, a, citation " +
+      "OPTIONAL MATCH (to)-[]-(:Edition)-[]-(s:Source) " +
+      "WITH a, to, citation " +
+      "SET to.editionText = citation.editionText, to.sourceUUID = citation.sourceUUID "
+      const session2 = driver.session();
+      var params2 = {sourceUUID : req.body.sourceUUID, user : user, title: req.body.title, citations : citations, text : req.body.text, 
+    dialectic : req.body.dialectic, 
+    classes: classes, target: req.body.target, uuid: data.records[0]._fields[0]}
+      session2.run(query2,params2).then(data2=>{
+        session2.close();
+        if(data.records.length > 0){
+          console.log(data.records[0]._fields[0]);
+          return res.json({uuid : data.records[0]._fields[0]});
+        }
+        else{
+          return res.end();
+        }
+      })
+      
     })
   })
 
 
-app.post("/src_new_aphorism", check("sourceUUID").trim().escape(), check("text").trim().escape().not().isEmpty().isLength({max : 666}), check("title").trim().escape().not().isEmpty().isLength({max:133}),
+app.post("/src_new_aphorism", check("sourceUUID").trim().escape(), check("text").trim().escape().not().isEmpty().isLength({max : 1000}), check("title").trim().escape().not().isEmpty().isLength({max:256}),
   check("dialectic").trim().escape().not().isEmpty(), check("classes").trim().escape().isLength({max:9000}),
    check("target").trim().escape(), check("citations").trim().escape(), function(req,res){
     const errors = validationResult(req);
@@ -3879,48 +3969,51 @@ app.post("/src_new_aphorism", check("sourceUUID").trim().escape(), check("text")
     ") " +
     "WITH a, u " +
     "MERGE (u)-[:DIALECTIC]->(a) " +
-    "WITH a, u " +
-    'FOREACH( ' + 
-              'class IN $classes | MERGE (c:Class {name : class}) ' +
-              'ON CREATE SET c.uuid = randomUUID() ' +
-              'MERGE (a)<-[:DIALECTIC]-(c) ' + 
-            ') ' +
-    "WITH a, u " +   
-/*    "FOREACH(citation in $citations | " +
-      "MERGE (t:Torrent {infoHash : citation.infoHash})-[:DIALECTIC {pages : citation.pages}]->(a)" +
-      "SET t.editionText = citation.editionText " +
-      ") " +*/
-    "UNWIND $citations as citation " +
-    "OPTIONAL MATCH (to:Torrent {infoHash : citation.infoHash}) " +
-    "WITH a, u, to, citation " +
-    "MERGE (to)-[:DIALECTIC]->(a) " +
-    "WITH a, u, to, citation " +
-    "OPTIONAL MATCH (to)-[]-(:Edition)-[]-(s:Source) " +
-    "WITH a, u, to, s, citation " +
-    "MERGE (a)<-[:DIALECTIC]-(s) " +
-    "SET to.editionText = citation.editionText, to.sourceUUID = citation.sourceUUID " +
-    "WITH a, u, to, s " +
-    "MERGE (to)-[:DIALECTIC]->(a) " +
-    "WITH a,u , to, s " +
-    "MERGE (to)<-[:DIALECTIC]-(s) " +
-    "WITH a, u, to, s " +
-    "MERGE (s)-[:DIALECTIC]->(a) " +
-    "WITH a, u " +
-    "OPTIONAL MATCH (s:Source {uuid: $sourceUUID})" +
-    "WITH a, u, s " +
-    "MERGE (a)<-[:DIALECTIC]-(s) " +
-    "WITH a, u " +
-    "RETURN a.uuid, u.uuid, u.user "
-    session.run(query, params).then(data=>{
+    "RETURN a.uuid"
+     session.run(query,params).then(data=>{
       session.close();
-      if(data.records.length > 0){
-        console.log(data.records[0]._fields[0]);
-        return res.json({uuid : data.records[0]._fields[0], userUUID : data.records[0]._fields[1], userName: data.records[0]._fields[2]});
-      }
-      else{
-        return res.end();
-      }
+      var params2 = {sourceUUID : req.body.sourceUUID, user : user, title: req.body.title, citations : citations, text : req.body.text, 
+       dialectic : req.body.dialectic, 
+       classes: classes, target: req.body.target, uuid : data.records[0]._fields[0]}
+         
+       var query2 = "MATCH (a:Aphorism {uuid : $uuid}) " +
+      "WITH a " +
+      'FOREACH( ' + 
+                'class IN $classes | MERGE (c:Class {name : class}) ' +
+                'ON CREATE SET c.uuid = randomUUID() ' +
+                'MERGE (a)<-[:DIALECTIC]-(c) ' + 
+              ') ' +
+      "WITH a " +   
+  /*    "FOREACH(citation in $citations | " +
+        "MERGE (t:Torrent {infoHash : citation.infoHash})-[:DIALECTIC {pages : citation.pages}]->(a)" +
+        "SET t.editionText = citation.editionText " +
+        ") " +*/
+      "UNWIND $citations as citation " +
+      "OPTIONAL MATCH (to:Torrent {infoHash : citation.infoHash}) " +
+      "WITH a, to, citation " +
+      "MERGE (to)-[:DIALECTIC]->(a) " +
+      "WITH a, to, citation " +
+      "OPTIONAL MATCH (to)-[]-(:Edition)-[]-(s:Source) " +
+      "WITH a, to, s, citation " +
+      "MERGE (a)<-[:DIALECTIC]-(s) " +
+      "SET to.editionText = citation.editionText, to.sourceUUID = citation.sourceUUID " +
+      "WITH a, to, s " +
+      "MERGE (to)-[:DIALECTIC]->(a) " +
+      "WITH a, to, s " +
+      "MERGE (to)<-[:DIALECTIC]-(s) " +
+      "WITH a, to, s " +
+      "MERGE (s)-[:DIALECTIC]->(a) " +
+      "WITH a " +
+      "OPTIONAL MATCH (s:Source {uuid: $sourceUUID})" +
+      "WITH a, s " +
+      "MERGE (a)<-[:DIALECTIC]-(s) "
+      const session2 = driver.session();
+      session2.run(query2,params2).then(data2=>{
+        session2.close();
+        return res.json({uuid : data.records[0]._fields[0]})
+      })
     })
+    
   })
 
 app.post("/update_health", check("totalDown").trim().escape(), check("totalUp").trim().escape(), function(req,res){
