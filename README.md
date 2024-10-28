@@ -7,5 +7,3 @@ To interface between WebTorrent browser and WebTorrents on the Desktop, the only
 My site is hosted at propagate.info, and it is for public domain ebooks, audiobooks, classical music, and documentaries. 
 
 Open an Issue if you're interested in using the code and I will streamline the process to configure an admin account and create a fresh website. I have not done this yet, as there is no interest so far.
-
-I can also modify the code to make it invite only, so that you can host a private BitTorrent indexer, upon interest.
