@@ -317,20 +317,6 @@ export default{
             'to': contractAddress
          
         });*/
-        let raw = {
-        	'nonce' : nonce,
-            'gasPrice': web3.utils.toHex(suggestion_gas),
-            'gasLimit': 300000, 
-            'from' : propagateAddress,
-            "to" : contractAddress,
-            "data" : data4,
-            "value" : "0x0"
-        }
-       const signedTx = await web3.eth.accounts.signTransaction(raw, process.env.PRIVATE_KEY); 
-       var here = false;
-      web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('transactionHash', function(txHash){
-        transactionHash = txHash;
-      }).on('confirmation', function(confirmationNumber, receipt){
       	if(!here){
       		console.log("Confirmed upload: " + transactionHash)
           console.log(userUUID)
@@ -352,7 +338,7 @@ export default{
     			here = true;	
       	}
       	
-      });
+    
 		
 	}
   ,
