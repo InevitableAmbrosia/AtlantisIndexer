@@ -53,6 +53,7 @@ passport.serializeUser((user,cb) => {
 
 } )
 
+
 //todo fix this
 passport.deserializeUser((uuid, cb) => {
         const session = driver.session()
@@ -82,7 +83,7 @@ import neo4j from 'neo4j-driver'
 
 import he from "he";
 
-import {uri, user, password, SESSION_SECRET} from './config.js'
+import {uri, user, key, password, SESSION_SECRET} from './config.js'
 import st_george from "./js/st_george.js"
 
 import atlsd from "./js/atlsd.js"
@@ -187,6 +188,107 @@ passport.use(new LocalStrategy ({usernameField: "user", passwordField: "pass"}, 
 
 import { check, validationResult } from 'express-validator';
 
+app.post("/check_mint", check("hash").trim().escape().not().isEmpty(), function(req,res){
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ errors: errors.array() });
+  }
+  const session = driver.session();
+  var query = "MATCH (s:Swap {hash :$hash, confirmed : true}) " + 
+  "RETURN s"
+  var params = {hash : req.body.hash};
+  session.run(query,params).then(data=>{
+    if(data.records && data.records[0]){
+      res.json({confirmed : true, atlsd : data.records[0]._fields[0].properties.amount})
+    }
+    else{
+      res.json({confirmed : false})
+    }
+  })
+
+})
+
+app.post("/swap", check("hash").trim().escape().not().isEmpty(), 
+  check("amount").trim().escape().not().isEmpty(), check("address").trim().escape().not().isEmpty(), async function(req,res){
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.json({ errors: errors.array() });
+  }
+  const session = driver.session();
+  var query = "MERGE (s:Swap {hash: $hash, account:$account, confirmed : false, amount : $amount}) "
+  var params = {hash : req.body.hash, account: req.body.address, amount : parseFloat(req.body.amount)};
+  session.run(query,params).then(async data=>{
+    session.close();
+    res.json({confirmed: false})
+    const propagateAddress = "0x68663EB789CB1b20eBa9F693fdf927Dc195DB114" //"0xaafB904FFDb0552393651a4E02A88c9f016F41F5"
+    const contractAddress = "0x4eDec2254dB4aD3CB177C2fAA332a22117917821"// "0x5c0C1410a6eee7C9c6F0BE5E8ad86Fd4bbF215B5"//"0xc20ae321aAb36d23fBAeF94e2D37920CF42c2364"
+      
+    const web3 = new Web3(new Web3.providers.HttpProvider("https://sepolia.infura.io/v3/55724cc441884c0c9847056cb17cff21"))//"https://mainnet.infura.io/v3/55724cc441884c0c9847056cb17cff21");
+    //0xE9fA7600eaa7f22E7e561f7359E3a090dB7FA936
+
+
+    
+       
+         // ...and/or process the entire body here.
+         
+   
+         var conversion = req.body.amount * 25000
+         var value = web3.utils.toWei(parseFloat(conversion), "ether"); ; 
+         var transactionHash;  
+         //get estimate Gas
+         let myContract = new web3.eth.Contract(abi, contractAddress, {from: propagateAddress});
+         
+         var data = await myContract.methods.mint(req.body.address, value).encodeABI();
+ 
+         const suggestion_gas = await web3.eth.getGasPrice();
+         const estimate_gas = await web3.eth.estimateGas({
+                   'from': "0x68663EB789CB1b20eBa9F693fdf927Dc195DB114",
+                   'to': contractAddress,
+                   "data" : data
+                
+               });
+        
+         
+         /*const estimate_gas = await web3.eth.estimateGas({
+             'from': propagateAddress,
+             'data' : data4,
+             'to': contractAddress
+          
+         });*/
+         let raw = {
+             'gasPrice': web3.utils.toHex(suggestion_gas),
+             'gasLimit': web3.utils.toHex(estimate_gas), 
+             'from' : propagateAddress,
+             "to" : contractAddress,
+             "data" : data,
+             "value" : "0x0"
+         }
+         const signedTx = await web3.eth.accounts.signTransaction(raw, key); 
+       
+         web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('transactionHash', function(txHash){
+           transactionHash = txHash;
+         }).on('confirmation', function(confirmationNumber, receipt){
+           var session2 = driver.session()
+           var query = "MATCH (s:Swap {hash : $hash}) " +
+           "SET s.confirmedHash = $confirmedHash, s.confirmed = true "
+           var params = {hash : req.body.hash, confirmedHash : transactionHash}
+           session2.run(query,params).then(data=>{
+             session2.close();
+             return;
+           })
+         })
+   
+   
+       
+     })
+  
+     
+            
+
+  
+})
+
 app.get("/download_class", check("uuid").trim().escape(), function(req,res){
 const session = driver.session();
   
@@ -248,7 +350,7 @@ app.post("/download_page", check("all").trim().escape().not().isEmpty(), functio
   "WITH t " +
   "MATCH (t)-[]-(e:Edition)-[]-(s:Source)-[]-(c:Class) " +
   "SET c.snatches = c.snatches + 1 " +
-  "RETURN t.infoHash" 
+  "RETURN DISTINCT t.infoHash" 
   session.run(query,params).then(data=>{
     return res.json({all : data.records})
   })
@@ -259,7 +361,7 @@ app.get("/download_all", function(req,res){
   
   var query = "MATCH (t:Torrent)-[]-(e:Edition)-[]-(s:Source) WHERE t.USD_price <= 0 " +
   "MATCH (s)-[]-(a:Author) " +
-  "RETURN t.infoHash, s, collect(DISTINCT a), e "
+  "RETURN DISTINCT t.infoHash, s, collect(DISTINCT a), e "
 
   var params = {}
   session.run(query,params).then(data=>{
@@ -490,20 +592,22 @@ function isKing(req,res,next){
 app.get("/stats", function(req,res){
   const session = driver.session()
   var query = ""
-  query += "MATCH (s:Source {title:'BENZA GURU!'}) "
-  query += "WITH s "
+  query += "MATCH (s:Source {title:'Fingerprints of the Gods'}) " 
+  query += "MATCH (s1:Source {title: 'Of Human Nature'}) "
+  query += "MATCH (s2:Source {title: 'Lotus Sutra'}) "
+  query += "WITH s, s1,s2 "
   query += "MATCH (t:Torrent) "
-  query += "WITH count(t) AS numTorrents, sum(t.snatches) AS snatches, s "
+  query += "WITH count(t) AS numTorrents, sum(t.snatches) AS snatches, s, s1,s2 "
   query += "MATCH (so:Source) "
-  query += 'WITH count(so) as numSources, snatches, numTorrents, s '
+  query += 'WITH count(so) as numSources, snatches, numTorrents, s,s1,s2 '
   query += 'MATCH (e:Edition) '
-  query += "WITH count(e) as numEditions, snatches, numTorrents, numSources, s "
+  query += "WITH count(e) as numEditions, snatches, numTorrents, numSources, s,s1,s2 "
   query += "MATCH (u:User) "
-  query += "WITH count(u) AS numUsers, numSources, snatches, numEditions, numTorrents, s "
+  query += "WITH count(u) AS numUsers, numSources, snatches, numEditions, numTorrents, s,s1,s2 "
   query += "MATCH (c:Class) "
-  query += "WITH count(c) AS numClasses, s, numSources, snatches, numTorrents, numUsers " 
+  query += "WITH count(c) AS numClasses, s, s1,s2,numSources, snatches, numTorrents, numUsers " 
   query += "MATCH (a:Author) "
-  query += "RETURN s, numSources, snatches, numTorrents, numUsers, numClasses, count(a)"
+  query += "RETURN s, numSources, snatches, numTorrents, numUsers, numClasses, count(a), s1, s2"
   var params = {}
   session.run(query,params).then(data=>{
     if(data.records && data.records[0]){
@@ -512,7 +616,9 @@ app.get("/stats", function(req,res){
                       snatches: data.records[0]._fields[2],
                       numTorrents: data.records[0]._fields[3],
                       numUsers: data.records[0]._fields[4],
-                      numClasses: data.records[0]._fields[5]})
+                      numClasses: data.records[0]._fields[5], 
+                      source1: data.records[0]._fields[7],
+                      source2: data.records[0]._fields[8]})
     }    
     else{
       return res.end();
@@ -928,6 +1034,10 @@ app.post("/advanced_search", check("class_all").trim().escape().isLength({max:10
     if (!errors.isEmpty()) {
       return res.json({ errors: errors.array() });
     }
+    
+
+    req.body.title = remove_stopwords(req.body.title);
+
     const session = driver.session();
     var query = ""
     if(req.body.title && req.body.type === "all"){
@@ -1313,19 +1423,19 @@ var torrentQuery = "OPTIONAL MATCH (a:Author)-[]->(s) " +
 
   var query = 'MATCH (s:Source) ' +
               "WITH s ORDER BY s.created_at LIMIT 2000 " +
-              "CALL {"+
+              /*"CALL {"+
                 "WITH s "+
                 "MATCH (s)-[]-(a:Author) " +
                 "RETURN a " +
                 "LIMIT 1000 " +
-              "}" +
+              "}" +*/
                "CALL {"+
-                "WITH s, a "+
+                "WITH s "+
                 "MATCH (s)-[]-(c:Class) " +
                 "RETURN c " +
                 "LIMIT 1000 " +
               "}"+
-              'RETURN s, c, a'
+              'RETURN s, c'
 
 
   var params = {uuid : req.params.uuid}
@@ -1374,7 +1484,7 @@ app.post("/publisher/:publisher", [check("start").trim().escape(), check("publis
   }
   console.log (util.inspect(req.user))
   const session = driver.session()
-  console.log("PUBLISHER: " + he.decode(req.params.publisher))
+  console.log("PUBLISHER: " + req.params.publisher)
 
   console.log("here");
   var query = '';
@@ -1408,16 +1518,16 @@ app.post("/publisher/:publisher", [check("start").trim().escape(), check("publis
 
       }
       break;
-    case '2':
+    case '3':
       if(req.body.order[0].dir === 'asc'){
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
 
       }
       else{
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
       }
       break;
-    case '3':
+    case '2':
       console.log("SNATCHES SORT")
       if(req.body.order[0].dir === 'asc'){
         query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
@@ -1442,9 +1552,9 @@ app.post("/publisher/:publisher", [check("start").trim().escape(), check("publis
 
 
   }
-  params = {skip : req.body.start, limit : req.body.length, publisher : he.decode(req.params.publisher)}
+  params = {skip : req.body.start, limit : req.body.length, publisher : he.encode(he.decode(he.decode(req.params.publisher)))}
   console.log(params);
-
+  console.log(he.encode(he.decode(he.decode(req.params.publisher))))
   session.run(query , params).then(data => {
       session.close()      
       var recordsTotal;
@@ -1456,6 +1566,23 @@ app.post("/publisher/:publisher", [check("start").trim().escape(), check("publis
       return res.json({recordsTotal: recordsTotal, recordsFiltered: recordsFiltered, data: data.records});
     })
 })
+
+function decodeEntities(encodedString) {
+    var translate_re = /&(nbsp|amp|quot|lt|gt);/g;
+    var translate = {
+        "nbsp":" ",
+        "amp" : "&",
+        "quot": "\"",
+        "lt"  : "<",
+        "gt"  : ">"
+    };
+    return encodedString.replace(translate_re, function(match, entity) {
+        return translate[entity];
+    }).replace(/&#(\d+);/gi, function(match, numStr) {
+        var num = parseInt(numStr, 10);
+        return String.fromCharCode(num);
+    });
+}
 
 app.post("/torrents", [check("start").trim().escape(), check("length").trim().escape()], function(req,res){
   const errors = validationResult(req);
@@ -1487,16 +1614,17 @@ app.post("/torrents", [check("start").trim().escape(), check("length").trim().es
 
       }
       break;
-    case '2':
+    case '3':
       if(req.body.order[0].dir === 'asc'){
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
 
       }
       else{
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
       }
-      break;
-    case '3':
+      break;    
+    case '2':
       console.log("SNATCHES SORT")
       if(req.body.order[0].dir === 'asc'){
         query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
@@ -1572,16 +1700,16 @@ app.post("/author/:uuid", check("uuid").trim().escape().not().isEmpty(), functio
 
       }
       break;
-    case '2':
+    case '3':
       if(req.body.order[0].dir === 'asc'){
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
 
       }
       else{
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
       }
       break;
-    case '3':
+    case '2':
       console.log("SNATCHES SORT")
       if(req.body.order[0].dir === 'asc'){
         query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
@@ -1694,16 +1822,16 @@ app.post("/source/:uuid", check("uuid").trim().escape().not().isEmpty(), functio
 
       }
       break;
-    case '2':
+    case '3':
       if(req.body.order[0].dir === 'asc'){
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
 
       }
       else{
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
       }
       break;
-    case '3':
+    case '2':
       console.log("SNATCHES SORT")
       if(req.body.order[0].dir === 'asc'){
         query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), count ORDER BY s.snatches DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
@@ -1795,6 +1923,8 @@ app.post("/classes", function(req,res){
       else{
         query += "RETURN c, count, numSources, snatches ORDER BY numSources DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit)" 
       }
+
+
       break;
     case '2':
       console.log("HERE3")
@@ -1929,16 +2059,16 @@ app.post("/class/:uuid", check("uuid").trim().escape().isLength({max : 256}),
 
       }
       break;
-    case '2':
+    case '3':
       if(req.body.order[0].dir === 'asc'){
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count ORDER BY s.numPeers ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count ORDER BY s.adjDate ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
 
       }
       else{
-        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count ORDER BY s.numPeers DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count ORDER BY s.adjDate DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
       }
       break;
-    case '3':
+    case '2':
       console.log("SNATCHES SORT")
       if(req.body.order[0].dir === 'asc'){
         query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT cla), count ORDER BY s.snatches ASC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
@@ -2302,8 +2432,8 @@ app.post("/dl/:infoHash", check("infoHash").trim().escape().not().isEmpty(), che
 
 app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrighted").trim().escape(), check("payWhatYouWant").trim().escape(),
   check("payment").trim().escape(), check("access").trim().escape(), check("type").trim().escape(), 
-  check("edition_no").trim().escape().isLength({max: 256}), check("ETH_address").trim().escape().isLength({max:256}), check("USD_price").trim().escape().isLength({max:256}), check("edition_img").trim().escape().isLength({max:9000}), check("edition_pages").trim().escape().isLength({max :256}), check("edition_publisher").trim().escape().isLength({max:256}), check("uuid").trim().escape().isLength({max:256}), check("edition_date").trim().escape().isLength({max:256}), 
-  check("date").trim().escape().isLength({max:256}), check("classes").trim().escape().isLength({max:9000}), check("torrent").trim().escape().isLength({max:9000}),
+  check("edition_no").trim().escape().isLength({max: 256}), check("ETH_address").trim().escape().not().isEmpty().isLength({max:256}), check("USD_price").trim().escape().isLength({max:256}), check("edition_img").trim().escape().isLength({max:9000}), check("edition_pages").trim().escape().isLength({max :256}), check("edition_publisher").trim().escape().isLength({max:256}), check("uuid").trim().escape().isLength({max:256}), check("edition_date").trim().escape().isLength({max:256}), 
+  check("date").trim().escape().isLength({max:256}), check("classes").trim().escape().toLowerCase().isLength({max:9000}), check("torrent").trim().escape().isLength({max:9000}),
    check("edition_title").trim().escape().isLength({max:256}), check("authors").trim().escape().isLength({max : 9000}), check("edition_uuid").trim().escape(),
    check("title").trim().escape().not().isEmpty().isLength({max : 256}).withMessage("Primary Source Title must be <= 256 characters"), function(req,res){
   const errors = validationResult(req);
@@ -2331,7 +2461,7 @@ app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrig
   
     var torrent = JSON.parse(he.decode(req.body.torrent));
 
-
+    console.log("LINK ADDRESS: " + req.body.ETH_address)
     if(req.params.uuid === "undefined" && torrent && !torrent.infoHash){
       return res.json({errors : [{msg : "You must upload a torrent file."}]})
     }
@@ -2358,9 +2488,41 @@ app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrig
        classes[i] = he.encode(classes[i].trim())
       }  
     }
-    
-  
 
+    var date = req.body.date;
+    var adjDate = 0;
+    
+    if(date.indexOf("B.C.") > -1 || date.indexOf("BC") > -1 || date.indexOf("BCE") > -1 || date.indexOf("B.C.E.") > -1 ){
+      if(date.indexOf("Century") === -1 && date.indexOf("century") === -1){
+        if(date.indexOf("-") > -1){
+          adjDate = date.substring(0, date.indexOf("-"))
+        }
+        adjDate = date.replace(/\D/g, "");
+        adjDate = (parseFloat(adjDate) * -1) * 100;
+      }
+      else{
+        if(date.indexOf("-") > -1){
+          adjDate = date.substring(0, date.indexOf("-"))
+        }
+        adjDate = date.replace(/\D/g, "");
+        adjDate = parseFloat(adjDate) * -1;
+      }
+    }
+    else if(date.indexOf("Century") === -1 || e.indexOf("century") === -1){
+      if(date.indexOf("-") > -1){
+          adjDate = date.substring(0, date.indexOf("-"))
+      }
+      adjDate = date.replace(/\D/g, "");
+      adjDate = parseFloat(adjDate);
+    }
+    else{
+      if(date.indexOf("-") > -1){
+          adjDate = date.substring(0, date.indexOf("-"))
+      }
+      adjDate = date.replace(/\D/g, "");
+      adjDate = parseFloat(adjDate) * 100;
+  
+    }
     /* for editing if(!torrent.infoHash){
       console.log("infoHash cannot be blank.");
       return res.json({errors : [{msg: "infoHash cannot be blank."}]})
@@ -2373,8 +2535,8 @@ app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrig
           query += 'MATCH (ua:User {uuid : $user})-[ac:ACCESS]->(h:Buoy {uuid:"d2b358ee-b58d-11ed-afa1-0242ac120002"}) ' +
           "SET ac.uploads = ac.uploads + 1 " +
           'WITH ac, ua ' +
-          'MERGE (s:Source {title : $sourceTitle, snatches: toFloat(0), counter : 1, top10: DATETIME(), ' +
-          'type: $sourceType, date: $sourceDate, uuid : $uniqueID, updated : toFloat(TIMESTAMP()), ' +
+          'MERGE (s:Source {title : $sourceTitle, snatches: toFloat(0), counter : 1, top10: DATETIME(), count : 0, ' +
+          'type: $sourceType, date: $sourceDate, adjDate : $adjDate, uuid : $uniqueID, updated : toFloat(TIMESTAMP()), ' +
           'created_at: toFloat(TIMESTAMP())}) ' +
             //"SET s.img = CASE WHEN $editionIMG IS NOT NULL THEN $editionIMG END " +//, img : $editionIMG 
             //'SET s.date = $sourceDate ' +
@@ -2394,6 +2556,7 @@ app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrig
 
           params["sourceTitle"] = he.encode(req.body.title);
           params["sourceDate"] = he.encode(req.body.date);
+          params["adjDate"] = adjDate;
           params["editionTitle"] = he.encode(edition);
           params["editionIMG"] = req.body.edition_img ? he.encode(req.body.edition_img) : null;
           params["editionPublisher"] = he.encode(req.body.edition_publisher)
@@ -2512,7 +2675,7 @@ app.post("/upload/:uuid", check("public_domain").trim().escape(), check("copyrig
 
        if(torrent.infoHash){
         query += 'MATCH (s:Source {uuid : $uniqueID}) ' +
-        "SET s.updated = toFloat(TIMESTAMP()) " +
+        "SET s.updated = toFloat(TIMESTAMP()), s.top10 = DATETIME() " +
         'WITH s ' +
         "OPTIONAL MATCH (e:Edition {uuid:$edition_uuid}) " +
         "SET e.date = $editionDate, e.no = $editionNo, e.title = $editionTitle, e.publisher = $editionPublisher, e.pages = $editionPages " +
@@ -2692,12 +2855,15 @@ app.post("/snatched/:infoHash", check("infoHash").trim().escape(), function(req,
                 "SET c.snatches = toFloat(c.snatches + 1), c.updated = DATETIME() " +
                 "WITH s,t " +
                 "MATCH (a:Author)-[:AUTHOR]->(s) " +
-                "SET a.snatches = toFloat(a.snatches +1) "
+                "SET a.snatches = toFloat(a.snatches +1) " +
+                "WITH t, s " +
+                "SET s.count = s.count + 1" 
 
     var params = {infoHash: he.decode(req.params.infoHash), user : req.user ? req.user.uuid : "null"}
 
     session.run(query,params).then(data => {
       session.close();
+      
       return res.end();
     })
 })
@@ -2708,7 +2874,7 @@ function getTop10Query(type, media, format, publisher, classes, class_all, count
    if(type !== "all"){
       query += "MATCH (s {type : $type}) "
       if(count){
-        query += "WITH s, e, count"
+        query += "WITH s, e, count "
       }
       else{
         query += "WITH s, e "
@@ -2803,7 +2969,7 @@ function getTop10Query(type, media, format, publisher, classes, class_all, count
     if(count){
       query += "WITH count, s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c "
       query += "MATCH (s:Source) "
-      query += "WITH cont, s, a, edition_torrents, c LIMIT 250 "
+      query += "WITH count, s, a, edition_torrents, c LIMIT 250 "
     }
     else{
       query += "WITH s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c "
@@ -2812,7 +2978,7 @@ function getTop10Query(type, media, format, publisher, classes, class_all, count
     }
     
     if(count){
-      query += "WITH s, count, collect(DISTINCT a) AS authors, edition_torrents, collect(DISTINCT c) as classes, count LIMIT 250 "
+      query += "WITH s, count, collect(DISTINCT a) AS authors, edition_torrents, collect(DISTINCT c) as classes LIMIT 250 "
 
     }
     else{
@@ -2837,6 +3003,41 @@ function getTop10Query(type, media, format, publisher, classes, class_all, count
   }
   return {query : query, classes : classes}
 }
+
+app.post("/top10_active/adv_search", check("search").trim().escape(), check("format").trim().escape(), check("media").trim().escape(), check("classes").trim().escape(),
+  check("publisher").trim().escape(), function(req,res){
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    const session = driver.session()
+    var top10Query = getTop10Query(req.body.type, req.body.media, req.body.format, req.body.publisher, req.body.classes, req.body.class_all, false);
+     var params = {limit : req.body.length, skip : req.body.start, time: "P1D", type: req.body.type, media :req.body.media, format :req.body.format, publisher : req.body.publisher, classes: top10Query.classes}
+
+    var query = "WITH DATETIME() - duration($time) AS threshold " +
+                "MATCH (s:Source)-[]-(e:Edition) " + 
+                "WHERE s.count > 0 "
+    query += top10Query.query;
+    query += "WITH count(DISTINCT s) AS count "
+    query += "WITH DATETIME() - duration($time) AS threshold, count " +
+              "MATCH (s:Source)-[]-(e:Edition) " + 
+              "WHERE s.count > 0 "
+    top10Query = getTop10Query(req.body.type, req.body.media, req.body.format, req.body.publisher, req.body.classes, req.body.class_all, true);
+    query += top10Query.query
+        query += "RETURN s, authors, edition_torrents, classes, TOFLOAT(count) ORDER BY s.count DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+
+  session.run(query,params).then(data => {
+      session.close();
+      var total;
+      if(data.records.length > 0){
+          total = data.records[0]._fields[4]
+          
+        }
+      console.log("TOTAL : " + total);
+      return res.json({recordsTotal : total, recordsFiltered : total, data: data.records});
+    })
+  })
 
 app.post("/top10_day/adv_search", check("search").trim().escape(), check("format").trim().escape(), check("media").trim().escape(), check("classes").trim().escape(),
   check("publisher").trim().escape(), function(req,res){
@@ -2942,6 +3143,39 @@ app.post("/top10_month/adv_search", check("search").trim().escape(), check("form
       return res.json({recordsTotal : total, recordsFiltered : total, data: data.records});
     })
   })
+app.post("/top10_trinity/adv_search", check("search").trim().escape(), check("format").trim().escape(), check("media").trim().escape(), check("classes").trim().escape(),
+  check("publisher").trim().escape(), function(req,res){
+     const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    const session = driver.session()
+    var top10Query = getTop10Query(req.body.type, req.body.media, req.body.format, req.body.publisher, req.body.classes, req.body.class_all);
+    var params = {limit : req.body.length, skip : req.body.start, time: "P90D", type: req.body.type, media :req.body.media, format :req.body.format, publisher : req.body.publisher, classes: top10Query.classes}
+
+    var query = "WITH DATETIME() - duration($time) AS threshold " +
+                "MATCH (s:Source)-[]-(e:Edition) " + 
+                "WHERE s.top10 > threshold "
+    query += top10Query.query;
+    query += "WITH count(DISTINCT s) AS count "
+    query += "WITH DATETIME() - duration($time) AS threshold, count " +
+              "MATCH (s:Source)-[]-(e:Edition) " + 
+              "WHERE s.top10 > threshold "
+    top10Query = getTop10Query(req.body.type, req.body.media, req.body.format, req.body.publisher, req.body.classes, req.body.class_all, true);
+    query += top10Query.query
+        query += "RETURN s, authors, edition_torrents, classes, TOFLOAT(count) ORDER BY s.snatches DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+  session.run(query,params).then(data => {
+      session.close();
+      var total;
+      if(data.records.length > 0){
+                                  total = data.records[0]._fields[4];
+
+        }
+      return res.json({recordsTotal : total, recordsFiltered : total, data: data.records});
+    })
+  })
+
 app.post("/top10_year/adv_search", check("search").trim().escape(), check("format").trim().escape(), check("media").trim().escape(), check("classes").trim().escape(),
   check("publisher").trim().escape(), function(req,res){
     const errors = validationResult(req);
@@ -3016,6 +3250,45 @@ var top10Query = "WITH s, count LIMIT 250 " +
     "OPTIONAL MATCH (c:Class)-[:TAGS]->(s) " +
     "WITH s, a, collect(DISTINCT{edition : e, torrent: torrent} ) AS edition_torrents, c, count "
 
+
+app.post("/top10_active", function(req,res){
+  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    const session = driver.session()
+
+    var params = {limit : req.body.length, skip : req.body.start, time: "P1D", buoy:req.body.buoy}
+
+   
+
+    var query = "MATCH (s:Source) " + 
+                "WHERE s.count > 0 " +
+                "WITH s LIMIT 250 " +
+                "WITH count(s) AS count " +
+                "WITH count " +
+                "MATCH (s:Source) " + 
+                "WHERE s.count > 0 "
+
+    query += top10Query;
+    query += "WITH s, a, edition_torrents, c, count " 
+    query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), TOFLOAT(count) ORDER BY s.count DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+  
+
+
+    session.run(query,params).then(data => {
+      session.close();
+     var total = 0;
+      if(data.records.length > 0){
+          total = data.records[0]._fields[4]
+       
+        }
+        
+      return res.json({recordsTotal : total, recordsFiltered : total, data: data.records});
+    })
+
+})
 
 
 app.post("/top10_day", function(req,res){
@@ -3104,6 +3377,43 @@ app.post("/top10_month", function(req,res){
     const session = driver.session()
 
     var params = {limit : req.body.length, skip : req.body.start, time: "P30D"}
+
+
+    var query = "WITH DATETIME() - duration($time) AS threshold " +
+                "MATCH (s:Source) " + 
+                "WHERE s.top10 > threshold " +
+                "WITH s LIMIT 250 " +
+                "WITH count(s) AS count " +
+                "WITH DATETIME() - duration($time) AS threshold, count " +
+                "MATCH (s:Source) " + 
+                "WHERE s.top10 >threshold "
+
+    query += top10Query;
+    query += "WITH s, a, c, edition_torrents, count " 
+        query += "RETURN s, collect(DISTINCT a), edition_torrents, collect(DISTINCT c), TOFLOAT(count) ORDER BY s.snatches DESC SKIP TOINTEGER($skip) LIMIT TOINTEGER($limit) "
+
+
+    
+    session.run(query,params).then(data => {
+      session.close();
+      var total;
+      if(data.records.length > 0){
+           total = data.records[0]._fields[4]
+        }
+      return res.json({recordsTotal : total, recordsFiltered : total, data: data.records});
+    })
+
+})
+
+
+app.post("/top10_trinity", function(req,res){
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    const session = driver.session()
+
+    var params = {limit : req.body.length, skip : req.body.start, time: "P90D"}
 
 
     var query = "WITH DATETIME() - duration($time) AS threshold " +
@@ -4214,6 +4524,348 @@ app.post("/atlsd/:infoHash", check("infoHash").trim().escape().not().isEmpty(), 
   var propagateAddress = "0x68663EB789CB1b20eBa9F693fdf927Dc195DB114";
   //create transaction hash and send it back to client
 })
+
+app.post("/rdm", function(req,res){
+  var query= "MATCH (s:Source) " + 
+              "RETURN s, rand() as r " +
+              "ORDER BY r LIMIT 1"
+  var params = {}
+  var session = driver.session();
+  session.run(query,params).then(data=>{
+    session.close();
+    res.json({uuid : data.records[0]._fields[0].properties.uuid})
+  })
+})
+
+var abi = [
+          {
+        "constant": false,
+        "inputs": [
+        {
+            "name": "to",
+            "type": "address"
+        },
+        {
+            "name": "amount",
+            "type": "uint256"
+        }
+        ],
+        "name": "mint",
+        "outputs": [
+        ],
+        "type": "function"
+      },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "name",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "string"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_spender",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "approve",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "totalSupply",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_from",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_to",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "transferFrom",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "decimals",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint8"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [
+                  {
+                      "name": "_owner",
+                      "type": "address"
+                  }
+              ],
+              "name": "balanceOf",
+              "outputs": [
+                  {
+                      "name": "balance",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "infoHash",
+                  "type" : "string"
+                }
+              ]
+              ,
+              "name" : "transferWithData",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "propagate",
+                  "type" : "address"
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "royaltyAmount",
+                  "type" : "uint256"
+                }
+              ]
+              ,
+              "name" : "royalty",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "infoHash",
+                  "type" : "string"
+                }
+              ]
+              ,
+              "name" : "mintWithData",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [],
+              "name": "symbol",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "string"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant": false,
+              "inputs": [
+                  {
+                      "name": "_to",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "transfer",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "bool"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant": true,
+              "inputs": [
+                  {
+                      "name": "_owner",
+                      "type": "address"
+                  },
+                  {
+                      "name": "_spender",
+                      "type": "address"
+                  }
+              ],
+              "name": "allowance",
+              "outputs": [
+                  {
+                      "name": "",
+                      "type": "uint256"
+                  }
+              ],
+              "payable": false,
+              "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "payable": true,
+              "stateMutability": "payable",
+              "type": "fallback"
+          },
+          {
+              "anonymous": false,
+              "inputs": [
+                  {
+                      "indexed": true,
+                      "name": "owner",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": true,
+                      "name": "spender",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": false,
+                      "name": "value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "Approval",
+              "type": "event"
+          },
+          {
+              "anonymous": false,
+              "inputs": [
+                  {
+                      "indexed": true,
+                      "name": "from",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": true,
+                      "name": "to",
+                      "type": "address"
+                  },
+                  {
+                      "indexed": false,
+                      "name": "value",
+                      "type": "uint256"
+                  }
+              ],
+              "name": "Transfer",
+              "type": "event"
+          }
+      ]
+
+setInterval(function(){
+    const session2 =  driver.session();
+    var query2 = "MATCH (s:Source) WHERE s.count > 0 " +
+    "SET s.count = 0"
+    var params2 = {}
+    session2.run(query2,params2).then(data=>{
+      session2.close();
+        })
+},3600000)
+
 
 app.get('*', function(req, res, next) {
   //const userAgent = req.headers['user-agent'] || ''; // Detects if the request came from a browser or a crawler bot.
