@@ -68,7 +68,7 @@ async function initPayButton(btn){
 
 
         $.get("/infoHash/" + torrentUUID, async function(data){
-          const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
+          /*const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
           priceFeed.methods
             .latestRoundData()
             .call()
@@ -91,18 +91,22 @@ async function initPayButton(btn){
                   USD : price
                 }; 
                 return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
-              } 
+              } */
+              if(!user && data.USD_price > 0){
+                alert("You must be logged in to purchase an infoHash!")
+                return;
+              }
               const amount = parseFloat(amountETH); 
               console.log(amount)
-              const fromCurrency = "USD"; 
-              const toCurrency = "LINK"; 
-              var contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+              //const fromCurrency = "USD"; 
+              //const toCurrency = "LINK"; 
+              var contractAddress = "0x5c0C1410a6eee7C9c6F0BE5E8ad86Fd4bbF215B5"
               let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
-              const convertedAmount = convertCurrency(amount, "USD", "LINK");
+              //const convertedAmount = convertCurrency(amount, "USD", "LINK");
               const suggestion_gas = await web3.eth.getGasPrice();
-              console.log(convertedAmount);
-              let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(7)), "ether");
-              let data = myContract.methods.transfer(curatorAddress, value).encodeABI()
+              //console.log(convertedAmount);
+              let value = web3.utils.toWei(parseFloat(amount.toFixed(7)), "ether");
+              var data = myContract.methods.transfer(curatorAddress, value).encodeABI()
 
               const estimate_gas = await web3.eth.estimateGas({
                   'from': account,
@@ -285,7 +289,7 @@ async function initPayButton(btn){
          
         
         
-      });
+      //});
   })
 }
       //  var batch = new web3.BatchRequest();
@@ -293,6 +297,23 @@ async function initPayButton(btn){
    
       
       var abi = [
+          {
+        "constant": false,
+        "inputs": [
+        {
+            "name": "to",
+            "type": "address"
+        },
+        {
+            "name": "amount",
+            "type": "uint256"
+        }
+        ],
+        "name": "mint",
+        "outputs": [
+        ],
+        "type": "function"
+      },
           {
               "constant": true,
               "inputs": [],
@@ -402,6 +423,85 @@ async function initPayButton(btn){
               ],
               "payable": false,
               "stateMutability": "view",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "infoHash",
+                  "type" : "string"
+                }
+              ]
+              ,
+              "name" : "transferWithData",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "propagate",
+                  "type" : "address"
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "royaltyAmount",
+                  "type" : "uint256"
+                }
+              ]
+              ,
+              "name" : "royalty",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
+              "type": "function"
+          },
+          {
+              "constant" : false,
+              "inputs" : [
+                {
+                  "name" : "to",
+                  "type" : "address" 
+                },
+                {
+                  "name" : "amount",
+                  "type" : "uint256"
+                },
+                {
+                  "name" : "infoHash",
+                  "type" : "string"
+                }
+              ]
+              ,
+              "name" : "mintWithData",
+              "outputs" : [
+
+              ],
+              "payable": false,
+              "stateMutability": "nonpayable",
               "type": "function"
           },
           {

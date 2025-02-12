@@ -104,11 +104,8 @@ var firstLoad = true;
 			initializeGraph(dismissLoader);
 		}
 	}
-	else if(ANCHOR.page() === "AI"){
-		initializeAI();
-	}
-	else if(ANCHOR.page() === "ATLANTIS"){
-		initializeATLANTIS();
+	else if(ANCHOR.page() === "AtlantisCoin"){
+		initializeAtlantisCoin();
 	}
 	else if(ANCHOR.page() === "request_invite"){
 		initializeRequestInvite();
@@ -129,9 +126,11 @@ var firstLoad = true;
 	else if(ANCHOR.page() === "top10"){
 		//sort of wonky dismisslaoder
 		initializeLoader();
+		initializeTorrents("top10_active", dismissLoader)
 		initializeTorrents("top10_day", dismissLoader);
 		initializeTorrents("top10_week", dismissLoader);
 		initializeTorrents("top10_month", dismissLoader);
+    initializeTorrents("top10_trinity", dismissLoader)
 		initializeTorrents("top10_year", dismissLoader);
 		initializeTorrents("top10_alltime", dismissLoader);
 	}
@@ -329,8 +328,8 @@ $(document).ready(function(){
 																						})
 																						$.get("../client/views/user_downloads.html", function(data){
 																							$("div.user_downloads").html(data);
-																							$.get("../client/views/ATLANTIS.html", function(data){
-																								$("div.ATLANTIS").html(data);
+																							$.get("../client/views/AtlantisCoin.html", function(data){
+																								$("div.AtlantisCoin").html(data);
 																								$.get("../client/views/publisher.html", function(data){
 																									$("div.publisher").html(data);
 																										$("#recommend_downloads").click(function(){
@@ -343,25 +342,22 @@ $(document).ready(function(){
 																												}
 																											})
 																										})
-																										$.get("../client/views/AI.html", function(data){
-																											$("div.AI").html(data);
-																											ANCHOR.buffer();																				
-																									    var page = ANCHOR.page();
-																									    console.log(page);
-																									    if(!page){
-																									    	ANCHOR.route("#home");
-																									    }
-																									    else if(!$.isEmptyObject(ANCHOR.getParams())){
-																										    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
-																									    }							    	
-																									    else{
-																									    	ANCHOR.route("#" + page)
-																									    }
-																									    authenticateUser();
-																																									    
-																											init();
-																											pages();
-																										})
+																										ANCHOR.buffer();																				
+																								    var page = ANCHOR.page();
+																								    console.log(page);
+																								    if(!page){
+																								    	ANCHOR.route("#home");
+																								    }
+																								    else if(!$.isEmptyObject(ANCHOR.getParams())){
+																									    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
+																								    }							    	
+																								    else{
+																								    	ANCHOR.route("#" + page)
+																								    }
+																								    authenticateUser();
+																																								    
+																										init();
+																										pages();
 
 																									
 																									

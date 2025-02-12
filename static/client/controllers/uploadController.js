@@ -99,6 +99,9 @@ function initializeUpload(cb){
 					})*/
 
 					$("#newUploadHeader a").text(" " + toTitleCase(decodeEntities(decodeEntities(data.record._fields[0]))))
+          $("#newUploadHeader a").attr("href", "#source?uuid=" + uploadModel.uuid);
+          $("#newUploadHeader a").addClass("ANCHOR")
+          $("#newUploadHeader a").addClass("source")
 					$("#newUploadHeader a").click(function(e){
 						e.preventDefault();
 						ANCHOR.route("#source?uuid=" + uploadModel.uuid)
@@ -258,7 +261,7 @@ function initializeUpload(cb){
 					data.record._fields[7].properties.types.forEach(function(val){
 						var option = document.createElement("option");
 						$(option).val(val);
-						$(option).text(decodeEntities(decodeEntities(val)));
+						$(option).text(decodeEntities(decodeEntities(decodeEntities(val))));
 						$("#type").append(option);
 						console.log(data.record._fields[6])
 						$("#type").val(data.record._fields[6]);
@@ -283,7 +286,7 @@ function initializeUpload(cb){
 					cb();
 				})
 				console.log(uploadModel)
-			},889)			
+			},100)			
 			
 		}
 	}
@@ -292,6 +295,7 @@ function initializeUpload(cb){
 			$("#submit").prop("disabled", false)
 			uploadModel.atlsd = data.atlsd;
 			$("#link_address").val(data.atlsd ? data.atlsd : "")
+      uploadModel.torrent.LINK_address = data.atlsd;
 			data.buoy.types.forEach(function(val){
 				var option = document.createElement("option");
 				$(option).val(val);
@@ -319,7 +323,7 @@ function initializeUpload(cb){
 			})
 			cb();
 		})
-		},889)	
+		},100)	
 	}
 
 	$("#format").change(function(){
@@ -391,7 +395,7 @@ function htmlUpload(){
 
 	$("#link_price").change(function(){
 		console.log($(this).val());
-		uploadModel.torrent.LINK_price = $("#link_price").val();
+		uploadModel.torrent.LINK_price = parseFloat($("#link_price").val());
 	})
 
 
@@ -495,8 +499,8 @@ function htmlUpload(){
 		   		})
 		   	//}		... propagate.info 	
 		   		
-		   		editionField = editionField.substring(0,230)
-		   		if(editionField.length === 230){
+		   		editionField = editionField.substring(0,200)
+		   		if(editionField.length === 200){
 		   			editionField = editionField + "..."
 		   		}
 		   		console.log(editionField)
@@ -596,8 +600,8 @@ function htmlUpload(){
 
 	$("#copyrighted").change(function(){
 		if($(this).prop("checked")){
-			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. propagate.info will not take any royalty, as this is a free and open source project. Be sure to include a LINK address!');
-			if(cnfrm != true)
+			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. You may set the price yourself, and propagate.info will not take any royalty, as this is a free and open source project. Be sure to include an ATLANTIS address!');
+			if(cnfrm !== true)
 			{
 			 $(this).prop("checked", false)
 			 $('.paid').fadeOut();
@@ -618,8 +622,16 @@ function htmlUpload(){
 
 	$("#public_domain").change(function(){
 		if($(this).prop("checked")){
-			$(".paid").fadeOut();
-			$("#link_price").val("")
+			var cnfrm = confirm('By checking this box, you are certifying that this torrent is in the public domain!');
+      if(cnfrm !== true){
+        $(".paid").fadeOut();
+        $("#link_price").val("")
+        $(this).prop('checked', false)
+      }
+      else{
+        $(".paid").fadeOut();
+			  $("#link_price").val("") 
+      }
 			/*var cnfrm = confirm("By checking this box, you are certifying that the torrent you are uploading is in the public domain.")
 			if(cnfrm != true){
 				$(this).prop("checked", false)
@@ -664,8 +676,18 @@ function htmlUpload(){
 
 	$("#submit").click(function(e){
 		e.preventDefault();
+    /*if($("#link_address").val() === ""){
+      alert("You must enter a valid LINK address, even if your torrent is in the Public Domain.")
+      return;
+    }*/
+    if($("#copyrighted").prop('checked') === true && $("#link_address").val()=== ""){
+      alert("You must enter a valid $ATLANTIS-compatible ETH address in order to self-publish a Copyrighted Torrent!")
+      return;
+    
+    }
 		if($("#copyrighted").prop("checked") === false && $("#public_domain").prop("checked") === false){
 			addError("You must certify either that your torrent is in the public domain or you have the necessary copyrights to upload!")
+      alert("You must certify either that your torrent is in the public domain or you have the necessary copyrights to upload!")
 			return;
 		}
 		$("#submit").prop("disabled", true)
@@ -683,7 +705,9 @@ function htmlUpload(){
 			 	$("body").css("cursor", "default");
 			if(data.errors && data.errors.length > 0){
 				addError(data.errors[0].msg);
+        alert(data.errors[0].msg)
 				$("#submit").prop("disabled", false)
+        return;
 			}
 			else{				
 				resetUpload();

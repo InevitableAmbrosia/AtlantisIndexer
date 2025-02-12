@@ -1,13 +1,17 @@
 function initializeBuoy(cb){
   //donation
-
-
+  $("#about_hidden").hide();
+  $("#moar").click(function(e){
+    e.preventDefault();
+    $("#about_hidden").fadeIn();
+    $(this).hide();
+  })
   $("#donation_submit").unbind("click")
   $("#donation_submit").click(function(e){
-		e.preventDefault();
-		donate();
-		//alert("BTC Address: 3D3wMrdQ44p92YcL2fzyxHTdmkWqHoz9wQ")
-	})
+    e.preventDefault();
+    donate();
+    //alert("BTC Address: 3D3wMrdQ44p92YcL2fzyxHTdmkWqHoz9wQ")
+  })
   
   //social
   
@@ -35,18 +39,20 @@ function initializeBuoy(cb){
   return t;
 }(document, "script", "twitter-wjs"));
 
-	$("#invite_button").hide();
-	$("#edit_buoy_textarea").hide();
-	$("#submit_buoy_textarea").hide();
-	$("#ranks").hide();
-	$("#invite_input").hide();
-	$("#edit_buoy_description").hide();
-	$(".buoy_bulletins").empty();
-	$("#buoy_preferences").hide();
+  $("#invite_button").hide();
+  $("#edit_buoy_textarea").hide();
+  $("#submit_buoy_textarea").hide();
+  $("#ranks").hide();
+  $("#invite_input").hide();
+  $("#edit_buoy_description").hide();
+  $(".buoy_bulletins").empty();
+  $("#buoy_preferences").hide();
   $("#stats_featured").empty();
   $.get("/stats", function(data){
     $("#stats_featured").append("<a href='#source?uuid=" + data.source.properties.uuid + "' class='ANCHOR source'>" +
-                               data.source.properties.title + "</a>")
+                               data.source.properties.title + "</a><br><br><a href='#source?uuid=" + data.source1.properties.uuid + "' class='ANCHOR source'>" + data.source1.properties.title +
+                               "</a><br><br><a href='#source?uuid=" + data.source2.properties.uuid + "' class='ANCHOR source'>" + data.source2.properties.title +
+                               "</a>")
     $("#stats_torrents").text(toNumber(data.numTorrents));
     $("#stats_authors").text(toNumber(data.numAuthors));
     $("#stats_users").text(toNumber(data.numUsers));
@@ -54,100 +60,103 @@ function initializeBuoy(cb){
     $("#stats_snatches").text(data.snatches)
   })
   
-	console.log("HARBOR");
-	$.get("/home?user="+ (getUser() ? getUser().uuid : null), function(data){
-		setBuoy(data.buoy);
-		setAccess(data.access);
-		var buoy = data.buoy
-		var access = getAccess();
-		console.log(data);
-		console.log(access);
-		if(access){
-			if(access.rankTitle === "Philosopher King" || access.rankTitle === "Silver" || access.rankTitle === "Gold" || access.rankTitle === "Guardian"){
-				$("#buoy_preferences").show();
-			}
-			console.log(getUser())
-			if(access.description){
-				console.log("ACCESS")
+  console.log("HARBOR");
+  $.get("/home?user="+ (getUser() ? getUser().uuid : null), function(data){
+    setBuoy(data.buoy);
+    setAccess(data.access);
+    var buoy = data.buoy
+    var access = getAccess();
+    console.log(data);
+    console.log(access);
+    if(access){
+      if(access.rankTitle === "Philosopher King" || access.rankTitle === "Silver" || access.rankTitle === "Gold" || access.rankTitle === "Guardian"){
+        $("#buoy_preferences").show();
+      }
+      console.log(getUser())
+      if(access.description){
+        console.log("ACCESS")
 
-				$("#edit_buoy_description").show();
-			}
-			if(buoy.private && access.invites){
-				$("#invite_button").show();
-				$("#invite_input").show();
-			}	
-		}
-		
-		if(data.bulletins && data.bulletins.length > 0){
-			data.bulletins.forEach(function(bulletin){
-				
-				var h3 = document.createElement('h3');
-				$(h3).text(decodeEntities(bulletin.properties.title));
-				var p = document.createElement('p');
-				$(p).text(decodeEntities(bulletin.properties.text));
-				var span = document.createElement("span");
-				var div = document.createElement("div");
-				$(span).html("Posted by <a href='#user?uuid=" + bulletin.properties.userUUID + "' class='ANCHOR user'>" + bulletin.properties.userName + "</a> " + timeSince(bulletin.properties.time) + " ago.");
-				if(bulletin.properties.title !== "About Us" && bulletin.properties.title !== "Testing New Bulletin System" && bulletin.properties.title !== "Testing Bulletin System"){
-					$(div).addClass("bulletin");
-					$(div).attr("id", bulletin.properties.uuid)
-					$(".buoy_bulletins").append(div);
-					$(div).append(h3);
-					$(div).append(span);
-					$(div).append(p);
-					$(div).append("<br>")			
-				}
-				
-			})
-		}
+        $("#edit_buoy_description").show();
+      }
+      if(buoy.private && access.invites){
+        $("#invite_button").show();
+        $("#invite_input").show();
+      } 
+    }
+    
+    if(data.bulletins && data.bulletins.length > 0){
+      data.bulletins.forEach(function(bulletin){
+        
+        var h3 = document.createElement('h3');
+        
+        var p = document.createElement('p');
+        $(p).text(decodeEntities(bulletin.properties.text));
+        var span = document.createElement("span");
+        var div = document.createElement("div");
+        $(span).html("Posted by <a href='#user?uuid=" + bulletin.properties.userUUID + "' class='ANCHOR user'>" + bulletin.properties.userName + "</a> " + timeSince(bulletin.properties.time) + " ago.");
+        if(bulletin.properties.title !== "About Us" && bulletin.properties.title !== "Testing New Bulletin System" && bulletin.properties.title !== "Testing Bulletin System"){
+          $(div).addClass("bulletin");
+          $(div).attr("id", bulletin.properties.uuid)
+          $(".buoy_bulletins").append(div);
+          var span2 = document.createElement("span");
+          $(span2).text(decodeEntities(bulletin.properties.title));
+          $(div).append(h3);
+          $(h3).append(span2);
+          $(div).append(span);
+          $(div).append(p);
+          $(div).append("<br>")     
+        }
+        
+      })
+    }
 
-		if(data.buoy.bulletin_title){
+    if(data.buoy.bulletin_title){
 
-			for(var i=data.buoy.bulletin_title.length -1; i >= 0; i--){
-				
-				var h3 = document.createElement('h3');
-				$(h3).text(decodeEntities(data.buoy.bulletin_title[i]));
-				var p = document.createElement('p');
-				$(p).text(decodeEntities(data.buoy.bulletin_text[i]));
-				var div = document.createElement("div");
+      for(var i=data.buoy.bulletin_title.length -1; i >= 0; i--){
+        
+        var h3 = document.createElement('h3');
+        $(h3).text(decodeEntities(data.buoy.bulletin_title[i]));
+        var p = document.createElement('p');
+        $(p).text(decodeEntities(data.buoy.bulletin_text[i]));
+        var div = document.createElement("div");
 
-				if(data.buoy.bulletin_title[i] !== "Testing New Bulletin System" && data.buoy.bulletin_title[i] !== "Test" && data.buoy.bulletin_title[i] !== "Gangstalking" && data.buoy.bulletin_title[i] !== "Shameless Self-Promotion"){
-					$(div).addClass("bulletin");
-					$(div).attr("id", data.buoy.bulletin_title[i]);
-					$(".buoy_bulletins").append(div);
-					$(div).append(h3);
-					$(div).append(p);
-					$(div).append("<br>")
-				}
-				
-			}
-		}
-		$("#buoy_description").html(decodeEntities(buoy.description));
-		$("#buoy_title").text(buoy.buoy);
-		//loader gif
-		cb();
-	})
+        if(data.buoy.bulletin_title[i] !== "Testing New Bulletin System" && data.buoy.bulletin_title[i] !== "Test" && data.buoy.bulletin_title[i] !== "Gangstalking" && data.buoy.bulletin_title[i] !== "Shameless Self-Promotion"){
+          $(div).addClass("bulletin");
+          $(div).attr("id", data.buoy.bulletin_title[i]);
+          $(".buoy_bulletins").append(div);
+          $(div).append(h3);
+          $(div).append(p);
+          $(div).append("<br>")
+        }
+        
+      }
+    }
+    $("#buoy_description").html(decodeEntities(buoy.description));
+    $("#buoy_title").text(buoy.buoy);
+    //loader gif
+    cb();
+  })
 }
 
 
 function populate(id, val){
-	var input = document.createElement("input");
-	 $(input).attr("placeholder", "Type");
-	 $(input).addClass("type_input");
-	 if(val) $(input).val(val);
-	 $("#" + id + "_buoy").append(input);
-	 var a = document.createElement('a');
-	 $(a).text("[-]");
-	 $(a).attr("href", "#")
-	 $("#" + id + "_buoy").append(a);
-	 var br = document.createElement("br");
-	 $("#" + id + "_buoy").append(br);
-	 $(a).click(function(e){
-	 	e.preventDefault();
-	 	$(a).remove();
-	 	$(input).remove();
-	 	$(br).remove();
-	 })
+  var input = document.createElement("input");
+   $(input).attr("placeholder", "Type");
+   $(input).addClass("type_input");
+   if(val) decodeEntities(decodeEntities(decodeEntities($(input).val(val))));
+   $("#" + id + "_buoy").append(input);
+   var a = document.createElement('a');
+   $(a).text("[-]");
+   $(a).attr("href", "#")
+   $("#" + id + "_buoy").append(a);
+   var br = document.createElement("br");
+   $("#" + id + "_buoy").append(br);
+   $(a).click(function(e){
+    e.preventDefault();
+    $(a).remove();
+    $(input).remove();
+    $(br).remove();
+   })
 }
 
 function decodeEntities(encodedString) {
@@ -157,27 +166,27 @@ function decodeEntities(encodedString) {
 }
 
 function initializeEditBuoy(cb){
-	$("#add_types_buoy").empty();
-	$("#add_media_buoy").empty();
-	$("#add_formats_buoy").empty();
-	$.get("/upload_structure", function(data){
-		console.log(data);
-		data.buoy.types.forEach(function(val){
-			populate("add_types", val);
-		})
-		data.buoy.media.forEach(function(val){
-			populate("add_media", val);
-		})
-		data.buoy.formats.forEach(function(val){
-			populate("add_formats", val);
-		})
-		cb();
+  $("#add_types_buoy").empty();
+  $("#add_media_buoy").empty();
+  $("#add_formats_buoy").empty();
+  $.get("/upload_structure", function(data){
+    console.log(data);
+    data.buoy.types.forEach(function(val){
+      populate("add_types", decodeEntities(decodeEntities(val)));
+    })
+    data.buoy.media.forEach(function(val){
+      populate("add_media", decodeEntities(decodeEntities(val)));
+    })
+    data.buoy.formats.forEach(function(val){
+      populate("add_formats", decodeEntities(decodeEntities(val)));
+    })
+    cb();
 
-	})
+  })
 }
 
 async function donate(){
-	if (window.ethereum) {
+  if (window.ethereum) {
         window.web3 = new Web3(ethereum);
         try {
           await web3.eth.requestAccounts();
@@ -204,100 +213,100 @@ async function donate(){
         //$('#status').html('No Metamask (or other Web3 Provider) installed')
       }
     const account = await getAccount();
-	var donation = parseFloat($(".donation").val());
-	const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
-	priceFeed.methods
-	.latestRoundData()
-	.call()
-	.then(async roundData => {
-		// Do something with roundData
-		var price = Number(roundData.answer) / 1e8;
-		console.log(price)
-		price = price.toFixed(2);
-		console.log("Latest Round Data", price)
-		function convertCurrency(amount, fromCurrency, toCurrency) { 
-		  const exchangeRate = getExchangeRate(fromCurrency, toCurrency); 
-		  const convertedAmount = exchangeRate * amount; 
-		  return convertedAmount; 
-		} 
-		 
-		function getExchangeRate(fromCurrency, toCurrency) { 
-		  // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
-		  const exchangeRates = { 
-		    LINK: 1,
-		    USD : price
-		  }; 
-		  return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
-		} 
-		const fromCurrency = "USD"; 
-		const toCurrency = "LINK"; 
-		var contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
-		let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
-		const convertedAmount = convertCurrency(donation, "USD", "LINK");
-		const suggestion_gas = await web3.eth.getGasPrice();
-		console.log(convertedAmount);
-		let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(7)), "ether");
-		let data = myContract.methods.transfer("0xd6616Cf7F133F0c00E2712718B8133c20E3F6605", value).encodeABI()
+  var donation = parseFloat($(".donation").val());
+  const priceFeed = new web3.eth.Contract(aggregatorV3InterfaceABI, "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c")
+  priceFeed.methods
+  .latestRoundData()
+  .call()
+  .then(async roundData => {
+    // Do something with roundData
+    var price = Number(roundData.answer) / 1e8;
+    console.log(price)
+    price = price.toFixed(2);
+    console.log("Latest Round Data", price)
+    function convertCurrency(amount, fromCurrency, toCurrency) { 
+      const exchangeRate = getExchangeRate(fromCurrency, toCurrency); 
+      const convertedAmount = exchangeRate * amount; 
+      return convertedAmount; 
+    } 
+     
+    function getExchangeRate(fromCurrency, toCurrency) { 
+      // In this example, the exchange rate is hardcoded, but in a real-world scenario, you would get this information from an API. 
+      const exchangeRates = { 
+        LINK: 1,
+        USD : price
+      }; 
+      return exchangeRates[toCurrency] / exchangeRates[fromCurrency]; 
+    } 
+    const fromCurrency = "USD"; 
+    const toCurrency = "LINK"; 
+    var contractAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    let myContract = new web3.eth.Contract(abi, contractAddress, {from:account});
+    const convertedAmount = convertCurrency(donation, "USD", "LINK");
+    const suggestion_gas = await web3.eth.getGasPrice();
+    console.log(convertedAmount);
+    let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(7)), "ether");
+    let data = myContract.methods.transfer("0xd6616Cf7F133F0c00E2712718B8133c20E3F6605", value).encodeABI()
 
-		const estimate_gas = await web3.eth.estimateGas({
-		    'from': account,
-		    'to': contractAddress,
-		    "data" : data
-		 
-		});
+    const estimate_gas = await web3.eth.estimateGas({
+        'from': account,
+        'to': contractAddress,
+        "data" : data
+     
+    });
 
-		let rawTx = {
-		    'gasPrice': web3.utils.toHex(suggestion_gas),
-		    'gasLimit': web3.utils.toHex(estimate_gas),
-		    "from" : account,
-		   // "nonce" : web3.utils.toHex(transCount),
-		    "to": contractAddress,
-		    "value" : "0x0",
-		    "data" : data
-		}
-		//var batch = new web3.BatchRequest();
-		web3.eth.sendTransaction(rawTx).on('transactionHash', function (txHash) {
+    let rawTx = {
+        'gasPrice': web3.utils.toHex(suggestion_gas),
+        'gasLimit': web3.utils.toHex(estimate_gas),
+        "from" : account,
+       // "nonce" : web3.utils.toHex(transCount),
+        "to": contractAddress,
+        "value" : "0x0",
+        "data" : data
+    }
+    //var batch = new web3.BatchRequest();
+    web3.eth.sendTransaction(rawTx).on('transactionHash', function (txHash) {
 
-	  }).once("transactionHash", function(hash){
-	    transactionHash = hash;
-	  }).on("sent", function(){
-	    sentTransaction();
-	  }).on('receipt', async function (receipt) {
+    }).once("transactionHash", function(hash){
+      transactionHash = hash;
+    }).on("sent", function(){
+      sentTransaction();
+    }).on('receipt', async function (receipt) {
 
-	      alert("Your donation has been successfully sent! Thank you for your contribution to the Public Domain. Transaction hash: " + transactionHash)
+        alert("Your donation has been successfully sent! Thank you for your contribution to the Public Domain. Transaction hash: " + transactionHash)
 
-	      /*const suggestion_gas = await web3.eth.getGasPrice();
-	      console.log(convertedAmount);
-	      let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
-	      const estimate_gas = await web3.eth.estimateGas({
-	          'from': account,
-	          'to': curatorAddress
-	       
-	      });
-	      let rawTx = {
-	          'gasPrice': web3.utils.toHex(suggestion_gas),
-	          'gasLimit': web3.utils.toHex(estimate_gas),
-	          "from" : account,
-	         // "nonce" : web3.utils.toHex(transCount),
-	          "to": curatorAddress,
-	          "value" : value,
-	      }
-	      web3.eth.sendTransaction(rawTx).once('transactionHash', function (hash) {
-	        transactionHash1 = hash;
-	      }).on("sent", function(){
-	        sentTransaction();
-	      }).on('receipt', function(receipt){
-	        console.log("receipt:" + receipt);
-	        procReceipt(transactionHash1);
-	      }).on('error', function (error) {
-	        $(".web3").prop("disabled", false)
-	        transErr(err);
-	      })              */      
-	  }).on('error', function (error) {
-	    $(".web3").prop("disabled", false)
-	    transErr(error);
-	  });
-	})
+        /*const suggestion_gas = await web3.eth.getGasPrice();
+        console.log(convertedAmount);
+        let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
+        const estimate_gas = await web3.eth.estimateGas({
+            'from': account,
+            'to': curatorAddress
+         
+        });
+        let rawTx = {
+            'gasPrice': web3.utils.toHex(suggestion_gas),
+            'gasLimit': web3.utils.toHex(estimate_gas),
+            "from" : account,
+           // "nonce" : web3.utils.toHex(transCount),
+            "to": curatorAddress,
+            "value" : value,
+        }
+        web3.eth.sendTransaction(rawTx).once('transactionHash', function (hash) {
+          transactionHash1 = hash;
+        }).on("sent", function(){
+          sentTransaction();
+        }).on('receipt', function(receipt){
+          console.log("receipt:" + receipt);
+          procReceipt(transactionHash1);
+        }).on('error', function (error) {
+          $(".web3").prop("disabled", false)
+          transErr(err);
+        })              */      
+    }).on('error', function (error) {
+      $(".web3").prop("disabled", false)
+      transErr(error);
+    });
+  })
 }
 
 

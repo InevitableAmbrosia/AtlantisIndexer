@@ -1,26 +1,14 @@
 <div class="titleBreak">
-	<h2 id="uploadHeading">Upload</h2>
-	<span id="contribution">We thank you for your Contribution!</span>
-	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR MEDIA YOU HAVE COPY-RIGHTS TO!*******</span>
-	<span id="upload_inst">Ebooks, Audiobooks, Classical Music, and Documentaries are allowed.<br><br><br>To catalogue things properly, if the Source already exists on the site, use "Add Torrent" from the Source's page, or autocomplete the title on this page!<br><br><br> Please take your time to fill out the Edition section, to increase the quality of uploads. If you're uploading an Audiobook of a certian edition that already has a PDF, don't create a new edition, but select the edition of the PDF.<br><br><br> It is preferred that if you choose to contribute, you seed with the BiglyBT WebTorrent plugin. This allows torrents to be seeded to the browser. Deluge has incoming support for WebTorrent, but not yet. WebTorrent Desktop does not work! But if you want, you can seed using your preferred client and I will pick it up.<br><br><br>Please do not upload unless you know how to seed a torrent on your Desktop.</span>
-
+  <h2><span id="uploadHeading">Upload</span></h2>
+	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR SELF-PUBLISHED MEDIA YOU HAVE COPYRIGHTS TO!!!!!*******</span>
+	<span id="upload_inst">Ebooks, Audiobooks, Classical Music, and Documentaries are allowed. To upload multiple files, simply highlight them in the upload prompt. 
+  <br><br><br>To catalogue things properly, check if the Source already exists on the site by using the autocomplete function on this page, or use "Add Torrent" from the Source's page to upload an Edition of that Source. This way, the same Source will not be listed multiple times, and various translations of that Source will appear under the same Table Heading!
+	<br><br><span id="contribution">Thank you for your Contribution!</span>
+  
 </div>
 <h3 id="newUploadHeader"><span>Uploading</span><a href="#"></a></h3>
 <form>
 	<div class="newUpload">
-		<div class="grid_0">
-			<label for="title">Source Title: </label>
-		</div>
-		<div class="grid_1">
-			<div class="search_sources">
-				<input id="title" class="searchField search_upload_sources_input" name="title" placeholder="Title of Primary Source"><ul class="autosuggestBox"></ul>
-			</div>
-			<input id="uuid" name="uuid" placeholder="uuid">
-		</div>
-		<br>
-		<br>
-		<br>
-		<br>
 		<div class="grid_0">
 			<label for="type">Type: </label>
 		</div>
@@ -29,6 +17,19 @@
 				
 			</select>
 		</div>
+    <br>
+		<br>
+		<br>
+		<div class="grid_0">
+			<label for="title">Source Title: </label>
+		</div>
+		<div class="grid_1">
+			<div class="search_sources">
+				<input id="title" class="searchField search_upload_sources_input" name="title" placeholder="Source Title"><ul class="autosuggestBox"></ul>
+			</div>
+			<input id="uuid" name="uuid" placeholder="uuid">
+		</div>
+		
 		<br>
 		<br>
 		<br>
@@ -36,12 +37,25 @@
 			<label for="date">Original Date: </label>	
 		</div>
 		<div class="grid_1">
-			<input id="date" placeholder="Original Date Published" name="date">
+			<input id="date" placeholder="First Edition Date" name="date">
 		</div>
 		<br>
 		<br>
 		<br>
+		<div class="grid_1" id="authors_area">
+		</div>
 		<div class="grid_0">
+			<label for="author_input">Author: </label>
+		</div>
+		<div class="grid_1">
+			<div class="search_authors">
+				<input name="author" class="searchField search_upload_authors_input" autocomplete="off" id="author_input" placeholder="Author"><ul class="autosuggestBox"></ul>
+			</div>
+			<!--<button id="add_author">Add Author</button>!-->
+			<button id="create_author">New Author</button><!-- TODO: warning if not already created !-->
+		</div>
+		<br><br><br>
+	  <div class="grid_0">
 			<label for="classes_input">Classes (comma-separated): </label>
 		</div>
 		<div class="grid_1">
@@ -49,22 +63,7 @@
 				<input name="classes" class="searchField search_upload_classes_input" id="classes_input" placeholder="Classes, comma separated"><ul class="autosuggestBox"></ul>
 			</div>
 		</div>
-		<br>
-		<br>
-		<div class="grid_1" id="authors_area">
-		</div>
-		<div class="grid_0">
-			<label for="author_input">Add Author: </label>
-		</div>
-		<div class="grid_1">
-			<div class="search_authors">
-				<input name="author" class="searchField search_upload_authors_input" autocomplete="off" id="author_input" placeholder="Author"><ul class="autosuggestBox"></ul>
-			</div>
-			<!--<button id="add_author">Add Author</button>!-->
-			<button id="create_author">Create New Author</button><!-- TODO: warning if not already created !-->
-		</div>
-		<br><br><br>
-			
+    <br><br><br>
 
 		<script>
 			var authorCount = 0;
@@ -131,9 +130,8 @@
 			}
 
 		</script>
-		<br><br><br><br><br>
 	</div>
-	<br><br><br><br><br>
+	<br><br><br><br><br><br><br><br><br>
 	<div class="grid_0">
 		<label for="edition_check">Edition Info (Optional!)</label>
 	</div>
@@ -150,13 +148,13 @@
 		<div class="grid_1 existing_edition">
 			<select id="edition_select" name="edition_select">
 			</select>
-		</div><br><br>
+		</div><br><br><br>
 		<div id="newEdition">
 			<div class="grid_0">
 				<label for="edition_publisher">Publisher/Journal: </label>
 			</div>
 			<div class="grid_1">
-				<input name="edition_publisher" id="edition_publisher" placeholder="Publisher or Journal (e.g. Nature)">
+				<input name="edition_publisher" id="edition_publisher" placeholder="Publisher or Journal (e.g. Nature)"><ul class="autosuggestBox"></ul>
 			</div><br><br><br>
 			<div class="grid_0">
 				<label for="edition_title">Trans., Ed. or Vol.:</label> 
@@ -186,9 +184,9 @@
 				<input id="edition_date" name="edition_date" placeholder="Edition Date Published">
 			</div>
 		</div>
-		<br><br><br>
 	</div>
-	<br><br>
+	
+  <br><br><br><br><br><br>
 	<div class="grid_0">
 		<label for="media">Torrent media: </label>
 	</div>
@@ -197,40 +195,17 @@
 		</select>
 		<select id="format">
 		</select>
-	</div><br><br><br><br><br><br>
-	<div class="grid_0">
-		<label>Copyright</label>
 	</div>
-	<div class="grid_1">
-		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
-		<label for="public_domain">Public Domain</label>
-		<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
-		<label for="copyrighted">Sell for LINK.</label>
-	</div>
-	<div class="copyrighted">
-		<div class="grid_0 paid copy">
-			<label for="LINK_price">USD Price</label>
-		</div>
-		<div class="grid_1 paid copy">
-			<input id="link_price" name="LINK_price">
-		</div>
-		<div class="grid_0 paid copy">
-		<label for="LINK_address">LINK Address</label>
-		</div>
-		<div class="grid_1 paid copy">
-			<input id="link_address" name="LINK_address">
-		</div>
-	</div>
-	<br><br><br><br>
-	<div class="APA">
+  <br><br><br><br><br><br>
+  <div class="APA">
 		<div class="grid_0">
-			<label for="rename_file">Rename File APA Format</label>
+			<label for="rename_file">Please Rename File to APA Format</label>
 		</div>
 		<div class="grid_1">
-			<button id="APA">Copy APA Citation</button>
+			<button id="APA">Copy Filename</button>
 		</div>
 	</div>
-	<br><br><br><br>
+  <br><br><br><br><br><br>
 	<div id="torrent_area">
 			<div class="grid_0">
 				<label for="upload_files">Upload files: </label>
@@ -238,22 +213,52 @@
 			<div class="grid_1">
 				<input type="file" id="upload_files" multiple>
 			</div><br><br><br>
-			<div class="torrentArea"></div>
-			<br>
-			<br>
-			<br>
 			<div class="grid_0">
 				<label for="infoHash">infoHash</label>
 			</div>
-			<div class='grid_1'>
+      
+			<div class="grid_1">
 				<!--<input type="file" id="upload_files" multiple name="files">!-->
-				<input id="infoHash" placeholder="infoHash">
+				<input disabled id="infoHash" placeholder="infoHash (required)">
 			</div>
-			<br>
-			<div class="torrent_message">
+			<br><br><br>
+      <div class="grid_0">
+        <label for="seed_torrent">Remember to seed!</label>  
+      </div>
+      <div class="grid_1">
+        <div class="torrentArea">
+          
+        </div>
+			  <div class="torrent_message">
+              
+        </div>
+		  </div>
+	</div>
+	<br><br><br><br><br><br>
+  <div class="grid_0">
+		<label>Copyright</label>
+	</div>
+	<div class="grid_1">
+		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
+		<label for="public_domain">Public Domain</label><!--
+		<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
+		<label for="copyrighted">Copyrighted (ATLANTIS)</label>!-->
+	</div>
+	<div class="copyrighted">
+		<div class="grid_0 paid copy">
+			<label for="LINK_price">$ATLANTIS</label>
+		</div>
+		<div class="grid_1 paid copy">
+			<input id="link_price" name="LINK_price">
 		</div>
 	</div>
-	<br><br><br>
+  <!--<div class="grid_0">
+		<label for="LINK_address">ALTANTIS Address (required)</label>
+		</div>
+		<div class="grid_1">
+			<input id="link_address" name="LINK_address">
+		</div>!-->
+  <br><br><br>
 	<div class="grid_0">
 		<button id="submit">Upload!</button>
 	</div><br><br><br>

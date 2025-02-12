@@ -1,5 +1,6 @@
 function initializeTorrents(table, cb){
-
+  if(ANCHOR.getParams() && ANCHOR.getParams().publisher)
+    console.log(decodeURIComponent(decodeEntities(decodeEntities(ANCHOR.getParams().publisher))))
 	
 	if(ANCHOR.getParams()){
 		if(!ANCHOR.getParams().title && !ANCHOR.getParams().author && !ANCHOR.getParams().classes && ANCHOR.getParams.type === "all" 
@@ -9,9 +10,9 @@ function initializeTorrents(table, cb){
 		}
 	}
 
-	$(".download_all button").unbind("click")
+	$(".download_all").unbind("click")
 
-	$(".download_all button").click(function(e){
+	$(".download_all").click(function(e){
 		e.preventDefault();
 		$.post("/download_page", {all : JSON.stringify(all)}, function(data){
 			data.all.forEach(function(infoHash){
@@ -23,6 +24,8 @@ function initializeTorrents(table, cb){
 		})
 		
 	})
+  
+  $(".download_all_top button").unbind("click")
 
 	$(".download_all_top button").click(function(e){
 		e.preventDefault();
@@ -77,7 +80,7 @@ function initializeTorrents(table, cb){
 	})*/
 
 	var all = []
-	var top = {"top10_all_day" : [], "top10_all_week" : [], "top10_all_month" : [], "top10_all_year" : [], "top10_all_time" : []}
+	var top = {"top10_all_active" : [], "top10_all_day" : [], "top10_all_week" : [], "top10_all_month" : [], "top10_all_trinity" : [], "top10_all_year" : [], "top10_all_time" : []}
 	$("#adv_class_all").prop("checked",true)
 	$("#adv_class_any").prop("checked", false)
 	$("#adv_title").val(ANCHOR.getParams() && ANCHOR.getParams().title ? ANCHOR.getParams().title : "")
@@ -237,7 +240,7 @@ function initializeTorrents(table, cb){
 			ordering: true,
 			orderable : true
 		},
-		stateSave: false,
+		stateSave: true,
 		ajax: {
 			url: (ANCHOR.getParams() && ANCHOR.getParams().search && ANCHOR.page() !== "top10" )? "/advanced_search" : "/" + table +
 			 (ANCHOR.page() === "top10" && 
@@ -245,7 +248,7 @@ function initializeTorrents(table, cb){
 			 + (ANCHOR.page() === "class" || ANCHOR.page() === "author" || 
 				ANCHOR.page() === "user_downloads" || 
 				ANCHOR.page() === "user_uploads" || 
-				ANCHOR.page() === "source" ? "/" + ANCHOR.getParams().uuid : (ANCHOR.page() === "publisher" ? "/" + ANCHOR.getParams().publisher : "")),
+				ANCHOR.page() === "source" ? "/" + ANCHOR.getParams().uuid : (ANCHOR.page() === "publisher" ? "/" + (ANCHOR.getParams() && encodeURIComponent(ANCHOR.getParams().publisher) ? encodeURIComponent(ANCHOR.getParams().publisher) : "propagate.info") : "")),
 			type: "POST",
 			data : {
 				title : ANCHOR.getParams() ? ANCHOR.getParams().title : "",
@@ -256,15 +259,15 @@ function initializeTorrents(table, cb){
 				type : ANCHOR.getParams() ? ANCHOR.getParams().type : "",
 				media : ANCHOR.getParams() ? ANCHOR.getParams().media : "",
 				format : ANCHOR.getParams() ? ANCHOR.getParams().format : ""
-			},
+			}
+      ,
 			dataSrc : function(data){
 				all = []
-				top = {"top10_all_day" : [], "top10_all_week" : [], "top10_all_month" : [], "top10_all_year" : [], "top10_all_time" : []}
+				top = {"top10_all_active" : [], "top10_all_day" : [], "top10_all_week" : [], "top10_all_month" : [], "top10_all_trinity" : [], "top10_all_year" : [], "top10_all_time" : []}
 				console.log(data);
-				if(table === "top10_day"){
 
-				}
 				var records = [];
+        console.log(table)
 				if(data.data[0]){
 					switch(ANCHOR.page()){
 						case "author":
@@ -335,7 +338,7 @@ function initializeTorrents(table, cb){
 							$("#userDownloadsTitle").text(decodeEntities(data.data[0]._fields[5]) + "'s Downloads!")
 							break;
 						case "publisher":
-							$("#publisherTitle").text(decodeEntities(ANCHOR.getParams().publisher))
+							$("#publisherTitle").text(decodeEntities(decodeEntities(ANCHOR.getParams().publisher)))
 							if(ANCHOR.getParams().publisher === "propagate.info"){
 								$("#propagate_publisher").show();
 							}
@@ -405,25 +408,32 @@ function initializeTorrents(table, cb){
 			      var top10Table = table;
 			      record._fields[2].forEach(function(edition){
 							var table = "<table class='torrentsTable'><thead><th>Media</th><th>Format</th><th>DL</th><th>infoHash</th><th>Snatches</th>"
-						 + "<th>Time</th><th>Booty (LINK)</th><th>User</th></tr></thead><tbody><tr>"
+						 + "<th>Time</th><th>Copyright</th><th>User</th></tr></thead><tbody><tr>"
 
 			      	if(edition.torrent){
 			      		
-			      	if(record._fields[0].properties.type === "Nonfiction" || record._fields[0].properties.type === "Fiction" 
-			      		|| record._fields[0].properties.type === "Holy Book" || 
-			      		record._fields[0].properties.type === "Short Story"){
+			      	if(record._fields[0].properties.type === "Nonfiction"	|| record._fields[0].properties.type === "Short Story"){
 					      sourceIMG = "img/ebook.png"
 
 			      	}
-			      	else if(record._fields[0].properties.type === "Poetry"){
-			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/images.png?v=1718941782053"
+              else if(record._fields[0].properties.type === "Fiction"){
+                sourceIMG= "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-book-icon-download-in-svg-png-gif-file-formats--wings-rainbow-flat-line-universal-elements-pack-miscellaneous-icons-453725.png?v=1732213182852"
+              }
+              else if(record._fields[0].properties.type === "Chant"){
+                sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/Screenshot%20from%202025-01-31%2020-05-18.png?v=1738371956788"
+              }
+  		      	else if(record._fields[0].properties.type === "Poetry"){
+			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/33yaqamzi1_8jam1asthi_vc061604.png?v=1733512506876"
 			      	}
 			      	else if(record._fields[0].properties.type === "Play"){
-			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/Theatre_white.png?v=1718939464152";
+			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/images.png?v=1732212422850";
 			      	}
 			      	else if(record._fields[0].properties.type === "Journal" || record._fields[0].properties.type === "Essay"){
-			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-news-paper-3114522-2598154.png?v=1718726134544"
+			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA3L2pvYjk1MC0wODUtcC5wbmc.png?v=1732212219488"
 			      	}
+              else if(record._fields[0].properties.type === "Lecture"){
+                sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/teacher-icon-lg.png?v=1732212336151";
+              }
 			      	else if(record._fields[0].properties.type === "Documentary" || record._fields[0].properties.type === "Movie" || record._fields[0].properties.type === "Film"){
 			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-film-164-444732.png?v=1718726531504"
 			      	}
@@ -436,6 +446,12 @@ function initializeTorrents(table, cb){
 			      	else if(record._fields[0].properties.type === "Software" || record._fields[0].properties.type === "Program"){
 			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/images.png?v=1718726747129"
 			      	}
+              else if(record._fields[0].properties.type === "Textbook"){
+                  sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/textbook.png?v=1732211690426"
+                }
+                else if(record._fields[0].properties.type === "Holy Book"){
+                  sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/9ep0slh40v_8hw3mlx3u_vc016521.png?v=1732211944109"
+                }
 			      	else{
 			      		sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-file-download-3490087-2924583.png?v=1718726937968"
 			      	}
@@ -518,10 +534,10 @@ function initializeTorrents(table, cb){
 
 							      if(edition.edition.properties.publisher){
 							      	if(edition.edition.properties.publisher && edition.edition.properties.publisher.endsWith(".")){
-							        	publisherHtml += edition.edition.properties.publisher ? decodeEntities(edition.edition.properties.publisher) + " " : " "
+							        	publisherHtml += edition.edition.properties.publisher ? "<a id='edition_span_publisher' class='ANCHOR publisher' href='#publisher?publisher=" + encodeURIComponent(edition.edition.properties.publisher) + "'>" + decodeEntities(edition.edition.properties.publisher) + "</a>" : " "
 							      	}
 							      	else{
-							        	publisherHtml += (edition.edition.properties.publisher ? decodeEntities(edition.edition.properties.publisher) : " ") + 
+							        	publisherHtml += (edition.edition.properties.publisher ? "<a id='edition_span_publisher' class='ANCHOR publisher' href='#publisher?publisher=" + encodeURIComponent(edition.edition.properties.publisher) + "'>" + decodeEntities(edition.edition.properties.publisher) + "</a>" : " ") + 
 							        	(record._fields[0].properties.type !== "Journal" ? ". " : ", ")
 							        	console.log(record._fields[0].properties.type)
 							      	}
@@ -553,9 +569,16 @@ function initializeTorrents(table, cb){
 								}
 						      	//add torrents
 						      	console.log(edition.torrent.USD_price)
-						      	all.push(edition.torrent.uuid)
+                    if(all.indexOf(edition.torrent.uuid === -1)){
+						      	  all.push(edition.torrent.uuid)                      
+                    }
+                    console.log(all)
 						      	console.log(top10Table);
 						      	switch(top10Table){
+						      		case "top10_active" :
+						      			console.log(top);
+						      			top["top10_all_active"].push(edition.torrent.uuid);
+						      			break;
 						      		case "top10_day":
 						      			top["top10_all_day"].push(edition.torrent.uuid)
 						      			break;
@@ -565,6 +588,9 @@ function initializeTorrents(table, cb){
 						      		case "top10_month":
 						      			top["top10_all_month"].push(edition.torrent.uuid)
 						      			break;
+			                      case "top10_trinity":
+			                        top["top10_all_trinity"].push(edition.torrent.uuid)
+			                        break;
 						      		case "top10_year":
 						      			top["top10_all_year"].push(edition.torrent.uuid)
 						      			break;
@@ -572,7 +598,9 @@ function initializeTorrents(table, cb){
 						      			top["top10_all_time"].push(edition.torrent.uuid)
 						      			break;
 						      	}
-						      	console.log(edition.torrent.infoHash)
+						      	console.log(edition.torrent.uuid)
+                    if(edition.torrent.uuid === "45d2f28a-ffa9-4e55-8297-b9b43a78e81f"){
+                    }
 						      	console.log(edition.torrent.copyrighted)
 						        var tr = "<tr>";
 						        tr += "<td>" + edition.torrent.media + "</td>";
@@ -580,7 +608,7 @@ function initializeTorrents(table, cb){
 						        tr += "<td><a class='infoHash" + "' data-infohash='" + edition.torrent.infoHash + "' href='magnet:?xt=urn:btih:" 
 						        + edition.torrent.infoHash + "' id='edition_" +  edition.edition.properties.uuid + "' data-torrent-uuid = '" + edition.torrent.uuid + " '>[MagnetURI]</a>&nbsp;&nbsp;" + 
 						        "<a id='add_torrent_tab' data-infohash='" + edition.torrent.infoHash +
-						        "' data-title='" + record._fields[0].properties.title + "' class='torrent stream' href='#torrent?infoHash=" + edition.torrent.infoHash + "' data-torrent-uuid = '" + edition.torrent.uuid + 
+						        "' data-title='" + record._fields[0].properties.title + "' class='torrent stream' href='#torrent?uuid=" + edition.torrent.uuid + "' data-torrent-uuid = '" + edition.torrent.uuid + 
 						         "'>[Browser]</a></td>"
 						        tr += "<td id='" + edition.torrent.uuid + "'><a class='queryInfoHash' id='infoHash_" + edition.torrent.uuid + 
 						        "' data-torrent-uuid='" + edition.torrent.uuid + 
@@ -595,13 +623,13 @@ function initializeTorrents(table, cb){
 						          "' data-curator-address='" + edition.torrent.ETH_address + "'" 
 						        	+ "data-booty='" + (edition.torrent.USD_price
  									<= 0 ? true : false) + 
-						        	"'" + "data-torrent-uuid='" + edition.torrent.uuid + "'>" + "$" + parseFloat(edition.torrent.USD_price).toFixed(2) + "</button>"
+						        	"'" + "data-torrent-uuid='" + edition.torrent.uuid + "'>" + parseFloat(edition.torrent.USD_price).toFixed(2) + "</button>"
 						        	 : "Public Domain.") +"</td>"
 						        tr+="<td><a class='ANCHOR user' id='uptight' href='#user?uuid=" + edition.torrent.uploaderUUID + "'>" 
 						        + edition.torrent.uploaderUser + "</a></td>"
 						        tr += "</tr>"
 						        table += tr;
-							      table += "</tbody></table>"
+							      
 				      	
 				      	console.log(edition.edition.properties.uuid);
 				      	if(editionsAdded.indexOf(edition.edition.properties.uuid) === -1){
@@ -616,16 +644,24 @@ function initializeTorrents(table, cb){
 								        + decodeEntities(record._fields[0].properties.title) + "</a>"
 								       + dateField + authorField + "</div><br><div class='torrentClasses normal'>" + classesField 
 								       + "</div></div>",
-								        "<span id='edition_" + edition.edition.properties.uuid + "_field'>" + editionField + "</span>", 
+								        "<span id='edition_" + edition.edition.properties.uuid + "_field'>" + editionField + "</span>"
+								        , 								        
+								        edition.edition.properties.snatches                                            
+                        ,
 								       // edition.edition.properties.numPeers,
-								        edition.edition.properties.snatches, timeSince(edition.edition.properties.created_at) + " ago", table]
+								        "<span id='edition_date'>" + 
+								        (edition.edition.properties.date && edition.edition.properties.date !== record._fields[0].properties.date ? record._fields[0].properties.date + "/" + edition.edition.date : record._fields[0].properties.date)
+								        + "</span>"
+
+								        , 
+								        timeSince(edition.edition.properties.created_at) + " ago", table]
 		 			    	}	
 				      	else{
-				      		console.log("HERE")				      	
-                  if(records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]){
+				      		console.log(records[editionsAdded.indexOf(edition.edition.properties.uuid)])				      	
+             
 				      		  records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]  = records[editionsAdded.indexOf(edition.edition.properties.uuid)][5]
-				      		  .slice(0, -16) + tr + "</tbody></table>";
-                  }
+				      		  .slice(0, -16) + tr;
+                  
 				      	}
 	 			    	  console.log(editionsAdded, edition.edition.properties.uuid)
 	 			    	
@@ -705,23 +741,16 @@ function initializeTorrents(table, cb){
 			$(document).off("click", ".stream");
 
 			$(document).on("click", ".stream", function(e){
-				$.get("/infoHash/" + $(this).data("torrent-uuid"), function(data){
-					if(data.free || data.prem){
-						$.post("/snatched/" + (data.free ? data.free : data.prem));
-					}
-					if(data.free){
-						ANCHOR.route("#torrent?infoHash=" + data.free);
-						that.attr("href", "#torrent?infoHash" + data.free)
-					}
-					else if(data.prem){
-						ANCHOR.route("#torrent?infoHash=" + data.prem);
-						that.attr("href", "#torrent?infoHash" + data.prem)
-					}
-					else{
-						alert("Please purchase torrent infoHash first!")
-					}
-
-				})
+        var uuid = $(this).data("torrent-uuid")
+        $.get("/infoHash/" + uuid, function(data){
+          if(!data.free && !data.prem){
+            alert("Please purchase Torrent infoHash first!")
+            return;
+          }
+				  ANCHOR.route("#torrent?uuid=" + uuid);
+                    
+        })
+        
 			})
 
 			$(document).off("click", ".queryInfoHash")
@@ -768,7 +797,6 @@ function initializeTorrents(table, cb){
 			cb();
 
 		}
-
   	})
     //$('th').unbind('click.DT')
 }
