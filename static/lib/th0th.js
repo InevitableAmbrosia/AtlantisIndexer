@@ -75,7 +75,6 @@ var th0th = {
 		  that.seedFiles();
 		})
 
-	console.log("INITIALIZING THOTH CLIENT!")
 	var that = this;
 	var table = document.createElement("table");
 	var thead = document.createElement("thead");
@@ -116,7 +115,6 @@ var th0th = {
 			}
 		}})
 
-	console.log("LOOPER!!!1one1")
 
 
 
@@ -132,7 +130,6 @@ addFile :	function(infoHash, cb){
 	      that.onProgress(torrent)
 			
 				that.addRow(torrent);
-				console.log(torrent);
 				cb(torrent);
 		
 		})
@@ -142,7 +139,6 @@ seedFiles :	function(){
 		var that = this;
 		dirData.forEach(function(file){
 		$(".th0th_status").text(file.name)
-		console.log(file)
 			that.client.seed(file, function(torrent){
 				that.files.push(torrent.files[0])
 				torrent.on('done', function(){
@@ -153,16 +149,14 @@ seedFiles :	function(){
        	that.addRow(torrent);
 				var div = document.createElement("div");
 				torrent.files[0].appendTo(div);
-				console.log(torrent.files.length);
 				if(that.i === that.dataCount){
 					$(".th0th_status").hide();
 					that.client.torrents.forEach(function(torrent){
-		  			/*setTimeout(function(){
+		  			setTimeout(function(){
 							window.location = "magnet:?xt=urn:btih:" +torrent.infoHash + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
 
-		  			},100)*/
+		  			},100)
 					})
-					console.log("DONE LOADING ALL!")						
 					
 				}
 			})		
@@ -237,28 +231,6 @@ onProgress : function(torrent) {
     return (neg ? '-' : '') + num + ' ' + unit
   }		
   ,
-
-  humanFileSize : function(bytes, si=false, dp=1) {
-	  const thresh = si ? 1000 : 1024;
-
-	  if (Math.abs(bytes) < thresh) {
-	    return bytes + ' B';
-	  }
-
-	  const units = si 
-	    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
-	    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-	  let u = -1;
-	  const r = 10**dp;
-
-	  do {
-	    bytes /= thresh;
-	    ++u;
-	  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-
-
-	  return bytes.toFixed(dp) + ' ' + units[u];
-	},
 	setRatio : function(){
 		var that = this;
 		var uploaded = document.createElement("a");
@@ -280,8 +252,8 @@ onProgress : function(torrent) {
 		setInterval(function(){
 			that.uploaded += that.client.uploadSpeed / 20
 			that.downloaded += that.client.downloadSpeed / 20
-			if(that.downloaded !== 0) $(downloaded).text(that.humanFileSize(that.downloaded));
-			if(that.uploaded !== 0) $(uploaded).text(that.humanFileSize(that.uploaded));
+			if(that.downloaded !== 0) $(downloaded).text(humanFileSize(that.downloaded));
+			if(that.uploaded !== 0) $(uploaded).text(humanFileSize(that.uploaded));
 		},50)
 	}
 	,
