@@ -88,4 +88,20 @@ export default {
 			cb(data);
 		})
 	}
+	,
+	recommendPublisher : function(driver, publisherPublisher, cb){
+		var query = "MATCH (e:Torrent)-[]-(s:Source) WHERE e.publisher = $publisher " +
+		"MATCH (s)<-[:TAGS]-(c1:Class)-[:TAGS]->(coSource:Source)<-[:TAGS]-(c2:Class)-[:TAGS]->(coCoSource:Source) " +
+		"WHERE s <> coCoSource " +
+		"WITH coCoSource " +
+		"MATCH (e1:Edition)<-[:PUB_AS]-(coCoSource) " + 
+		"RETURN e1.publisher " +
+		"ORDER BY e1.snatches DESC " +
+		"LIMIT 1"
+		var params = {infoHashes : infoHashes}
+		var session = driver.session();
+		session.run(query, params).then(data=>{
+			cb(data);
+		})
+	}
 }
