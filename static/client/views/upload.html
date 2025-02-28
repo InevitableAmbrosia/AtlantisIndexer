@@ -1,11 +1,10 @@
 <div class="titleBreak">
   <h2><span id="uploadHeading">Upload</span></h2>
-	<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR SELF-PUBLISHED MEDIA YOU HAVE COPYRIGHTS TO!!!!!*******</span>
-	<span id="upload_inst">Ebooks, Audiobooks, Classical Music, and Documentaries are allowed. To upload multiple files, simply highlight them in the upload prompt. 
-  <br><br><br>To catalogue things properly, check if the Source already exists on the site by using the autocomplete function on this page, or use "Add Torrent" from the Source's page to upload an Edition of that Source. This way, the same Source will not be listed multiple times, and various translations of that Source will appear under the same Table Heading!
-	<br><br><span id="contribution">Thank you for your Contribution!</span>
-  
 </div>
+<span id="disclaimer">*******ONLY UPLOAD PUBLIC DOMAIN MEDIA OR SELF-PUBLISHED MEDIA YOU HAVE COPYRIGHTS TO!!!!!*******</span>
+<span id="upload_inst">Ebooks, Audiobooks, Classical Music, and Documentaries are allowed. To upload multiple files, simply highlight them in the upload prompt. 
+<br><br><br>To catalogue things properly, check if the Source already exists on the site by using the autocomplete function on the title input.
+  <br><br><span id="contribution">Thank you for your Contribution!</span></span>
 <h3 id="newUploadHeader"><span>Uploading</span><a href="#"></a></h3>
 <form>
 	<div class="newUpload">
@@ -89,12 +88,13 @@
 				$(div).attr("id", "#author_" + id);
 
 				$(div).append(a);
-
+        
 				var select = document.createElement("select")
 				$(select).attr("id", "author_importance");
 
-				$(div).append(select);
-
+				//$(div).append(select);
+        
+        /*
 				var option1 = document.createElement("option");
 				$(option1).val("author")
 				$(option1).text("Author");
@@ -107,13 +107,13 @@
 				$(option4).val("translator")
 				$(option4).text("Translator")
 				$(select).append(option4)
-
+        */
 				var input = document.createElement("input");
 				$(input).attr("placeholder", "Author role (optional)");
-				$(div).append(input);
+				//$(div).append(input);
 
 				$("#author_input").val("");
-
+      
 				var remove = document.createElement("a");
 				$(div).append(remove);
 				$(remove).addClass("removeAuthor");
@@ -199,7 +199,7 @@
   <br><br><br><br><br><br>
   <div class="APA">
 		<div class="grid_0">
-			<label for="rename_file">Please Rename File to APA Format</label>
+			<label for="rename_file">Rename File to APA Format</label>
 		</div>
 		<div class="grid_1">
 			<button id="APA">Copy Filename</button>
@@ -239,26 +239,25 @@
 		<label>Copyright</label>
 	</div>
 	<div class="grid_1">
-		<input type="radio" class="copyright" name="copyrightz" id="public_domain">
-		<label for="public_domain">Public Domain</label><!--
+		<input checked type="radio" class="copyright" name="copyrightz" id="public_domain">
+		<label for="public_domain">Public Domain</label>
+    <!--
 		<input type="radio" class="copyright" name="copyrightz" id="copyrighted">
-		<label for="copyrighted">Copyrighted (ATLANTIS)</label>!-->
+		<label for="copyrighted">Copyrighted ($LINK)</label>!-->
 	</div>
+  <!--
 	<div class="copyrighted">
 		<div class="grid_0 paid copy">
-			<label for="LINK_price">$ATLANTIS</label>
+			<label for="LINK_price">Payment</label>
 		</div>
 		<div class="grid_1 paid copy">
-			<input id="link_price" name="LINK_price">
+			<input id="link_price" name="LINK_price"><br>
+			<input id="link_address" placeholder = "$LINK ADDRESS" name="LINK_address">
+      
 		</div>
 	</div>
-  <!--<div class="grid_0">
-		<label for="LINK_address">ALTANTIS Address (required)</label>
-		</div>
-		<div class="grid_1">
-			<input id="link_address" name="LINK_address">
-		</div>!-->
-  <br><br><br>
+!-->
+
 	<div class="grid_0">
 		<button id="submit">Upload!</button>
 	</div><br><br><br>
@@ -284,7 +283,6 @@
 <script>
 	$("#merge_source_button").click(function(e){
 		var uuid = $("#merge_source_input").val();
-		console.log(uuid)
 		e.preventDefault();
 		$.post("merge_source/" + ANCHOR.getParams().uuid, {mergeInto : uuid}, function(){
 			ANCHOR.route("#source?silo="+ getSilo().uuid + "&uuid=" + uuid);

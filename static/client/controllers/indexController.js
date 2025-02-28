@@ -50,16 +50,18 @@ function dismissPP(){
  		loaderInitialized = true;
  	  initializePP();
 	 	$('#overlay').show();
-	 	console.log("LOADING!");
-	 	$(".mobile_menu").fadeOut(790);
+	 	$(".mobile_menu").slideUp();
 	 }
  	 
  }
 
  function dismissLoader(){
  	if(loaderInitialized){
- 		console.log("NOT LOADING!");
-
+    setTimeout(function(){
+      $(".loading").hide();
+      $("h2:not(.loading)").fadeIn()  
+    }, 555)
+    
  	  $("#overlay").hide();
 	  //if(loader){
  		dismissPP();
@@ -70,14 +72,12 @@ function dismissPP(){
 	 	//$(".ANCHOR_partial ." + ANCHOR.page()).fadeIn(1337);
 	 	//ANCHOR._show_div(ANCHOR.page());
  	}
- }
-
-var firstLoad = true;
+ }//
 
 
  function init(){
- 	initializeStGeorge();
- 	dismissLoader(); //necessary? who cares!
+ 	//initializeStGeorge();
+ 	//dismissLoader(); //necessary? who cares!
  	if(ANCHOR.page() !== "upload" && ANCHOR.page() !== "file_manager" && ANCHOR.page() !== "login" && ANCHOR.page() !== "register" && ANCHOR.page() !== "create_buoy" 
  		&& ANCHOR.page() !== "torrent"){
 		initializeLoader();
@@ -92,98 +92,331 @@ var firstLoad = true;
  }
 
  function pages(){
- 	audioModel.audio.pause();
+  $(".loading").text("Loading...!")
+  //$(".ANCHOR_partial").hide();
+  //audioModel.audio.pause();
 	if(ANCHOR.page() === "torrents" || ANCHOR.page() === "class" || ANCHOR.page() === "source" || ANCHOR.page() === "author" ||
 	 ANCHOR.page() === "user_uploads" || ANCHOR.page() === "user_downloads" || ANCHOR.page() === "publisher"){
-		console.log("INITIALIZING TORRENTS FROM INDEX")
-		initializeLoader();
-		initializeTorrents(ANCHOR.page(), dismissLoader);
-		if(ANCHOR.page() === "source"){
-			initializeSource();
-			initializeSourceSpirit()
-			initializeGraph(dismissLoader);
-		}
-	}
-	else if(ANCHOR.page() === "AtlantisCoin"){
-		initializeAtlantisCoin();
-	}
-	else if(ANCHOR.page() === "request_invite"){
-		initializeRequestInvite();
-		initializeLoader();
-	}
-	else if(ANCHOR.page() === "king_invites"){
-		initializeLoader();
-	}
-	else if(ANCHOR.page() === "world_spirit"){
-		initializeLoader();
-		initializeWorldSpirit();
+		//initializeLoader();
+    //console.log(sourceUUID, ANCHOR.getParams().uuid)
+    var $window = $(window)
+    var windowsize = $window.width();
+      
+    if(ANCHOR.page()  === "torrents"){
+   
+    	$.get("../client/views/torrents.html", function(data){
+          torrentsLoaded = true;
+					$("div.torrents").html(data)	
+          $("div.torrents").fadeIn();
+          htmlSearch();
+          initializeTorrents("torrents", dismissLoader)
+    			ANCHOR.buffer();
+    	})
+  	}
+    else  if(ANCHOR.page() === "source" && ANCHOR.getParams() && ANCHOR.getParams().uuid !== uuid){
+      uuid = ANCHOR.getParams().uuid;
+		  
+		  	
+		  	if(!sourceLoaded){
+		  		  	sourceLoaded = true;
+		  			$.get("../client/views/source.html", function(data){
+							//if(ANCHOR.page() === "source")
+								//initializeSource();
+							$("div.source").html(data);
+              $("div.source").fadeIn();
+							$("#recommend_source").click(function(e){
+								e.preventDefault();
+								$.post("/recommend/source?uuid=" + ANCHOR.getParams().uuid, function(data){
+									ANCHOR.route("#source?uuid=" + data.source.uuid);
+								})
 
+							})
+		 					initializeTorrents(ANCHOR.page(), dismissLoader);
+
+		 					ANCHOR.buffer();
+		 				})
+		  	}
+		  	else{
+          $("div.source").fadeIn();
+		  		initializeTorrents(ANCHOR.page(), dismissLoader);
+
+		  	}  	
+		
+		  
+		  if(windowsize >= 1080) {
+		  	initializeGraph(dismissLoader)
+		  }
+    }
+    else if(ANCHOR.page() === "author" && ANCHOR.getParams() && ANCHOR.getParams().uuid !== uuid){
+      uuid = ANCHOR.getParams().uuid;
+
+    	if(!authorLoaded){
+    		  		authorLoaded = true;
+
+    		$.get("../client/views/author.html", function(data){
+    			$("div.author").html(data);
+          $("div.author").fadeIn()
+  				$("#recommend_author").click(function(e){
+									e.preventDefault();
+									$.post("/recommend/author?uuid=" + ANCHOR.getParams().uuid, function(data){
+										ANCHOR.route("#author?uuid=" + data.author.uuid);
+									})
+								})
+		 			 initializeTorrents(ANCHOR.page(), dismissLoader);
+		 			 ANCHOR.buffer();
+
+    		})
+    	}
+    	else{
+        $("div.author").fadeIn();
+		  	initializeTorrents(ANCHOR.page(), dismissLoader);
+
+    	}
+    	  		  if(windowsize >= 1080) {
+		  	initializeGraph(dismissLoader)
+		  }
+    }
+    else if(ANCHOR.page() === "class" && ANCHOR.getParams() && ANCHOR.getParams().uuid !== uuid){
+      uuid = ANCHOR.getParams().uuid;
+		  if(!classLoaded){
+		  	classLoaded = true;
+    		$.get("../client/views/class.html", function(data){
+    			$("div.class").html(data);
+          $("div.class").fadeIn();
+    			$("#recommend_class").click(function(e){
+													e.preventDefault();
+													$.post("/recommend/class?uuid=" + ANCHOR.getParams().uuid, function(data){
+														ANCHOR.route("#class?uuid=" + data.class.uuid);
+													})
+												})
+		 			 initializeTorrents(ANCHOR.page(), dismissLoader);
+		 			 ANCHOR.buffer();
+
+    		})
+    	}
+    	else{
+        $("div.class").fadeIn();
+		  	initializeTorrents(ANCHOR.page(), dismissLoader);
+
+    	}
+		  if(windowsize >= 1080) {
+		  	initializeGraph(dismissLoader)
+		  }
+    }
+    else if(ANCHOR.page() === "publisher" && ANCHOR.getParams() && ANCHOR.getParams().publisher !== uuid){
+      uuid = ANCHOR.getParams().publisher;
+		  if(!publisherLoaded){
+		  	publisherLoaded = true;
+    		$.get("../client/views/publisher.html", function(data){
+    			$("div.publisher").html(data);
+          $("div.publisher").fadeIn()
+    			$("#recommend_publisher").click(function(){
+													$.post("/recommend/publisher?publisher=" + encodeURIComponent(ANCHOR.getParams().publisher), function(data){
+														if(data.errors){
+														alert(data.errors[0].msg)
+														}
+														else{
+															ANCHOR.route("#publisher?publisher=" + encodeURIComponent(data.publisher))
+														}
+													})
+		 	
+    			})
+          initializeTorrents(ANCHOR.page(), dismissLoader);
+		 			ANCHOR.buffer();
+    		})
+    	}
+    	else{
+        $("div.publisher").fadeIn()
+		  	initializeTorrents(ANCHOR.page(), dismissLoader);
+
+    	}
+		  if(windowsize >= 1080) {
+		  	initializeGraph(dismissLoader)
+		  }
+    }
+    else if(ANCHOR.page() === "user_uploads" && ANCHOR.getParams() && ANCHOR.getParams().uuid !== uuid){
+      uuid = ANCHOR.getParams().uuid;
+      if(!userUploadsLoaded){
+      	userUploadsLoaded = true;
+    		$.get("../client/views/user_uploads.html", function(data){
+          $("div.user_uploads").fadeIn()
+    			$("div.user_uploads").html(data);
+    			$("#recommend_uploads").click(function(){
+																							$.post("/recommend/user_uploads?uuid=" + ANCHOR.getParams().uuid, function(data){
+																								if(data.errors){
+																									alert(data.errors[0].msg)
+																								}
+																								else{
+																									ANCHOR.route("#user_uploads?uuid=" + data.user.uuid)
+																								}
+																							})
+																						})
+    			ANCHOR.buffer();
+		 			 initializeTorrents(ANCHOR.page(), dismissLoader);
+
+    		})
+    	}
+    	else{
+        $("div.user_uploads").fadeIn()
+		  	initializeTorrents(ANCHOR.page(), dismissLoader);
+
+    	}
+		  initializeTorrents(ANCHOR.page(), dismissLoader);
+    }
+		else if(ANCHOR.getParams() && ANCHOR.getParams().uuid !== sourceUUID && ANCHOR.getParams().uuid !== authorUUID && ANCHOR.getParams().uuid !== classUUID && ANCHOR.getParams().publisher !== publisherName){
+      initializeTorrents(ANCHOR.page(), dismissLoader);
+    }
+    
 	}
-	else if(ANCHOR.page() === "graph"){
-		initializeLoader()
-		initializeGraph(dismissLoader);
-	}
+
 	else if(ANCHOR.page() === "top10"){
 		//sort of wonky dismisslaoder
-		initializeLoader();
-		initializeTorrents("top10_active", dismissLoader)
-		initializeTorrents("top10_day", dismissLoader);
-		initializeTorrents("top10_week", dismissLoader);
-		initializeTorrents("top10_month", dismissLoader);
-    initializeTorrents("top10_trinity", dismissLoader)
-		initializeTorrents("top10_year", dismissLoader);
-		initializeTorrents("top10_alltime", dismissLoader);
+    top10Loaded = true;
+
+		$.get("../client/views/top10.html", function(data){
+			$("div.top10").html(data);
+      $("div.top10").fadeIn();
+      initializeTorrents("top10_day", dismissLoader);
+      initializeTorrents("top10_week", dismissLoader);
+      initializeTorrents("top10_month", dismissLoader);
+      initializeTorrents("top10_year", dismissLoader);
+      ANCHOR.buffer();
+      htmlSearch();
+
+		})
+    	
+    	
+
+		//initializeTorrents("top10_alltime", dismissLoader);
 	}
 	else if(ANCHOR.page() === "upload"){
 		count++;
-		initializeLoader();
-		initializeUpload(dismissLoader);
+		$.get("../client/views/upload.html", function(data){
+			$("div.upload").html(data);
+			htmlUpload();
+      htmlSearch();
+      $("div.upload").fadeIn()
+			initializeUpload(dismissLoader);
+			ANCHOR.buffer();
+
+		})
+		//initializeLoader();
+	}
+	else if(ANCHOR.page() === "publishers"){
+		if(!publishersLoaded){
+			publishersLoaded  = true;
+			$.get("../client/views/publishers.html", function(data){
+				$("div.publishers").html(data);
+				initializePublishers(dismissLoader);
+        $("div.publishers").fadeIn();
+				ANCHOR.buffer();			
+			})
+		}
+	}
+	else if(ANCHOR.page() === "authors" && !authorsLoaded){
+		authorsLoaded = true;
+		initializeAuthors(dismissLoader)
+		$.get("../client/views/authors.html", function(data){
+				$("div.authors").html(data);
+				initializeAuthors(dismissLoader);	
+        $("div.authors").fadeIn()
+				ANCHOR.buffer();		
+			})
 	}
 	else if(ANCHOR.page() === "classes"){
 		initializeLoader();
-		initializeClasses(dismissLoader);
+    if(!classesLoaded){
+		  classesLoaded=true;
+      $.get("../client/views/classes.html", function(data){
+				$("div.classes").html(data);
+				initializeClasses(dismissLoader);			
+				ANCHOR.buffer();
+        $("div.classes").fadeIn()
+			})
+      initializeClasses(dismissLoader);
+            
+    }
 	}
 	else if(ANCHOR.page() === "user"){
 		initializeLoader();
-		initializeUser(dismissLoader);
-	}
-	else if(ANCHOR.page() === "home"){
-		initializeLoader();
-		initializeBuoy(dismissLoader);
-	}
-	else if(ANCHOR.page() === "login"){
-		console.log("DISMISSING LOADER from LOGIN")
-		initializeLoader();
-		dismissLoader()
+		$.get('../client/views/user.html',function(data){
+			$("div.user").html(data);
+			initializeUser(dismissLoader);
+			ANCHOR.buffer();
+      $("div.user").fadeIn();
+
+		})
+  }
+	else if(ANCHOR.page() === "login" && !loginLoaded){
+		loginLoaded = true;
+		$.get("../client/views/login.html", function(data){
+			$("div.login").html(data);
+      $("div.login").fadeIn();
+			ANCHOR.buffer();
+		})
 	}
 	else if(ANCHOR.page() === "file_manager"){
-		initializeLoader();
-		dismissLoader()
+		$.get("../client/views/file_manager.html", function(data){
+			$("div.file_manager").html(data);
+      $("div.file_manager").fadeIn();
+			ANCHOR.buffer();
+		})
+
 	}
-	else if(ANCHOR.page() === "register"){
-		initializeLoader();
-		console.log("DISMISSING LOADER from REGISTER")
-		dismissLoader();
+	else if(ANCHOR.page() === "register" && !registerLoaded){
+		registerLoaded = true;
+		$.get("../client/views/register.html", function(data){
+			$("div.register").html(data);
+      $("div.register").fadeIn();
+			ANCHOR.buffer();
+		})
+		//initializeLoader();
+		//dismissLoader();
 	}
 	else if(ANCHOR.page() === "torrent"){
-		initializeTorrent();
-		initializeLoader();
-		dismissLoader();
-	}
-	else if(ANCHOR.page() === "create_buoy"){
-		$("#buoy_errors").text("");
-		$("#buoy_pos").text("")
-		initializeLoader();
-		dismissLoader();
+		if(!torrentLoaded){
+				torrentLoaded = true;
+				$.get("../client/views/torrent.html", function(data){
+					$("div.torrent").html(data);
+          $("div.torrent").fadeIn()
+					initializeTorrent();
+					ANCHOR.buffer();																				
+
+				})
+		}
+		else{
+			initializeTorrent();
+
+		}
 	}
 	else if(ANCHOR.page() === "edit_buoy"){
-		initializeLoader();
-		initializeEditBuoy(dismissLoader);
+		if(!editBuoyLoaded){
+			$.get("../client/views/edit_buoy.html", function(data){
+					$("div.edit_buoy").html(data);
+					initializeEditBuoy(dismissLoader);
+					ANCHOR.buffer();	
+              $("div.edit_buoy").fadeIn()
+
+				})
+		}
+		else{
+			initializeEditBuoy(dismissLoader);
+
+		}
 	}
 	else if((ANCHOR.page() === "login" || ANCHOR.page()=== "register") && auth){
 		initializeLoader();
 		ANCHOR.route("#user?uuid=" + getUser().uuid);
 	}
+	else if(ANCHOR.page() === "home" && !homeLoaded){
+		$.get("../client/views/home.html", function(data){
+			homeLoaded = true;
+			$("div.home").html(data);
+      initializeBuoy(dismissLoader)
+        $("div.home").fadeIn()
+		})
+	}
+
  }
 
 $(document).ready(function(){
@@ -216,186 +449,114 @@ $(document).ready(function(){
 
 
 
-	$.get("../client/views/register.html", function(data){
-		$("div.register").html(data);
-		$.get("../client/views/login.html", function(data){
-			$("div.login").html(data);									
-			$.get("../client/views/torrent.html", function(data){
-				$("div.torrent").html(data);
-				$.get("../client/views/header.html", function(data){
-					$("header").html(data);
-					$('#mobile_menu').click(function(e){
-						e.preventDefault();
-						console.log("CLICKED")
-						$(".mobile_menu").fadeToggle(1337)
-					})
-
-
-					$(".ANCHOR").click(function(e){
-
-						console.log("CLICKED!!!")
-						e.preventDefault();
-						$(".mobile_menu").fadeOut();
-					})
-
-					$(".buoy_select").change(function(e){
-						e.preventDefault();
-						$(".mobile_menu").fadeOut();
-					})
-					initializeUserPanel();
-					
-					$.get("../client/views/home.html", function(data){
-						$("div.home").html(data);
-
-					
-						$.get("../client/views/source.html", function(data){
-							//if(ANCHOR.page() === "source")
-								//initializeSource();
-							$("div.source").html(data);
-							//initializeSource();
-								$("#recommend_source").click(function(e){
-								e.preventDefault();
-								$.post("/recommend/source?uuid=" + ANCHOR.getParams().uuid, function(data){
-									ANCHOR.route("#source?uuid=" + data.source.uuid);
-								})
-							})
-							$.get("../client/views/author.html", function(data){
-
-								$("div.author").html(data);
-								$.get("../client/views/graph.html", function(data){
-									$("#recommend_author").click(function(e){
-										e.preventDefault();
-										$.post("/recommend/author?uuid=" + ANCHOR.getParams().uuid, function(data){
-											ANCHOR.route("#author?uuid=" + data.author.uuid);
-										})
-									})
-									$("div.graph").html(data);
-									$.get("../client/views/torrents.html", function(data){
-										$("div.torrents").html(data)	
-										console.log("ADDED TORRENTS HTML DATA");
-										//var torrentsTable = $("#torrents").DataTable()
-										//initializeTorrents();
-										$.get("../client/views/classes.html", function(data){
-											$("div.classes").html(data);
-											$("#add_class_button").click(function(){
-												console.log("clicked");
-												$("#add_class_button").attr("disabled", "disabled")
-												$.post("/add_class", {name : $("#class_name").val()}, function(data){
-													ANCHOR.route("#class?uuid=" + data.uuid);
-												})
-											})
-											$.get("../client/views/class.html", function(data){
-												$("div.class").html(data);
-												$("#recommend_class").click(function(e){
-													e.preventDefault();
-													console.log("CLASSY");
-													$.post("/recommend/class?uuid=" + ANCHOR.getParams().uuid, function(data){
-														ANCHOR.route("#class?uuid=" + data.class.uuid);
-													})
-												})
-												$.get("../client/views/upload.html", function(data){
-													$("div.upload").html(data);
-													//upload.initialize();
-													htmlUpload();
-													
-													$.get("../client/views/top10.html", function(data){
-														$("div.top10").html(data);
-														$.get("../client/views/401.html", function(data){
-															$("div.401").html(data);
-															$.get("../client/views/user.html", function(data){													
-																$("div.user").html(data);
-																$.get("../client/views/create_buoy.html", function(data){
-																	$("div.create_buoy").html(data);
-																	$.get("../client/views/file_manager.html", function(data){
-																		//callback hades
-																		$("div.file_manager").html(data);
-																		$.get("../client/views/edit_buoy.html", function(data){
-																			$("div.edit_buoy").html(data);
-																			$.get("../client/views/world_spirit.html", function(data){
-																				$("div.world_spirit").html(data);
-																				htmlSearch();
-																					$.get("../client/views/user_uploads.html", function(data){
-																						$("div.user_uploads").html(data);
-																						$("#recommend_uploads").click(function(){
-																							$.post("/recommend/user_uploads?uuid=" + ANCHOR.getParams().uuid, function(data){
-																								if(data.errors){
-																									alert(data.errors[0].msg)
-																								}
-																								else{
-																									ANCHOR.route("#user_uploads?uuid=" + data.user.uuid)
-																								}
-																							})
-																						})
-																						$.get("../client/views/user_downloads.html", function(data){
-																							$("div.user_downloads").html(data);
-																							$.get("../client/views/AtlantisCoin.html", function(data){
-																								$("div.AtlantisCoin").html(data);
-																								$.get("../client/views/publisher.html", function(data){
-																									$("div.publisher").html(data);
-																										$("#recommend_downloads").click(function(){
-																										$.post("/recommend/user_downloads?uuid=" + ANCHOR.getParams().uuid, function(data){
-																											if(data.errors){
-																													alert(data.errors[0].msg)
-																												}
-																												else{
-																													ANCHOR.route("#user_downloads?uuid=" + data.user.uuid)
-																												}
-																											})
-																										})
-																										ANCHOR.buffer();																				
-																								    var page = ANCHOR.page();
-																								    console.log(page);
-																								    if(!page){
-																								    	ANCHOR.route("#home");
-																								    }
-																								    else if(!$.isEmptyObject(ANCHOR.getParams())){
-																									    ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
-																								    }							    	
-																								    else{
-																								    	ANCHOR.route("#" + page)
-																								    }
-																								    authenticateUser();
-																																								    
-																										init();
-																										pages();
-
-																									
-																									
-																								})
-																							})
-																							
-
-																						})
-																							
-																					})
-																				
-
-																			})
-																			
-																		})
-																		
-																	})
-															   
-
-														    })
-													    })
-														})
-													})
-												})	
-											})
-										})
-									})			
-								})	
-							})
-						})	
-					})
-				})
-			})
-		})
-	})	
 	
+$.get("../client/views/header.html", function(data){
+$("header").html(data);
+$('#mobile_menu').click(function(e){
+e.preventDefault();
+$(".mobile_menu").slideUp();
+
 })
 
+$(".classes").click(function(e){
+e.preventDefault();
+$(".mobile_menu").slideUp();
+})
+
+$(".top10").click(function(e){
+e.preventDefault();
+$(".mobile_menu").slideUp();
+})
+
+
+
+
+$(".ANCHOR").click(function(e){
+
+e.preventDefault();
+$(".mobile_menu").slideUp();
+})
+
+/*$(".buoy_select").change(function(e){
+e.preventDefault();
+$(".mobile_menu").fadeOut();
+})*/
+initializeUserPanel();
+
+
+/*$("#add_class_button").click(function(){
+console.log("clicked");
+$("#add_class_button").attr("disabled", "disabled")
+$.post("/add_class", {name : $("#class_name").val()}, function(data){
+	ANCHOR.route("#class?uuid=" + data.uuid);
+})
+})*/
+					
+							//upload.initialize();
+	$.get("../client/views/header.html", function(data){
+		$("header").html(data);
+		$('#mobile_menu').click(function(e){
+			e.preventDefault();
+      $(".mobile_menu").slideToggle();
+
+		})
+    
+    $(".classes").click(function(e){
+      e.preventDefault();
+      $(".mobile_menu").slideUp();
+    })
+    
+    $(".top10").click(function(e){
+      e.preventDefault();
+      $(".mobile_menu").slideUp();
+    })
+    
+    
+
+    htmlSearch();
+		$(".ANCHOR").click(function(e){
+
+			e.preventDefault();
+			$(".mobile_menu").slideUp();
+		})
+    $.get('../client/views/file_manager.html', function(data){
+      $("div.file_manager").html(data);
+      initializeUserPanel();			
+      ANCHOR.buffer();																				
+      var page = ANCHOR.page();
+      if(!page){
+        ANCHOR.route("#torrents");
+      }
+      else if(!$.isEmptyObject(ANCHOR.getParams())){
+        ANCHOR.route("#" + page + "?" + ANCHOR.getParamsString());
+      }							    	
+      else{
+        ANCHOR.route("#" + page)
+      }
+      authenticateUser();
+      //initializeBuoy(dismissLoader);
+
+      init();
+      $("header").fadeIn();
+
+      pages();
+    })
+		/*$(".buoy_select").change(function(e){
+			e.preventDefault();
+			$(".mobile_menu").fadeOut();
+		})*/
+    
+		
+	})
+	
+  })
+})
+
+													
+
+												
+												
+			
 
 
 function toTitleCase(str) {

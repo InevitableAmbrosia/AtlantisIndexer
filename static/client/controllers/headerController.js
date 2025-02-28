@@ -28,7 +28,7 @@ function initializeBuoySelect(uuid){
 		if(uuid && uuid !== "undefined")
 			$(".buoy_select").val(uuid);
 		$(".buoy_select").on('change', function(){
-			ANCHOR.route("#" + ANCHOR.page() + "?buoy=" + $(this).val() + (ANCHOR.page() === "user" ? "&user=" + getUser().uuid : ""))
+			ANCHOR.route("#" + ANCHOR.page() + (ANCHOR.page() === "user" ? "?user=" + getUser().uuid : ""))
 			$.get("/buoy/" + $(this).val(), function(data){				
 				switchBuoy();
 				console.log(getBuoy().uuid);					
@@ -47,6 +47,8 @@ function setPanel(){
 	$(".user_profile").attr("href", "#user")
 	$(".logout").attr("href", "#home");
 	$(".file_manager").attr("href", "#file_manager");
+  $(".snatches").show();
+	$.get("/snatches", function(data){ $(".snatches").text(numberWithCommas(data.snatches)); $(".torrents_stat").text(numberWithCommas(data.torrents)) })
 	ANCHOR.buffer();
 }
 
@@ -60,22 +62,28 @@ function setTabs(){
 }
 
 function setH1(){
+  $("#rdm").click(function(e){
+    e.preventDefault();
+    $.post("/rdm", function(data){
+      ANCHOR.route("#source?uuid=" + data.uuid)
+    })
+  })
 	ANCHOR.buffer();
 }
 
 
 function userPanel(user){
 	if(user){
-		console.log("HERE SETtiNG USER PANEL!");
+    $(".user_profile").attr("href", "#user?uuid=" + user.uuid)
 		$(".user_profile").text(user.user);
 		$(".user_li").fadeIn('slow');
 		$(".logout_li").fadeIn('slow');
 		$(".login_li").hide();
 		$(".reg_li").hide();
 		$(".create_buoy_li").fadeIn('slow');
+    
 	}
 	else{
-		console.log("NO USER PANEL")
 		$(".user_li").hide();
 		$(".logout_li").hide();
 		$(".login_li").fadeIn('fast');
@@ -85,14 +93,10 @@ function userPanel(user){
 }
 
 function initializeUserPanel(){
-	console.log("HIDING USER PANEL")
 	$(".create_buoy_li").hide();
 	$(".user_li").hide();
 	$(".logout_li").hide();
 	$(".login_li").hide();
 	$(".reg_li").hide();
-	$(".donate").click(function(e){
-	e.preventDefault();
-		alert("BTC Address: 3D3wMrdQ44p92YcL2fzyxHTdmkWqHoz9wQ")
-	})
+	
 }

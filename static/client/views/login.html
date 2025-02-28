@@ -43,8 +43,6 @@
 				initializeBuoySelect();
 				setUser(data.user);
 				userPanel(data.user);
-				clearInterval(health.healthInterval);
-				postHealth();
 				ANCHOR.route("#user?uuid=" + getUser().uuid);
 
 			}

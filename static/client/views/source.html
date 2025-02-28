@@ -1,16 +1,22 @@
 <div class="titleBreak">
-	<h2 id="sourceTitle"></h2>
+	<h2 id="sourceTitle"><span>Source</span></h2>
+  <h2 class="loading">
+    Loading...!
+  </h2>
 </div>
-<div class="download_all">
-	<button id="download_source">Download Page</button>
+<button  id="recommend_source" class="recommend">Recommendation</button>
+
+<div class="partial_graph"> 
+  <div id="source_g">
+  </div>
 </div>
-<button id="addFormat">Add Torrent!</button><button class="recommend" id="recommend_source">Recommendation!</button>
 <table width="100%" id="source">
 	<thead>
 		<tr>
 			<th>Source / Date / Author</th> <!--hidden column header !-->
 			<th>APA Citation</th> <!--edition !-->
 			<th>Snatches</th>
+      <th>Date</th>
 			<th>Time</th>
 			<th class="none torrents"></th> <!-- hidden responsive + !-->
 		</tr>
@@ -18,37 +24,3 @@
 	<tbody>
 	</tbody>
 </table>
-<ul class="allClasses">
-
-</ul>
-<h3 id="sourceSpiritForum">Forum</h3>
-<button id="src_fresh_aphorism">New Aphorism!</button>
-<svg id="source_spirit"></svg>
-<div id="src_overWorld">
-	<button id="src_close_overworld">X</button>
-	<div id="src_oldOverWorld">
-		<h3 id="src_aphorism_title">Aphorism</h3>
-		<span class="user_dialectic" id="src_aphorism_user_dialectic"></span><br><br>
-		<span id="src_aphorism_classes"></span><br><br>
-		<button id="src_new_aphorism" class="aphorism">Progress Dialectic</button><br><br>
-		<p id="src_aphorism_text"></p>
-	</div>
-	<div id="src_newOverWorld">
-		<h3>New Aphorism<span id="src_dialectic_target"></span></h3>
-		<br><br><br>
-		<select id="src_dialectic_select">
-		</select>
-		<br>
-		<br>
-		<input id="src_dialectic_title" placeholder="Aphorism Title"><br><br>
-		<input name="dialectic_classes" class="searchField src_search_dialectic_classes_input" id="src_dialectic_classes_input" placeholder="Classes, comma separated"><ul class="autosuggestBox"></ul><br><br>
-		<textarea id="src_dialectic_text" placeholder = "Aphorism"></textarea><br><br>
-		<span id="src_cite_source_span">Cite Source</span><br>
-		<input id="src_dialectic_sources" class="dialectic_input" placeholder= "Torrent infoHash"><input id="cite_pages" placeholder="pages"><button id="src_cite">Add Citation</button><br><br>
-		<ul class="dialectic_citations">
-		</ul><br><br>
-		<button id="src_dialectic_submit">Submit</button>
-	</div>
-</div>
-
-<!--<svg height="600"></svg>!-->

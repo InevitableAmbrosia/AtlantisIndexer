@@ -99,7 +99,7 @@ function htmlSearch(){
         select : function(event, ui){
             $(".search_publishers_input").val("")
             $(".mobile_menu").hide();
-            ANCHOR.route("#publisher?publisher=" + ui.item.value)   
+            ANCHOR.route("#publisher?publisher=" + encodeURIComponent(ui.item.value))  
             return false;
         }
     })
@@ -188,7 +188,6 @@ function htmlSearch(){
                 type: "get", //send it through get method
                 success: function(data) {
                     response($.map(data, function(item) {
-                        console.log(decodeEntities(decodeEntities(item.label)))
                         return {label : decodeEntities(decodeEntities((item.label))), value : item.value};
                     }))
                  }
@@ -267,7 +266,6 @@ function htmlSearch(){
                 type: "get",
                 success: function(data){
                     response($.map(data, function(item){
-                      console.log(item.label)
                         return {label : decodeEntities(decodeEntities((item.label))), value: item.value}
                     }))
                 }
@@ -294,7 +292,6 @@ function htmlSearch(){
                 type: "get",
                 success: function(data){
                     response($.map(data, function(item){
-                      console.log(item.label)
                         return {label : decodeEntities(decodeEntities((item.label))), value: item.value}
                     }))
                 }
@@ -328,11 +325,9 @@ function htmlSearch(){
         },
         select: function(event,ui){
              $(".mobile_menu").hide()
-            console.log(j)
             var arr = $("#adv_classes").val().split(",");
             arr[j] = ui.item.label;
             var value = arr.toString()
-           console.log(value);
             $("#adv_classes").val(value)     
            return false;     
         }
@@ -351,7 +346,6 @@ function htmlSearch(){
                 type: "get",
                 success: function(data){
                     response($.map(data, function(item){
-                      console.log(item.label)
                         return {label : decodeEntities(decodeEntities((item.label))), value: item.value}
                     }))
                 }
@@ -385,11 +379,9 @@ function htmlSearch(){
         },
         select: function(event,ui){
            $(".mobile_menu").hide()
-            console.log(j)
             var arr = $("#top10_classes").val().split(",");
             arr[j] = ui.item.label;
             var value = arr.toString()
-           console.log(value);
             $("#top10_classes").val(value)     
            return false;             }
     })
@@ -405,7 +397,6 @@ function htmlSearch(){
                 type: "get",
                 success: function(data){
                     response($.map(data, function(item){
-                      console.log(item.label)
                         return {label : decodeEntities(decodeEntities((item.label))), value: item.value}
                     }))
                 }
@@ -485,11 +476,9 @@ function htmlSearch(){
         },
         select: function(event,ui){
             $(".mobile_menu").hide()
-            console.log(j)
             var arr = $("#graph_classes").val().split(",");
             arr[j] = ui.item.label;
             var value = arr.toString()
-           console.log(value);
             $("#graph_classes").val(value)     
            return false;     
         }
@@ -525,8 +514,6 @@ function htmlSearch(){
     function getCommaSplice(input, term){
        var pos = $(input).caret();
        var arr = term.split(",");
-       console.log(term);
-       console.log(pos);
        var value = null;
        var index = 0;
        for(var i=0; i<term.length; i++){
@@ -536,14 +523,10 @@ function htmlSearch(){
         }
         if(i === pos - 1){
             j = index;
-            console.log(j)
-            console.log(i);
             value = arr[index];
-            console.log(value);
         }
 
        }
-       console.log(index);
        return value;
     }
 
@@ -567,11 +550,9 @@ function htmlSearch(){
         },
         select : function(event, ui){
             $(".mobile_menu").hide()
-            console.log(j)
             var arr = $(".search_upload_classes_input").val().split(",");
             arr[j] = ui.item.label;
             var value = arr.toString()
-           console.log(value);
             $(".search_upload_classes_input").val(value)     
            return false;         
         }

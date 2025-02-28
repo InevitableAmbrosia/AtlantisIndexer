@@ -1,24 +1,30 @@
 <div class="titleBreak">
-	<h2 id="publisherTitle">Publisher</h2>
+  <h2 id="publisherTitle"><span>Publisher</span></h2>
+  <h2 class="loading">Loading...!</h2>
 	<!--<div class="add_source">
 		<input placeholder="Source uuid" id="source_uuid">
 		<button id="add_source">Add Source</button>
 	</div>!-->
 </div>
+<button id="recommend_publisher" class="recommend">Recommendation</button>
+
 <p id="propagate_publisher">
 	To self-publish your own Ebook, Audiobook, Classical Music, or Documentary, set the Publisher of your torrent to "propagate.info" under Edition Information on the Uploads page.
 </p>
-<div class="download_all">
-	<button id="download_publisher">Download Page</button>
+
+<div class="partial_graph">
+ 
+  <div id="publisher_g">
+  </div>
 </div>
-<button id="recommend_publisher" class="recommend">Recommendation!</button>
 <table width="100%" id="publisher">
 	<thead>
 		<tr>
 			<th>Source / Date / Author</th> <!--hidden column header !-->
 			<th>APA Citation</th> <!--edition !-->
-			<th>Peers</th>
+     
 			<th>Snatches</th>
+      <th>Date</th>
 			<th>Time</th>
 			<th class="none torrents"></th> <!-- hidden responsive + !-->
 		</tr>
@@ -26,3 +32,5 @@
 	<tbody>
 	</tbody>
 </table>
+
+

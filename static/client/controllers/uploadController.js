@@ -40,7 +40,6 @@ var caller;
 var calls = 0;
 function initializeUpload(cb){
 
-	console.log(calls);
 	calls++;
 	resetUpload();
 	$("#errorsDiv").empty();
@@ -55,7 +54,6 @@ function initializeUpload(cb){
 		if(params.uuid){
 
 			uploadModel.uuid = params.uuid;
-			console.log(uploadModel.uuid);
 			$("#uploadHeading a").text("Editing");
 			$("#uploadHeading a").attr("href", "#upload?uuid=" + uploadModel.uuid);
 			$("#uuid").show()
@@ -71,11 +69,9 @@ function initializeUpload(cb){
 			caller = setTimeout(function(){
 				$.get("/upload/" + uploadModel.uuid, function(data){
 					$("#submit").prop("disabled", false)
-					console.log(data);
 					uploadModel.atlsd = data.atlsd;
 					$("#link_address").val(data.atlsd ? data.atlsd : "")
 					uploadModel.torrent.LINK_address = uploadModel.atlsd;
-					console.log(data.atlsd);
 					if(!data.record){
 						resetUpload();
 						cb();
@@ -130,14 +126,11 @@ function initializeUpload(cb){
 							$("#newEdition").show();
 						}
 					})
-					console.log(data.record._fields[0]);
 					data.record._fields[4].forEach(function(edition, j){
-						console.log(edition);
 						var option = document.createElement("option");
 						var publisherHtml = "";
 						var editionField = "";
 			      	data.record._fields[1].forEach(function(field, i){
-			      		console.log(field);
 				      	editionField += field.author ? decodeEntities(decodeEntities(field.author)) : ""
 				      	if(data.record._fields[1][i+1]){
 				      		editionField += ", "
@@ -195,27 +188,18 @@ function initializeUpload(cb){
 
 					//$("#edition_select").off();
 
-					console.log(uploadModel)
 
 					$("#edition_select option").each(function(){
-						console.log($(this).val());
 					})
 
 					$("#edition_select").change(function(){
-							console.log("HERE!!!!!!!!!!!!!!!");
-							console.log($("#edition_select").val());
 						if($("#edition_select").val() !== "new"){
 							var pos = $("#edition_select").prop('selectedIndex') - 1;
 
 							//edition array holds old selection
-							console.log(data.record._fields[4]);
-							console.log(data.record._fields[0]);
 							uploadModel.editions[pos].uuid = data.record._fields[4][pos].uuid;
 							uploadModel.edition.edition_uuid = data.record._fields[4][pos].uuid;
 
-							console.log(data.record._fields[4][pos])
-							console.log(uploadModel.edition.edition_uuid);
-							console.log(uploadModel);
 							$("#edition_title").val(uploadModel.editions[pos].title).trigger("change");
 							$("#edition_no").val(uploadModel.editions[pos].no).trigger("change");
 							$("#edition_date").val(uploadModel.editions[pos].date).trigger("change");
@@ -232,7 +216,6 @@ function initializeUpload(cb){
 							uploadModel.edition.edition_uuid = null;
 							
 						}
-						console.log(uploadModel.edition.edition_uuid);
 
 					})
 
@@ -263,7 +246,6 @@ function initializeUpload(cb){
 						$(option).val(val);
 						$(option).text(decodeEntities(decodeEntities(decodeEntities(val))));
 						$("#type").append(option);
-						console.log(data.record._fields[6])
 						$("#type").val(data.record._fields[6]);
 						uploadModel.type = $("#type").val();
 					})
@@ -285,7 +267,6 @@ function initializeUpload(cb){
 					})
 					cb();
 				})
-				console.log(uploadModel)
 			},100)			
 			
 		}
@@ -338,7 +319,6 @@ function initializeUpload(cb){
 }
 
 function addAuthor(data){
-	console.log(data);
 	if(!data || !data.author){
 		return false;
 	}
@@ -349,18 +329,16 @@ function addAuthor(data){
 
 	addAuthorArea(uploadModel.authors[uploadModel.authors.length - 1].uuid, uploadModel.authors[uploadModel.authors.length - 1].author, function(err, div, select, input, remove, id){
 
-		uploadModel.authors[uploadModel.authors.length - 1].importance = $(select).val();
-		uploadModel.authors[uploadModel.authors.length - 1].role = $(input).val();
-
+		uploadModel.authors[uploadModel.authors.length - 1].importance = "Author"
+		uploadModel.authors[uploadModel.authors.length - 1].role = "";
 		$(select).change(function(){
-			uploadModel.authors[uploadModel.authors.length - 1].importance = $(select).val();
+			uploadModel.authors[uploadModel.authors.length - 1].importance = "Author"
 		})
 		$(input).change(function(){
-			uploadModel.authors[uploadModel.authors.length - 1].role = $(input).val();
+			uploadModel.authors[uploadModel.authors.length - 1].role = "";
 		})
 
 		$(remove).click(function(){
-			console.log(div);
 			removeAuthorArea(div, id);
 			uploadModel.authors = uploadModel.authors.filter(function( obj ) {
 			    return obj.uuid !== data.uuid;
@@ -394,7 +372,6 @@ function htmlUpload(){
 
 
 	$("#link_price").change(function(){
-		console.log($(this).val());
 		uploadModel.torrent.LINK_price = parseFloat($("#link_price").val());
 	})
 
@@ -405,11 +382,11 @@ function htmlUpload(){
 
 	$("#author_importance").hide();
 	$("#author_role").hide();
-
+  var apa;
 	$("#APA").click(function(e){
 		e.preventDefault();
-		console.log("HERE")
-		copyToClipboard(APA())
+    apa = APA();
+		copyToClipboard(apa + " [propagate.info]")
 		function copyToClipboard(name) {
 		    var $temp = $("<input>");
 		    $("body").append($temp);
@@ -441,12 +418,15 @@ function htmlUpload(){
 		      else{
 		     	 editionField += uploadModel.date ? "(" + 
 		     	 uploadModel.date + (uploadModel.edition.edition_date && uploadModel.edition.edition_date !== 
-		     	 	uploadModel.date ? "/" + 
+		     	 	uploadModel.date ? ":" + 
 		     	 	uploadModel.edition.edition_date + "). " : "). ") : ""
 
 		      }
 		      editionField += uploadModel.title + '. '
-
+          editionField = editionField.substring(0,150)
+		   		if(editionField.length === 150){
+		   			editionField = editionField + "..."
+		   		}
 
 		      if(uploadModel.edition.edition_publisher){
 		      	if(uploadModel.edition.edition_publisher && uploadModel.edition.edition_publisher.endsWith(".")){
@@ -454,7 +434,7 @@ function htmlUpload(){
 		      	}
 		      	else{
 		        	publisherHtml += (uploadModel.edition.edition_publisher ? uploadModel.edition.edition_publisher : " ") + 
-		        	(uploadModel.type !== "Journal" ? ". " : ", ")
+		        	(uploadModel.type !== "Journal" ? ". " : (uploadModel.edition.edition_title ? ", " : "."))
 		      	}
 		      }
 		     if(uploadModel.type === "Journal"){
@@ -480,34 +460,11 @@ function htmlUpload(){
 		      if(uploadModel.edition.edition_pages){
 		      	editionField += uploadModel.edition.edition_pages + "."
 		      }
-		      console.log(uploadModel.classes)
-		   	//if(uploadModel.classes & uploadModel.classes.length > 0){
-		      	if(uploadModel.classes[0])
-		   		editionField += " ["
-		   		uploadModel.classes.forEach(function(c,i){
-		   			editionField += c;
-		   			if(i < uploadModel.classes.length - 1){
-		   				editionField += ", "
-		   			}
-		   			else{
-		   				editionField += "]"
-		   				editionField = editionField.replace(/[/\\?%*:|"<>]/g, '-');
-			   
-							
-					
-		   			}
-		   		})
-		   	//}		... propagate.info 	
+		  
 		   		
-		   		editionField = editionField.substring(0,200)
-		   		if(editionField.length === 200){
-		   			editionField = editionField + "..."
-		   		}
-		   		console.log(editionField)
-		   		editionField = editionField + " propagate.info"
-		   		return editionField.trim();
-		   	
-		      
+		   		
+		   		
+		      return editionField.trim();
 		}
 
 	})
@@ -600,7 +557,7 @@ function htmlUpload(){
 
 	$("#copyrighted").change(function(){
 		if($(this).prop("checked")){
-			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. You may set the price yourself, and propagate.info will not take any royalty, as this is a free and open source project. Be sure to include an ATLANTIS address!');
+			var cnfrm = confirm('By checking this box, you are certifying that you own the rights to this torrent. You may set the price yourself, and propagate.info will not take any royalty, as this is a free and open source project. Be sure to include a $LINK address!');
 			if(cnfrm !== true)
 			{
 			 $(this).prop("checked", false)
@@ -692,7 +649,7 @@ function htmlUpload(){
 		}
 		$("#submit").prop("disabled", true)
 		$("body").css("cursor", "progress");
-		$.post("/upload/" + uploadModel.uuid, {public_domain: $("#public_domain").val(), payWhatYouWant : $("#payWhatYouWant").prop("checked"), 
+		$.post("/upload/" + uploadModel.uuid, {APA : apa, public_domain: $("#public_domain").val(), payWhatYouWant : $("#payWhatYouWant").prop("checked"), 
 			payment : $("#payment").prop("checked"), copyrighted : $("#copyrighted").prop("checked"), type: uploadModel.type, edition_img : uploadModel.edition.edition_img, 
 			edition_pages : uploadModel.edition.edition_pages, edition_publisher : uploadModel.edition.edition_publisher,
 		 date: uploadModel.date, title : uploadModel.title, authors : JSON.stringify(uploadModel.authors), ETH_address: uploadModel.torrent.LINK_address, 
@@ -713,7 +670,7 @@ function htmlUpload(){
 				resetUpload();
 			}
 			if(data.uuid)
-				postHealth();
+				//postHealth();
 				ANCHOR.route("#source?uuid=" + data.uuid);
 			return false; 
 		})
@@ -730,10 +687,10 @@ function resetUpload(){
 			$("#links_address").val(uploadModel.atlsd)
 		}
 
-
+    
 		$(".newUpload").show();
 		$("#newUploadHeader a").text("")
-		$("#public_domain").prop("checked", false);
+		$("#public_domain").prop("checked", true);
 		authorCount = 0;
 		calls = 0;
 

@@ -15,27 +15,21 @@ function initializeUser(cb){
 	$("#invites").empty();
 	$("#buoys_h3").hide();
 	$("#invites_h3").hide();
-	console.log("THERE")
 	$.get("/user/" + ANCHOR.getParams().uuid, function(data){
-		console.log(data);
 		$("#user_name").text(data.user.user);
-		console.log(getUser());
 		$("#stats_rank").text(data.access.rankTitle);
 		$("#stats_uploads").text(data.uploads);
-		console.log(data.uploads)
 		var infoHashes = []
 		if(data.downloaded && data.downloaded.length > 0){
 			data.downloaded.forEach(function(infoHash){
 				if(infoHashes.indexOf(infoHash) === -1){
 					infoHashes.push(infoHash);
 				}
-				console.log(infoHash)
 			})
 
 		}
 
 		$("#stats_snatches").text(parseInt(infoHashes.length));
-		console.log(data.user.paranoia)
 		if(!data.user.paranoia){
 			$("#stats_user_uploads").text("[See Uploads]");
 			$("#stats_user_uploads").attr("href", "#user_uploads?uuid=" + ANCHOR.getParams().uuid)
@@ -138,7 +132,6 @@ function initializeUser(cb){
 			$("#buoys_h3").show()	
 			*/
 		}
-		console.log("here");
 		cb();
 		
 	})
@@ -149,13 +142,12 @@ function initializeUser(cb){
 function logout(){
 	$("body").css("cursor", "progress");
 	$.post("/logout", function(data){
-		console.log("LOGGED OUT")
 		setUser(null);
 		$("body").css("cursor", "default");
 		setAccess(null);
 		userPanel(null);
-		clearInterval(health.healthInterval);
-		initializeHealth();
+		//clearInterval(health.healthInterval);
+		//initializeHealth();
 		//initializeBuoySelect(ANCHOR.getParams().buoy);
 		ANCHOR.route("#home");
 
@@ -164,11 +156,10 @@ function logout(){
 
 function authenticateUser(){
 	$.get("/auth", function(data){
-		console.log(data.user)
 	 	setUser(data.user)
 	 	userPanel(data.user)
 		//initializeBuoySelect(ANCHOR.getParams().buoy);
-		clearInterval(health.healthInterval);
-		initializeHealth();
+		//clearInterval(health.healthInterval);
+		//initializeHealth();
  	})
 }

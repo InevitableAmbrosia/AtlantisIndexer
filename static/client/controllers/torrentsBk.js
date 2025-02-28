@@ -7,8 +7,6 @@ function initializeTorrents(table, cb) {
     $(table).destroy();
   }
   
-  
-  
   function stopScroll(e){
     if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
           e.preventDefault();
@@ -17,20 +15,23 @@ function initializeTorrents(table, cb) {
 
   $(".partial_graph").on("mouseenter", function () {
     {
+      console.log("HOV");
       window.removeEventListener("keydown", stopScroll);
       window.addEventListener("keydown", stopScroll);
     }
   });
 
   $(".partial_graph").on('mouseleave', function () {
+    console.log("NOPE")
     window.removeEventListener("keydown", stopScroll);
   });
   $(".loading").hide();
-  $("#publisherTitle span").text("Publisher");
-  $("#classTitle span").text("class")
-  $("#sourceTitle span").text("Source");
-  $("#authorTitle span").text("Author");
-  $("#userUploadsTitle span").text("User Uploads");
+  $(".loading").fadeIn()
+  $("#publisherTitle").hide();
+  $("#classTitle").hide();
+  $("#sourceTitle").hide();
+  $("#authorTitle").hide();
+  $("#userUploadsTitle").hide();
 
   
   $(".adv_plus").unbind("click");
@@ -55,7 +56,12 @@ function initializeTorrents(table, cb) {
     $(".adv_show").slideUp();
   });
 
-
+  if (ANCHOR.getParams() && ANCHOR.getParams().publisher)
+    console.log(
+      decodeURIComponent(
+        decodeEntities(decodeEntities(ANCHOR.getParams().publisher))
+      )
+    );
 
   if (ANCHOR.getParams()) {
     if (
@@ -82,6 +88,7 @@ function initializeTorrents(table, cb) {
         data.nodeUUIDs.forEach(function (uuid) {
           nodeUUIDs.push(uuid._fields[0]);
         });
+        console.log(nodeUUIDs);
         $.post(
           "/download_page",
           { all: JSON.stringify(nodeUUIDs) },
@@ -121,6 +128,8 @@ function initializeTorrents(table, cb) {
   $(".download_all_top button").click(function (e) {
     e.preventDefault();
     var that = $(this);
+    console.log(that.attr("id"));
+    console.log(top[that.attr("id")]);
     $.post(
       "/download_page",
       { all: JSON.stringify(top[that.attr("id")]) },
@@ -138,39 +147,39 @@ function initializeTorrents(table, cb) {
   });
 
   /*$("#download_class").click(function(e){
-    e.preventDefault();
-    $.post("/download_class?uuid=" + ANCHOR.getParams().uuid, function(data){
-      data.records.forEach(function(record){
-        setTimeout(function(){
-            window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+		e.preventDefault();
+		$.post("/download_class?uuid=" + ANCHOR.getParams().uuid, function(data){
+			data.records.forEach(function(record){
+				setTimeout(function(){
+						window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
 
-        },25)
-      })
-    })
-  })
+		  	},25)
+			})
+		})
+	})
 
-  $("#download_author").click(function(e){
-    e.preventDefault();
-    $.get("/download_author?uuid=" + ANCHOR.getParams().uuid, function(data){
-      data.records.forEach(function(record){
-        setTimeout(function(){
-            window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+	$("#download_author").click(function(e){
+		e.preventDefault();
+		$.get("/download_author?uuid=" + ANCHOR.getParams().uuid, function(data){
+			data.records.forEach(function(record){
+				setTimeout(function(){
+						window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
 
-        },25)
-      })
-    })
-  })
+		  	},25)
+			})
+		})
+	})
 
-  $("#download_source").click(function(e){
-    e.preventDefault();
-    $.get("/download_source?uuid=" + ANCHOR.getParams().uuid, function(data){
-      data.records.forEach(function(record){
-        setTimeout(function(){
-            window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
-        }, 25)
-      })
-    })
-  })*/
+	$("#download_source").click(function(e){
+		e.preventDefault();
+		$.get("/download_source?uuid=" + ANCHOR.getParams().uuid, function(data){
+			data.records.forEach(function(record){
+				setTimeout(function(){
+						window.location = "magnet:?xt=urn:btih:" + record._fields[0] + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+				}, 25)
+			})
+		})
+	})*/
 
   var all = [];
   var top = {
@@ -182,19 +191,8 @@ function initializeTorrents(table, cb) {
     top10_all_year: [],
     top10_all_time: [],
   };
-  
-  $("#adv_class_all").prop("checked", false);
-  $("#adv_class_any").prop("checked", true)
-  
-  if(ANCHOR.getParams() && ANCHOR.getParams.class_all){
-    
-    $("#adv_class_all").prop("checked", true);
-    $("#adv_class_any").prop("checked", false);
-  }
-  else{
-    $("#adv_class_all").prop("checked", false);
-    $("#adv_class_any").prop("checked", true);
-  }
+  $("#adv_class_all").prop("checked", true);
+  $("#adv_class_any").prop("checked", false);
   $("#adv_title").val(
     ANCHOR.getParams() && ANCHOR.getParams().title
       ? ANCHOR.getParams().title
@@ -281,6 +279,7 @@ function initializeTorrents(table, cb) {
     $("#top10_class_all").prop("checked", false);
     $("#top10_class_any").prop("checked", true);
   }
+  console.log(table);
   $.get("/advanced_search_ui", function (data) {
     $("#adv_type").empty();
     $("#adv_type").append("<option value='all'>All Types</option>");
@@ -294,11 +293,14 @@ function initializeTorrents(table, cb) {
     $("#top10_media").append("<option value='all'>All Media</option>");
     $("#top10_format").empty();
     $("#top10_format").append("<option value='all'>All Formats</option>");
+    console.log(data.buoy.types);
     data.buoy.types.forEach(function (val) {
       var option = document.createElement("option");
+      console.log(val);
       $(option).val(val);
       $(option).text(decodeEntities(decodeEntities(val)));
       var option2 = document.createElement("option");
+      console.log(val);
       $(option2).val(val);
       $(option2).text(decodeEntities(decodeEntities(val)));
       $("#adv_type").append(option);
@@ -350,19 +352,19 @@ function initializeTorrents(table, cb) {
   $("#adv_submit").click(function () {
     ANCHOR.route(
       "#torrents?search=true&title=" +
-        encodeURIComponent($("#adv_title").val()) +
+        $("#adv_title").val() +
         "&author=" +
-        encodeURIComponent($("#adv_author").val()) +
+        $("#adv_author").val() +
         "&classes=" +
         ($("#adv_classes").val()
-          ? JSON.stringify(encodeURIComponent($("#adv_classes").val()))
+          ? JSON.stringify($("#adv_classes").val())
           : "") +
         "&class_all=" +
         $("#adv_class_all").prop("checked") +
         "&publisher=" +
-        encodeURIComponent($("#adv_publisher").val()) +
+        $("#adv_publisher").val() +
         "&type=" +
-        encodeURIComponent($("#adv_type").val()) +
+        $("#adv_type").val() +
         "&media=" +
         $("#adv_media").val() +
         "&format=" +
@@ -399,39 +401,13 @@ function initializeTorrents(table, cb) {
    
   });
 
+  console.log("INTIIALIZING TORRENTS");
   var torrentsTable;
   if (torrentsTable) {
     torrentsTable.destroy();
     $("#" + table + " tbody").empty();
     //torrentsTable.draw();
   }
-
-  var hashes = []
-  var url = ""
-  if(table === "torrents"){
-    if(!ANCHOR.getParams()){
-      url = "/" + table 
-    }
-    else{
-      url = "/" + table + "/adv_search"
-    }
-  }
-  else if(table.indexOf("top10") > -1){
-    if(!ANCHOR.getParams()){
-      url = "/top10/" + table
-    }
-    else{
-      url = "/top10_adv_search/" + table;
-    }
-  }
-  else if(table === "class" || table === "author" || table === "source"){
-    url = "/" + table + "/" + ANCHOR.getParams().uuid
-  }
-  else if (table==="publisher"){
-    url = "/" + table + "/" + ANCHOR.getParams().publisher
-
-  }
-  
 
   $(document).mouseup(function (e) {
     var container = $(".seeAllField");
@@ -452,17 +428,6 @@ function initializeTorrents(table, cb) {
     serverSide: true,
     bSort: true,
     pageLength: 10,
-    "aoColumns": [
-      { "sWidth": "0%" }, // 1st column width 
-      { "sWidth": "50%" },
-      { "sWidth": "12.5%" },
-      { "sWidth": "12.5%" },
-      { "sWidth": "12.5%" },
-      { "sWidth": "12.5%" }
-
-  
-       // 3rd column width and so on 
-    ],
     processing: true,
     searching: false,
     paging: true,
@@ -473,19 +438,40 @@ function initializeTorrents(table, cb) {
         visible: false,
         searchable: false,
       },
-      {
-        target:4,
-        responsivePriority:1
-      }
     ],
     rowGroup: {
       dataSrc: 0,
       ordering: true,
       orderable: true,
     },
-    stateSave: ANCHOR.getParams() && ANCHOR.getParams().search ? false : true,
+    stateSave: true,
     ajax: {
-      url: url,
+      url:
+        ANCHOR.getParams() &&
+        ANCHOR.getParams().search &&
+        table.indexOf("top10") === -1
+          ? "/advanced_search"
+          : "/" +
+            table +
+            (table.indexOf("top10") > -1 &&
+            ANCHOR.getParams() &&
+            ANCHOR.page() !== "graph" &&
+            ANCHOR.getParams().search
+              ? "/adv_search"
+              : "") +
+            (table == "class" ||
+            table === "author" ||
+            table === "user_downloads" ||
+            table === "user_uploads" ||
+            table === "source"
+              ? "/" + ANCHOR.getParams().uuid
+              : table === "publisher"
+              ? "/" +
+                (ANCHOR.getParams() &&
+                encodeURIComponent(ANCHOR.getParams().publisher)
+                  ? encodeURIComponent(ANCHOR.getParams().publisher)
+                  : "propagate.info")
+              : ""),
       type: "POST",
       data: {
         title: ANCHOR.getParams() ? ANCHOR.getParams().title : "",
@@ -508,42 +494,75 @@ function initializeTorrents(table, cb) {
           top10_all_year: [],
           top10_all_time: [],
         };
+        console.log(data);
 
         var records = [];
+        console.log(table);
         if (data && data.data[0]) {
           switch (ANCHOR.page()) {
             case "author":
-            
-                 $("#authorTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[5].properties.author)))
-                 $(".author h4 span").text("Graph of " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.author)))
-                 
+              /*$.get(
+                "/author_author/" + ANCHOR.getParams().uuid,
+                function (data) {
+               */
+            	   $("#authorTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[5].properties.author)))
+                 $(".author h3 span").text("Now Graphing: " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.author)))
+                  /*audioModel.audio.pause();
+                  if (data.data[0]._fields[5].properties.author === "Marx, K.") {
+                    audioModel.audio = new Audio(audioModel.marx);
+
+                    audioModel.audio.play();
+                  } else if (data.data[0]._fields[5].properties.author === "Perrone, P.J.") {
+                    audioModel.audio = new Audio(audioModel.perrone);
+                    audioModel.audio.play();
+                  } else if (data.data[0]._fields[5].properties.author === "Nietzsche, F.") {
+                    audioModel.audio = new Audio(audioModel.nietzsche);
+                    audioModel.audio.play();*/
+                  
+                
+              //);
 
               break;
             case "source":
               //TODO: maybe multiple calls here
               //$.get("/source_info/" + ANCHOR.getParams().uuid, function (data) {
-                $("#sourceTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[0].properties.title)))
-                $(".source h4 span").text("Graph of " + decodeEntities(decodeEntities(data.data[0]._fields[0].properties.title)))
+             		$("#sourceTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[0].properties.title)))
+                $(".source h3 span").text("Now Graphing: " + decodeEntities(decodeEntities(data.data[0]._fields[0].properties.title)))
                 $("#addFormat").click(function () {
                   ANCHOR.route("#upload?uuid=" + ANCHOR.getParams().uuid);
                 });
-             
+               /*audioModel.audio.pause();
+
+                if (data.author === "Perrone, P.J.") {
+                  audioModel.audio = new Audio(audioModel.perrone);
+                  audioModel.audio.play();
+                } else if (
+                  data.title === "Capital" ||
+                  data.title === "The Communist Manifesto"
+                ) {
+                  audioModel.audio = new Audio(audioModel.marx);
+                  audioModel.audio.play();
+                } else if (data.author === "Nietzsche, F.") {
+                  audioModel.audio = new Audio(audioModel.nietzsche);
+                  audioModel.audio.play();
+                }*/
                 ANCHOR.buffer();
               //});
               break;
 
             case "class":
-              $("#classTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[5].properties.name)))
-              $(".class h4 span").text("Graph of " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.name)))
+             	$("#classTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[5].properties.name)))
+              $(".class h3 span").text("Now Graphing: " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.name)))
               
               break;
             case "user_uploads":
+              console.log(data);
               
               break;
 
             case "publisher":
               $("#publisherTitle span").text(decodeEntities(decodeEntities(data.data[0]._fields[5].properties.publisher)))
-              $(".publisher h4 span").text("Graph of " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.publisher)))
+              $(".publisher h3 span").text("Now Graphing: " + decodeEntities(decodeEntities(data.data[0]._fields[5].properties.publisher)))
               
               break;
           }
@@ -570,6 +589,7 @@ function initializeTorrents(table, cb) {
               "</a>";
           });
 
+          //var publishersArray = record._fields[2].publishers;
 
           var dateField = "";
           if (record._fields[0] && record._fields[0].properties.date) {
@@ -611,13 +631,14 @@ function initializeTorrents(table, cb) {
 
           var sourceIMG = "";
 
+          console.log("TO ADD EDITIONS");
 
           var numPeers = 0;
           var top10Table = table;
           record._fields[2].forEach(function (edition) {
             var table =
-              "<table class='torrentsTable'><thead><th>Format</th><th>Snatches</th>" +
-              "<th>Download</th></tr></thead><tbody><tr>";
+              "<table class='torrentsTable'><thead><th>Media</th><th>Format</th><th>Download!</th><th>Snatches</th>" +
+              "<th>Time</th><th>Booty ($LINK)</th></tr></thead><tbody><tr>";
 
             if (edition.torrent) {
               if (
@@ -627,13 +648,8 @@ function initializeTorrents(table, cb) {
                 sourceIMG = "img/ebook.png";
               } else if (record._fields[0].properties.type === "Fiction") {
                 sourceIMG =
-                  "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA0L2pvYjY3Ni0wNjQtcC5wbmc.jpeg?v=1740590934737"
-              }
-              else if(record._fields[0].properties.type === "Children Book"){
-                sourceIMG =  "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-book-icon-download-in-svg-png-gif-file-formats--wings-rainbow-flat-line-universal-elements-pack-miscellaneous-icons-453725.png?v=1732213182852";
-                
-              }
-              else if (record._fields[0].properties.type === "Chant") {
+                  "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-book-icon-download-in-svg-png-gif-file-formats--wings-rainbow-flat-line-universal-elements-pack-miscellaneous-icons-453725.png?v=1732213182852";
+              } else if (record._fields[0].properties.type === "Chant") {
                 sourceIMG =
                   "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/Screenshot%20from%202025-01-31%2020-05-18.png?v=1738371956788";
               } else if (record._fields[0].properties.type === "Poetry") {
@@ -683,11 +699,7 @@ function initializeTorrents(table, cb) {
               } else if (record._fields[0].properties.type === "Holy Book") {
                 sourceIMG =
                   "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/9ep0slh40v_8hw3mlx3u_vc016521.png?v=1732211944109";
-              }
-              else if(record._fields[0].properties.type === "Encyclopedia"){
-                sourceIMG = "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L2pvYjcxNi0wNDIuanBn.jpg?v=1740177190686"
-              }
-              else {
+              } else {
                 sourceIMG =
                   "https://cdn.glitch.global/ae615eaa-fa44-4c56-8e49-a21afe3e2c54/free-file-download-3490087-2924583.png?v=1718726937968";
               }
@@ -713,6 +725,7 @@ function initializeTorrents(table, cb) {
                         data.items[0].volumeInfo.publishedDate ===
                           record._fields[0].properties.date)
                     ) {
+                      console.log(data.items[0].volumeInfo);
                       sourceIMG =
                         data.items[0].volumeInfo.imageLinks.smallThumbnail;
                       $.post(
@@ -736,6 +749,7 @@ function initializeTorrents(table, cb) {
                               )[0]
                             : ""),
                         function (data) {
+                          console.log(data);
                           if (data.cover && data.cover["1x"]) {
                             sourceIMG = data.cover["1x"];
                             $(
@@ -755,8 +769,9 @@ function initializeTorrents(table, cb) {
                     : sourceIMG;
               }
 
+              console.log(edition);
 
-              /*function toNumber({ low, high }) {
+              function toNumber({ low, high }) {
                 let res = high;
 
                 for (let i = 0; i < 32; i++) {
@@ -764,10 +779,11 @@ function initializeTorrents(table, cb) {
                 }
 
                 return low + res;
-              }*/
+              }
 
               if (edition.edition) {
                 edition.edition.properties.numPeers = 0;
+                console.log(edition.torrent.numPeers);
 
                 edition.edition.properties.numPeers += edition.torrent.numPeers
                   ? edition.torrent.numPeers
@@ -848,6 +864,7 @@ function initializeTorrents(table, cb) {
                         (record._fields[0].properties.type !== "Journal"
                           ? ". "
                           : ", ");
+                      console.log(record._fields[0].properties.type);
                     }
                   }
                   if (record._fields[0].properties.type === "Journal") {
@@ -884,12 +901,15 @@ function initializeTorrents(table, cb) {
                   }
                 }
                 //add torrents
+                console.log(edition.torrent.USD_price);
                 if (all.indexOf(edition.torrent.uuid === -1)) {
                   all.push(edition.torrent.uuid);
                 }
-                
+                console.log(all);
+                console.log(top10Table);
                 switch (top10Table) {
                   case "top10_active":
+                    console.log(top);
                     top["top10_all_active"].push(edition.torrent.uuid);
                     break;
                   case "top10_day":
@@ -900,52 +920,106 @@ function initializeTorrents(table, cb) {
                     break;
                   case "top10_month":
                     top["top10_all_month"].push(edition.torrent.uuid);
-                    break;                 
+                    break;
+                  case "top10_trinity":
+                    top["top10_all_trinity"].push(edition.torrent.uuid);
+                    break;
                   case "top10_year":
                     top["top10_all_year"].push(edition.torrent.uuid);
                     break;
-                  
+                  case "top10_alltime":
+                    top["top10_all_time"].push(edition.torrent.uuid);
+                    break;
                 }
-
-                if(ANCHOR.page() === "top10" || hashes.indexOf(edition.torrent.infoHash) === -1){
-
-                  hashes.push(edition.torrent.infoHash)
-                  var tr = "<tr>";
-                  tr += "<td>" + edition.torrent.format + "</td>";          
-                  
-                  tr +=
-                    "<td class='light'><p>" +
-                    edition.torrent.snatches +
-                    "</p></td>";
-               /*   tr +=
-                    "<td class='here'>" +
-                    timeSince(edition.torrent.created_at) +
-                    " ago</td>";*/
-                  tr +=
-                    "<td><a class='infoHash" +
-                    "' href='magnet:?xt=urn:btih:" +
-                    edition.torrent.infoHash + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337'" +
-                    "id='edition_" +
-                    edition.edition.properties.uuid +
-                    "' data-torrent-uuid = '" +
-                    edition.torrent.uuid +
-                    "' data-infohash='" + edition.torrent.infoHash +
-                    "'>[Magnet]</a></td>"
-                  /*&nbsp;" + 
-                    "<a href='#torrent?uuid=" + edition.torrent.uuid + "' id='add_torrent_tab' data-infohash='" + edition.torrent.infoHash +
-                    "' data-title='" + record._fields[0].properties.title + "' class='ANCHOR torrent stream' href='#torrent?uuid=" + edition.torrent.uuid +
-                    "' data-torrent-uuid = '" + edition.torrent.uuid + 
-                     "'>[WebTorrent]</a></td>"*/
-                 
-                  tr += "</tr>";
-                  table += tr;
+                console.log(edition.torrent.uuid);
+                if (
+                  edition.torrent.uuid ===
+                  "45d2f28a-ffa9-4e55-8297-b9b43a78e81f"
+                ) {
                 }
+                console.log(edition.torrent.copyrighted);
+                var tr = "<tr>";
+                tr += "<td>" + edition.torrent.media + "</td>";
+                tr += "<td>" + edition.torrent.format + "</td>";
+                tr +=
+                  "<td><a class='infoHash" +
+                  "' data-infohash='" +
+                  edition.torrent.infoHash +
+                  "' href='magnet:?xt=urn:btih:" +
+                  edition.torrent.infoHash +
+                  "' id='edition_" +
+                  edition.edition.properties.uuid +
+                  "' data-torrent-uuid = '" +
+                  edition.torrent.uuid +
+                  " '>[MagnetURI]</a>&nbsp;&nbsp;" +
+                  "<a id='add_torrent_tab' data-infohash='" +
+                  edition.torrent.infoHash +
+                  "' data-title='" +
+                  record._fields[0].properties.title +
+                  "' class='torrent stream' href='#torrent?uuid=" +
+                  edition.torrent.uuid +
+                  "' data-torrent-uuid = '" +
+                  edition.torrent.uuid +
+                  "'>[WebTorrent]</a></td><a class='queryInfoHash' id='infoHash_" +
+                  edition.torrent.uuid +
+                  "' data-torrent-uuid='" +
+                  edition.torrent.uuid +
+                  "' href='#'>[infoHash]</a></td>";
                 
+                /*tr +=
+                  "<td id='" +
+                  edition.torrent.uuid +
+                  "'><a class='queryInfoHash' id='infoHash_" +
+                  edition.torrent.uuid +
+                  "' data-torrent-uuid='" +
+                  edition.torrent.uuid +
+                  "' href='#'>[Copy infoHash]</a></td>";*/
+                 //table += "<td>" + humanFileSize(torrent.properties.length) + "</td>"
+                //tr += "<td class='light'><p>" + (edition.torrent.numPeers ? edition.torrent.numPeers : 0) + "</p></td>"
+                tr +=
+                  "<td class='light'><p>" +
+                  edition.torrent.snatches +
+                  "</p></td>";
+                tr +=
+                  "<td class='here'>" +
+                  timeSince(edition.torrent.created_at) +
+                  " ago</td>";
+                tr +=
+                  "<td class='donate'>" +
+                  (edition.torrent.ETH_address && edition.torrent.copyrighted
+                    ? "<button class='web3' data-info-hash='" +
+                      (edition.torrent.USD_price > 0
+                        ? "Protected."
+                        : edition.torrent.infoHash) +
+                      "' data-curator-address='" +
+                      edition.torrent.ETH_address +
+                      "'" +
+                      "data-booty='" +
+                      (edition.torrent.USD_price <= 0 ? true : false) +
+                      "'" +
+                      "data-torrent-uuid='" +
+                      edition.torrent.uuid +
+                      "'>" +
+                      "$" +
+                      parseFloat(edition.torrent.USD_price).toFixed(2) +
+                      "</button>"
+                    : "Public Domain.") +
+                  "</td>";
+                /*tr +=
+                  "<td><a class='ANCHOR user' id='uptight' href='#user?uuid=" +
+                  edition.torrent.uploaderUUID +
+                  "'>" +
+                  edition.torrent.uploaderUser +
+                  "</a></td>";*/
+                tr += "</tr>";
+                table += tr;
 
+                console.log(edition.edition.properties.uuid);
                 if (
                   editionsAdded.indexOf(edition.edition.properties.uuid) === -1
                 ) {
                   editionsAdded.push(edition.edition.properties.uuid);
+                  console.log(edition.edition.properties.snatches)
                   records[
                     editionsAdded.indexOf(edition.edition.properties.uuid)
                   ] = [
@@ -964,9 +1038,7 @@ function initializeTorrents(table, cb) {
                       "<div class='tableHeading'><a id='sourceTab' class='ANCHOR source' href='#source?uuid=" +
                       record._fields[0].properties.uuid +
                       "'>" +
-                      ($(window).width() > 1079 ? (record._fields[0].properties.title.length > 226 ? decodeEntities(record._fields[0].properties.title.substring(0,225) + "..."): decodeEntities(record._fields[0].properties.title)) : decodeEntities(record._fields[0].properties.title).substring(0,75) +
-                      (record._fields[0].properties.title.length > 76 ? "..." : "")) +
-                      
+                      decodeEntities(record._fields[0].properties.title) +
                       "</a>" +
                       dateField +
                       authorField +
@@ -982,12 +1054,12 @@ function initializeTorrents(table, cb) {
                     edition.edition.properties.snatches,
                     // edition.edition.properties.numPeers,
                     "<span id='edition_date'>" +
-                      (edition.edition.properties.date && edition.edition.properties.date !== "undefined" &&
+                      (edition.edition.properties.date &&
                       edition.edition.properties.date !==
                         record._fields[0].properties.date
                         ? record._fields[0].properties.date +
                           "/" +
-                           edition.edition.properties.date
+                          edition.edition.date
                         : record._fields[0].properties.date) +
                       "</span>",
 
@@ -995,7 +1067,11 @@ function initializeTorrents(table, cb) {
                     table,
                   ];
                 } else {
-                  
+                  console.log(
+                    records[
+                      editionsAdded.indexOf(edition.edition.properties.uuid)
+                    ]
+                  );
 
                   records[
                     editionsAdded.indexOf(edition.edition.properties.uuid)
@@ -1004,7 +1080,9 @@ function initializeTorrents(table, cb) {
                       editionsAdded.indexOf(edition.edition.properties.uuid)
                     ][5].slice(0, -16) + tr;
                 }
+                console.log(editionsAdded, edition.edition.properties.uuid);
 
+                console.log(records);
               }
             }
           });
@@ -1015,40 +1093,195 @@ function initializeTorrents(table, cb) {
     },
     drawCallback: function () {
       
-      
+      console.log("DRAW CALLBACK")
+      $(document).on("click", "#seeAll", function (e) {
+        e.preventDefault();
+        $("#seeAll").hide();
+        $(".seeAllField").show();
+      });
 
-      $(document).off("click", ".infoHash");
+      $(document).off("click", ".web3");
+
+      $(document).on("click", ".web3", async function (e) {
+        e.preventDefault();
+        initPayButton($(this));
+      });
+
+      $(document).off("click", ".web30");
+
+      $(document).on("click", ".web30", async function (e) {
+        e.preventDefault();
+        initPayButton($(this));
+      });
+
+      $(document).unbind("click", ".infoHash");
 
       $(document).on("click", ".infoHash", function (e) {
-       
-        $.post("/snatched/" + $(this).data('infohash'));
-        console.log($(this).data("infohash"))
-        
-      });
-      
-      $(document).on("contextmenu", ".infoHash", function(e){
-        $.post("/snatched/" + $(this).data('infohash'));
-        console.log($(this).data("infohash"))
-        
+        e.preventDefault();
+        var that = $(this);
+
+        console.log(that.data("torrent-uuid"));
+        $.get("/infoHash/" + $(this).data("torrent-uuid"), function (data) {
+          console.log(that.attr("id") + "_field");
+          console.log($("#" + that.attr("id") + "_field").text());
+
+          if (data.free) {
+            console.log($("#" + that.attr("id") + "_field").text());
+            //magnet_uri = "magnet:?dn=" + $("#" + that.attr("id") + "_field").text()  + "&xt=urn:btih:" + data.free + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+            magnet_uri =
+              "magnet:?xt=urn:btih:" +
+              data.free +
+              "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337";
+
+            window.location = magnet_uri;
+            //that.attr("href", "magnet:?dn=" + $("#" +that.attr("id") + "_field").text()  + "&xt=urn:btih:" + data.free + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337")
+            that.attr(
+              "href",
+              "magnet:?xt=urn:btih:" +
+                data.free +
+                "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+            );
+
+            $.post("/snatched/" + data.free);
+          } else if (data.prem) {
+            //magnet_uri = "magnet:?magnet:?dn=" + $("#" + that.attr("id") + "_field").text()  + "&xt=urn:btih:" + data.prem + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+            magnet_uri =
+              "magnet:?xt=urn:btih:" +
+              data.prem +
+              "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337";
+
+            window.location = magnet_uri;
+            //that.attr("href", "magnet:?dn=" + $("#" + that.attr("id") + "_field").text()  + "&xt=urn:btih:" + data.prem + "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337")
+            that.attr(
+              "href",
+              "magnet:?xt=urn:btih:" +
+                data.prem +
+                "&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337"
+            );
+
+            $.post("/snatched/" + data.prem);
+          } else {
+            alert("Please purchase torrent infoHash first!");
+          }
+        });
       });
 
-     
+      var that = $(this);
+      $(document).off("click", ".stream");
 
+      $(document).on("click", ".stream", function (e) {
+        var uuid = $(this).data("torrent-uuid");
+        $.get("/infoHash/" + uuid, function (data) {
+          if (!data.free && !data.prem) {
+            alert("Please purchase Torrent infoHash first!");
+            return;
+          }
+          ANCHOR.route("#torrent?uuid=" + uuid);
+        });
+      });
+
+      $(document).off("click", ".queryInfoHash");
+
+      $(document).on("click", ".queryInfoHash", function (e) {
+        e.preventDefault();
+        console.log($(this).data("torrent-uuid"));
+        var that = $(this);
+        $.get("/infoHash/" + $(this).data("torrent-uuid"), function (data) {
+          if (data.free) {
+            copyToClipboard(data.free);
+            that.text(data.free);
+            $.post("/snatched/" + data.free);
+          } else if (data.prem) {
+            copyToClipboard(data.prem);
+            that.text(data.prem);
+            $.post("/snatched/" + data.prem);
+          } else {
+            alert("Please purchase torrent infoHash first!");
+          }
+        });
+      });
+
+      function copyToClipboard(infoHash) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(infoHash).select();
+        document.execCommand("copy");
+        $temp.remove();
+      }
+
+      $(document).on("change", ".donateInput", function () {
+        $(this).next().data("yarrr", $(this).val());
+      });
+
+      $(document).on("click", "#add_torrent_tab", function (e) {
+        e.preventDefault();
+        //addTorrentTab($(this).data("title"), $(this).data("infohash"));
+      });
 
       cb();
-    },
-   
-  })
-  
-  setTimeout(function(){
-    $(".infoHash").text("[Magnet]")
-  },3000)
-  
-  $(window).on('resize', function(){
-    $(".infoHash").text("[Magnet]")
-    
+    }
   })
   //$('th').unbind('click.DT')
 }
 
+function humanFileSize(bytes, si = false, dp = 1) {
+  const thresh = si ? 1000 : 1024;
 
+  if (Math.abs(bytes) < thresh) {
+    return bytes + " B";
+  }
+
+  const units = si
+    ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+  let u = -1;
+  const r = 10 ** dp;
+
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (
+    Math.round(Math.abs(bytes) * r) / r >= thresh &&
+    u < units.length - 1
+  );
+
+  return bytes.toFixed(dp) + " " + units[u];
+}
+
+function toNumber({ low, high }) {
+  let res = high;
+
+  for (let i = 0; i < 32; i++) {
+    res *= 2;
+  }
+
+  return low + res;
+}
+
+function timeSince(date) {
+  var seconds = Math.floor((new Date() - date) / 1000);
+
+  var interval = seconds / 31536000;
+
+  if (interval > 1) {
+    return Math.floor(interval) + " years";
+  }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + " months";
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + " days";
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + " hours";
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes";
+  }
+  return Math.floor(seconds) + " seconds";
+}
+var aDay = 24 * 60 * 60 * 1000;

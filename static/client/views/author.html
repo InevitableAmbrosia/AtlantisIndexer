@@ -1,16 +1,23 @@
 <div class="titleBreak">
-	<h2 id="authorTitle"></h2>
+	<h2 id="authorTitle"><span>Author</span></h2>
+  <h2 class="loading">
+    Loading...!
+  </h2>
 </div>
-<div class="download_all">
-	<button id="download_author">Download Page</button>
+<button id="recommend_author" class="recommend">Recommendation</button>
+<div class="partial_graph">
+  
+  <div id="author_g">
+  </div>
 </div>
-<button id="recommend_author" class="recommend">Recommendation!</button>
+
 <table width="100%" id="author">
 	<thead>
 		<tr>
 			<th>Source / Date / Author</th> <!--hidden column header !-->
-			<th>APA Citation</th> <!--edition !-->
+      <th>APA Citation</th> <!--edition !-->
 			<th>Snatches</th>
+      <th>Date</th>
 			<th>Time</th>
 			<th class="none torrents"></th> <!-- hidden responsive + !-->
 		</tr>
@@ -18,3 +25,4 @@
 	<tbody>
 	</tbody>
 </table>
+

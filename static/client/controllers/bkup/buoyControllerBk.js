@@ -52,6 +52,7 @@ function initializeBuoy(cb){
     
   })
   
+  console.log("HARBOR");
   $.get("/home?user="+ (getUser() ? getUser().uuid : null), function(data){
     /*$("#stats_featured").append("<a href='#source?uuid=" + data.source.properties.uuid + "' class='ANCHOR source'>" +
      data.source.properties.title + "</a><br><br><a href='#source?uuid=" + data.source1.properties.uuid + "' class='ANCHOR source'>" + data.source1.properties.title +
@@ -66,12 +67,15 @@ function initializeBuoy(cb){
     setAccess(data.access);
     var buoy = data.buoy
     var access = getAccess();
-    
+    console.log(data);
+    console.log(access);
     if(access){
       if(access.rankTitle === "Philosopher King" || access.rankTitle === "Gold" || access.rankTitle === "Guardian"){
         $("#buoy_preferences").show();
       }
+      console.log(getUser())
       if(access.description){
+        console.log("ACCESS")
 
         $("#edit_buoy_description").show();
       }
@@ -146,6 +150,7 @@ function initializeEditBuoy(cb){
   $("#add_media_buoy").empty();
   $("#add_formats_buoy").empty();
   $.get("/upload_structure", function(data){
+    console.log(data);
     data.buoy.types.forEach(function(val){
       populate("add_types", decodeEntities(decodeEntities(val)));
     })
@@ -159,7 +164,7 @@ function initializeEditBuoy(cb){
 
   })
 }
-/*
+
 async function donate(){
   if (window.ethereum) {
         window.web3 = new Web3(ethereum);
@@ -176,7 +181,10 @@ async function donate(){
           return;
          // $('#status').html('User denied account access', err)
         }
-     else {
+     /* } else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider)
+        initPayButton()
+      */} else {
         alert("Connect a Metamask wallet to use dAPp features!!!!")
           $(".web3").prop("disabled", false)
         
@@ -247,7 +255,33 @@ async function donate(){
 
         alert("Your donation has been successfully sent! Thank you for your contribution to the Public Domain. Transaction hash: " + transactionHash)
 
-           
+        /*const suggestion_gas = await web3.eth.getGasPrice();
+        console.log(convertedAmount);
+        let value = web3.utils.toWei(parseFloat(convertedAmount.toFixed(4)), "ether");
+        const estimate_gas = await web3.eth.estimateGas({
+            'from': account,
+            'to': curatorAddress
+         
+        });
+        let rawTx = {
+            'gasPrice': web3.utils.toHex(suggestion_gas),
+            'gasLimit': web3.utils.toHex(estimate_gas),
+            "from" : account,
+           // "nonce" : web3.utils.toHex(transCount),
+            "to": curatorAddress,
+            "value" : value,
+        }
+        web3.eth.sendTransaction(rawTx).once('transactionHash', function (hash) {
+          transactionHash1 = hash;
+        }).on("sent", function(){
+          sentTransaction();
+        }).on('receipt', function(receipt){
+          console.log("receipt:" + receipt);
+          procReceipt(transactionHash1);
+        }).on('error', function (error) {
+          $(".web3").prop("disabled", false)
+          transErr(err);
+        })              */      
     }).on('error', function (error) {
       $(".web3").prop("disabled", false)
       transErr(error);
@@ -528,4 +562,3 @@ async function donate(){
         type: "function",
       },
     ]
-    */
